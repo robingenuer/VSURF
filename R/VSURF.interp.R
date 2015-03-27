@@ -31,15 +31,17 @@
 #' @param nfor.interp Number of forests grown.
 #' @param nsd Number of times the standard deviation of the minimum value of
 #' \code{err.interp} is multiplied. See details below.
+#' @param para A logical indicating if you want VSURF to run in parallel on
+#' multiple cores (default to FALSE).
+#' @param ncores Number of cores to use. Default is set to the number of cores
+#' detected by R minus 1.
 #' @param clusterType Type of the multiple cores cluster used to run VSURF in
 #' parallel. Must be chosen among "PSOCK" (default: SOCKET cluster available
 #' locally on all OS), "FORK" (local too, only available for Linux and Mac OS)
 #' and "MPI" (can be used on a remote cluster, which needs \code{snow} and
-#' \code{Rmpi} packages installed)
-#' @param ncores Number of cores to use. Default is set to the number of cores
-#' detected by R minus 1.
+#' \code{Rmpi} packages installed).
 #' @param ...  others parameters to be passed on to the \code{randomForest}
-#' function (see ?randomForest for further information)
+#' function (see ?randomForest for further information).
 #' 
 #' @return An object of class \code{VSURF.interp}, which is a list with the
 #' following components:
@@ -94,14 +96,21 @@
 #' @rdname VSURF.interp
 #' @method VSURF.interp default
 #' @export
-VSURF.interp.default <- function(x, y, vars, nfor.interp=25, nsd=1, ...) {
+VSURF.interp.default <- function(
+  x, y, vars, nfor.interp=25, nsd=1, para=FALSE,
+  ncores=detectCores()-1, clusterType="PSOCK",  ...) {
   
   # vars: selected variables indices after thresholding step
   # nfor.interp: number of forests to estimate each model
   # nsd: number of standard deviation: the selected model leads to an OOB error
   # smaller than the min error + nsd * (sd of the min error)
-
+  
   start <- Sys.time()
+  
+  if (!para) {
+    clusterType <- NULL
+    ncores <- NULL
+  }  
   
   # determinination the problem type: classification or regression
   # (code gratefully stolen from randomForest.default function of randomForest package)
@@ -123,37 +132,121 @@ VSURF.interp.default <- function(x, y, vars, nfor.interp=25, nsd=1, ...) {
   n <- nrow(x)
   err.interp <- rep(NA, nvars)
   sd.interp <- rep(NA, nvars)
+ 
+  if (!para) {  
+    for (i in 1:nvars){
+      rf <- rep(NA, nfor.interp)
+      u <- vars[1:i]
+      w <- x[,u, drop=FALSE]
+      if (type=="classif") {
+        if (i <= n) {
+          for (j in 1:nfor.interp) {
+            rf[j] <- tail(randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
+          }
+        }
+        else {
+          for (j in 1:nfor.interp) {
+            rf[j] <- tail(randomForest(x=w, y=y, ntree=1000, mtry=i/3, ...)$err.rate[,1], n=1)
+          }
+        }
+      }
+      if (type=="reg") {
+        if (i <= n) {
+          for (j in 1:nfor.interp) {
+            rf[j] <- tail(randomForest(x=w, y=y, ...)$mse, n=1)
+          }
+        }
+        else {
+          for (j in 1:nfor.interp) {
+            rf[j] <- tail(randomForest(x=w, y=y, ntree=1000, ...)$mse, n=1)
+          }
+        }
+      }
+      err.interp[i] <- mean(rf)
+      sd.interp[i] <- sd(rf)
+    }
+  }  
   
-  for (i in 1:nvars){
-    rf <- rep(NA, nfor.interp)
-    u <- vars[1:i]
-    w <- x[,u, drop=FALSE]
-    if (type=="classif") {
+  else {  
+    rf.interp.classif <- function(i, ...) {
+      rf <- rep(NA, nfor.interp)
+      u <- vars[1:i]
+      w <- x[,u, drop=FALSE]
+      
       if (i <= n) {
         for (j in 1:nfor.interp) {
           rf[j] <- tail(randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
         }
       }
+      
       else {
         for (j in 1:nfor.interp) {
           rf[j] <- tail(randomForest(x=w, y=y, ntree=1000, mtry=i/3, ...)$err.rate[,1], n=1)
         }
       }
+      out <- c(mean(rf), sd(rf))
     }
-    if (type=="reg") {
+    
+    rf.interp.reg <- function(i, ...) {
+      rf <- rep(NA, nfor.interp)
+      u <- vars[1:i]
+      w <- x[,u, drop=FALSE]
+      
       if (i <= n) {
         for (j in 1:nfor.interp) {
           rf[j] <- tail(randomForest(x=w, y=y, ...)$mse, n=1)
         }
       }
+      
       else {
         for (j in 1:nfor.interp) {
           rf[j] <- tail(randomForest(x=w, y=y, ntree=1000, ...)$mse, n=1)
         }
       }
+      out <- c(mean(rf), sd(rf))
     }
-    err.interp[i] <- mean(rf)
-    sd.interp[i] <- sd(rf)
+    
+    ncores <- min(nvars, ncores)
+    
+    if (clusterType=="FORK") {
+      if (type=="classif") {
+        res <- mclapply(X=1:nvars, FUN=rf.interp.classif, ..., mc.cores=ncores,
+                        mc.preschedule=FALSE)
+      }
+      
+      if (type=="reg") {
+        res <- mclapply(X=1:nvars, FUN=rf.interp.reg, ..., mc.cores=ncores,
+                        mc.preschedule=FALSE)
+      }
+      
+    }
+    
+    else {
+      
+      clust <- makeCluster(spec=ncores, type=clusterType)
+      registerDoParallel(clust)
+      
+      #   i <- NULL #to avoid check NOTE...
+      
+      if (type=="classif") {
+        res <- foreach(i=1:nvars, .packages="randomForest") %dopar% {
+          out <- rf.interp.classif(i, ...)
+        }
+      }
+      
+      if (type=="reg") {
+        res <- foreach(i=1:nvars, .packages="randomForest") %dopar% {
+          out <- rf.interp.reg(i, ...)
+        }
+      }
+      
+      stopCluster(clust)
+    }
+    
+    for (i in 1:nvars) {
+      err.interp[i] <- res[[i]][1]
+      sd.interp[i] <- res[[i]][2]
+    }
   }
   
   var.min <- which.min(err.interp)
@@ -161,22 +254,25 @@ VSURF.interp.default <- function(x, y, vars, nfor.interp=25, nsd=1, ...) {
   
   nvarselect <- min( which(err.interp <= (err.interp[var.min] + nsd*sd.min)) )
   varselect <- vars[1:nvarselect]
-
+  
   cl <- match.call()
   cl[[1]] <- as.name("VSURF.interp")
-
+  
   comput.time <- Sys.time()-start
-
+  
   output <- list('varselect.interp'=varselect,
                  'err.interp'=err.interp,
                  'sd.min'=sd.min,
                  'num.varselect.interp'=nvarselect,
                  'varselect.thres' = vars,
                  'comput.time'=comput.time,
+                 'clusterType'=clusterType,
+                 'ncores'=ncores,
                  'call'=cl)
   class(output) <- "VSURF.interp"
   output
 }
+
 
 
 #' @rdname VSURF.interp

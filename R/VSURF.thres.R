@@ -33,15 +33,17 @@
 #' @param nfor.thres Number of forests grown.
 #' @param nmin Number of times the "minimum value" is multiplied to set
 #' threshold value. See details below.
+#' @param para A logical indicating if you want VSURF to run in parallel on
+#' multiple cores (default to FALSE).
+#' @param ncores Number of cores to use. Default is set to the number of cores
+#' detected by R minus 1.
 #' @param clusterType Type of the multiple cores cluster used to run VSURF in
 #' parallel. Must be chosen among "PSOCK" (default: SOCKET cluster available
 #' locally on all OS), "FORK" (local too, only available for Linux and Mac OS)
 #' and "MPI" (can be used on a remote cluster, which needs \code{snow} and
-#' \code{Rmpi} packages installed)
-#' @param ncores Number of cores to use. Default is set to the number of cores
-#' detected by R minus 1.
+#' \code{Rmpi} packages installed).
 #' @param ...  others parameters to be passed on to the \code{randomForest}
-#' function (see ?randomForest for further information)
+#' function (see ?randomForest for further information).
 #' 
 #' @return An object of class \code{VSURF.thres}, which is a list with the
 #' following components:
@@ -104,16 +106,24 @@
 #' @rdname VSURF.thres
 #' @method VSURF.thres default
 #' @export VSURF.thres.default
-VSURF.thres.default <- function(x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
-                        nfor.thres=50, nmin=1, ...) {
-
+VSURF.thres.default <- function(
+  x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1), nfor.thres=50, nmin=1,
+  para=FALSE, clusterType="PSOCK", ncores=detectCores()-1, ...) {
+  
   # x: input
   # y: output
   # nfor.thres: number of forests to compute the mean importance of variables (IV)
   # nmin: thresholding parameter (if this procedure step keeps too much variables,
   # this value can be increased, e.g. to 3 or 5)
-
+  
   start <- Sys.time()
+  
+  if (!para) {
+    clusterType <- NULL
+    ncores <- NULL
+  }
+  
+  ncores <- min(nfor.thres, ncores)
   
   # determinination the problem type: classification or regression
   # (code gratefully stolen from randomForest.default function of randomForest package)
@@ -141,23 +151,74 @@ VSURF.thres.default <- function(x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
   
   # filling of matrix m by running nfor.thres forests and keeping IV
   # filling of perf with the nfor.thres forests OOB errors
-  if (type=="classif") {
-    for (i in 1:nfor.thres){
-      rf <- randomForest(x=x, y=y, ntree=ntree, mtry=mtry, importance=TRUE, ...)
-      #rfmem=c(rfmem,list(rf))
-      m[i,] <- rf$importance[, length(levels(y))+1]
-      perf[i] <- tail(rf$err.rate[,1], n=1)
+  
+  rf.classif <- function(i, ...) {
+    rf <- randomForest(x=x, y=y, ntree=ntree, mtry=mtry, importance=TRUE, ...)
+    m <- rf$importance[, length(levels(y))+1]
+    perf <- tail(rf$err.rate[,1], n=1)
+    out <- list(m=m, perf=perf)
+  }
+  
+  rf.reg <- function(i, ...) {
+    rf <- randomForest(x=x, y=y, ntree=ntree, mtry=mtry, importance=TRUE, ...)
+    m <- rf$importance[, 1]
+    perf <- tail(rf$mse, n=1)
+    out <- list(m=m, perf=perf)
+  }
+  
+  if (!para) {
+    if (type=="classif") {
+      for (i in 1:nfor.thres){
+        rf <- randomForest(x=x, y=y, ntree=ntree, mtry=mtry, importance=TRUE, ...)
+        #rfmem=c(rfmem,list(rf))
+        m[i,] <- rf$importance[, length(levels(y))+1]
+        perf[i] <- tail(rf$err.rate[,1], n=1)
+      }
+    }
+    if (type=="reg") {
+      for (i in 1:nfor.thres){
+        rf <- randomForest(x=x, y=y, ntree=ntree, mtry=mtry, importance=TRUE, ...)
+        #rfmem=c(rfmem,list(rf))
+        m[i,] <- rf$importance[, 1]
+        perf[i] <- tail(rf$mse, n=1)
+      }
     }
   }
-  if (type=="reg") {
-    for (i in 1:nfor.thres){
-      rf <- randomForest(x=x, y=y, ntree=ntree, mtry=mtry, importance=TRUE, ...)
-      #rfmem=c(rfmem,list(rf))
-      m[i,] <- rf$importance[, 1]
-      perf[i] <- tail(rf$mse, n=1)
+  
+  else {
+    if (clusterType=="FORK") {
+      if (type=="classif") {
+        res <- mclapply(X=1:nfor.thres, FUN=rf.classif, ..., mc.cores=ncores)
+      }
+      if (type=="reg") {
+        res <- mclapply(X=1:nfor.thres, FUN=rf.reg, ..., mc.cores=ncores)
+      }
     }
-  }
     
+    else {
+      clust <- makeCluster(spec=ncores, type=clusterType)
+      registerDoParallel(clust)
+      
+      if (type=="classif") {
+        res <- foreach(i=1:nfor.thres, .packages="randomForest") %dopar% {
+          out <- rf.classif(i, ...)
+        }
+      }
+      
+      if (type=="reg") {
+        res <- foreach(i=1:nfor.thres, .packages="randomForest") %dopar% {
+          out <- rf.reg(i, ...)
+        }
+      }
+      stopCluster(clust)
+    }
+    
+    for (i in 1:nfor.thres) {
+      m[i,] <- res[[i]]$m
+      perf[i] <- res[[i]]$perf
+    }
+  }
+  
   # ord.imp contains the IV means in decreasing order
   ord.imp <- sort( colMeans(m), index.return=TRUE, decreasing=TRUE)
   
@@ -167,7 +228,7 @@ VSURF.thres.default <- function(x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
   # ord.sd contains IV standard deviations of all variables sorted according to ord.imp
   sd.imp <- apply(m, 2, sd)
   ord.sd <- sd.imp[ord.imp$ix]
-    
+  
   # particular case where x has only one variable
   s <- NULL
   if (ncol(as.matrix(x))==1) {
@@ -176,9 +237,9 @@ VSURF.thres.default <- function(x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
   else {
     p <- ncol(x)
     u <- data.frame(ord.sd, 1:p)
-        
+    
     # estimation of the standard deviations curve with CART (using "rpart" package)
-
+    
     # construction of the maximal tree and search of optimal complexity
     tree <- rpart(ord.sd ~., data=u, control=rpart.control(cp=0, minsplit=2))
     d <- tree$cptable
@@ -210,7 +271,7 @@ VSURF.thres.default <- function(x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
   
   cl <- match.call()
   cl[[1]] <- as.name("VSURF.thres")
-
+  
   comput.time <- Sys.time()-start
   
   output <- list('varselect.thres'=varselect.thres,
@@ -223,6 +284,8 @@ VSURF.thres.default <- function(x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
                  'pred.pruned.tree'=pred.pruned.tree,
                  'nmin' = nmin,
                  'comput.time'=comput.time,
+                 'clusterType'=clusterType,
+                 'ncores'=ncores,
                  'call'=cl)
   class(output) <- "VSURF.thres"
   output
@@ -279,9 +342,10 @@ VSURF.thres.formula <- function(formula, data, ..., na.action = na.fail) {
 #' @rdname VSURF.thres
 #' @method VSURF.thres.parallel default
 #' @export VSURF.thres.parallel.default
-VSURF.thres.parallel.default <- function(x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
-                                nfor.thres=50, nmin=1, clusterType="PSOCK",
-                                ncores=detectCores()-1, ...) {
+VSURF.thres.parallel.default <- function(
+  x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
+  nfor.thres=50, nmin=1, clusterType="PSOCK",
+  ncores=detectCores()-1, ...) {
 
   # x: input
   # y: output

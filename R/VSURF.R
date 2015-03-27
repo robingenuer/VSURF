@@ -35,8 +35,8 @@
 #' following model.  Hence a variable is included in the model if the mean OOB
 #' error decrease is larger than \code{nmj} * \code{mean.jump}.  }
 #'
-#' VSURF.parallel is able to run VSURF using mutliple cores in parallel
-#' (see \code{clusterType} and \code{ncores} arguments).
+#' VSURF is able to run using mutliple cores in parallel
+#' (see \code{parallel}, \code{clusterType} and \code{ncores} arguments).
 #' 
 #' @aliases VSURF VSURF.default VSURF.formula VSURF.parallel
 #' VSURF.parallel.default VSURF.parallel.formula
@@ -64,15 +64,17 @@
 #' @param nfor.pred Number of forests grown for "prediction step" (last of the
 #' three steps).
 #' @param nmj Number of times the mean jump is multiplied.
+#' @param para A logical indicating if you want VSURF to run in parallel on
+#' multiple cores (default to FALSE).
+#' @param ncores Number of cores to use. Default is set to the number of cores
+#' detected by R minus 1.
 #' @param clusterType Type of the multiple cores cluster used to run VSURF in
 #' parallel. Must be chosen among "PSOCK" (default: SOCKET cluster available
 #' locally on all OS), "FORK" (local too, only available for Linux and Mac OS)
 #' and "MPI" (can be used on a remote cluster, which needs \code{snow} and
-#' \code{Rmpi} packages installed)
-#' @param ncores Number of cores to use. Default is set to the number of cores
-#' detected by R minus 1.
+#' \code{Rmpi} packages installed).
 #' @param ...  others parameters to be passed on to the \code{randomForest}
-#' function (see ?randomForest for further information)
+#' function (see ?randomForest for further information).
 #' 
 #' @return An object of class \code{VSURF}, which is a list with the following
 #' components:
@@ -129,11 +131,11 @@
 #' associated with the 3 steps: "thresholding", "interpretation" and
 #' "prediction".}
 #'
-#' \item{clusterType}{The type of the cluster used to run
-#' \code{VSURF.parallel} (only if parallel version of VSURF is used).}
+#'\item{ncores}{The number of cores used to run \code{VSURF}
+#'  in parallel (NULL if VSURF did not run in parallel).}
 #'
-#' \item{ncores}{The number of cores used to run \code{VSURF.parallel}
-#' (only if parallel version of VSURF is used).}
+#' \item{clusterType}{The type of the cluster used to run
+#' \code{VSURF} in parallel (NULL if VSURF did not run in parallel).}
 #'
 #' \item{call}{The original call to \code{VSURF}.}
 #'
@@ -163,7 +165,7 @@
 #'
 #' # VSURF run on 2 cores in parallel (using a SOCKET cluster):
 #' data(toys)
-#' toys.vsurf.para <- VSURF.parallel(x=toys$x, y=toys$y, ncores=2)
+#' toys.vsurf.para <- VSURF(x=toys$x, y=toys$y, para=TRUE, ncores=2)
 #' }
 #' 
 #' @import randomForest
@@ -174,32 +176,40 @@
 #' @method VSURF default
 #' @export VSURF.default
 VSURF.default <- function(
-    x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
-    nfor.thres=50, nmin=1, nfor.interp=25, nsd=1, nfor.pred=25, nmj=1, ...) {
-
+  x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
+  nfor.thres=50, nmin=1, nfor.interp=25, nsd=1, nfor.pred=25, nmj=1,
+  para=FALSE, ncores=detectCores()-1, clusterType="PSOCK", ...) {
+  
   start <- Sys.time()
   
-  thres <- VSURF.thres(x=x, y=y, ntree=ntree, mtry=mtry,
-                       nfor.thres=nfor.thres, nmin=nmin, ...)
+  if (!para) {
+    clusterType <- NULL
+    ncores <- NULL
+  }
   
-  interp <- VSURF.interp(x=x, y=y, vars=thres$varselect.thres,
-                         nfor.interp=nfor.interp, nsd=nsd, ...)
+  thres <- VSURF.thres(
+    x=x, y=y, ntree=ntree, mtry=mtry, nfor.thres=nfor.thres, nmin=nmin,
+    para=para, clusterType=clusterType, ncores=ncores, ...)
+  
+  interp <- VSURF.interp(
+    x=x, y=y, vars=thres$varselect.thres, nfor.interp=nfor.interp, nsd=nsd,
+    para=para, clusterType=clusterType, ncores=ncores, ...)
   
   pred <- VSURF.pred(x=x, y=y, err.interp=interp$err.interp,
                      varselect.interp=interp$varselect.interp,
                      nfor.pred=nfor.pred, nmj=nmj, ...)
-
+  
   cl <- match.call()
   cl[[1]] <- as.name("VSURF")
-
+  
   overall.time <- Sys.time()-start
-
+  
   output <- list('varselect.thres'=thres$varselect.thres,
                  'varselect.interp'=interp$varselect.interp,
                  'varselect.pred'=pred$varselect.pred,
                  'nums.varselect'=c(thres$num.varselect.thres,
-                   interp$num.varselect.interp,
-                   pred$num.varselect.pred),
+                                    interp$num.varselect.interp,
+                                    pred$num.varselect.pred),
                  'imp.varselect.thres'=thres$imp.varselect.thres,
                  'min.thres'=thres$min.thres,
                  'ord.imp'=thres$ord.imp,
@@ -215,11 +225,12 @@ VSURF.default <- function(
                  'nmj' = nmj,
                  'overall.time'=overall.time,
                  'comput.times'=list(thres$comput.time, interp$comput.time, pred$comput.time),
+                 'ncores'=ncores,          
+                 'clusterType'=clusterType,
                  'call'=cl)
   class(output) <- "VSURF"
   output
 }
-
 
 #' @rdname VSURF
 #' @method VSURF formula
