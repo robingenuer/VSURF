@@ -103,14 +103,21 @@ VSURF.interp.default <- function(x, y, vars, nfor.interp=25, nsd=1, ...) {
 
   start <- Sys.time()
   
-  # one forest run to determine the problem type: classification or regression
-  rf <- randomForest(x=x, y=y, ...)
-  if (rf$type=="classification") {
+  # determinination the problem type: classification or regression
+  # (code gratefully stolen from randomForest.default function of randomForest package)
+  classRF <- is.factor(y)
+  if (!classRF && length(unique(y)) <= 5) {
+    warning("The response has five or fewer unique values.  Are you sure you want to do regression?")
+  }
+  if (classRF && length(unique(y)) < 2)
+    stop("Need at least two classes to do classification.")
+  
+  if (classRF) {
     type <- "classif"
   }
-  if (rf$type=="regression") {
+  else {
     type <- "reg"
-  } 
+  }
   
   nvars <- length(vars)
   n <- nrow(x)
@@ -233,14 +240,21 @@ VSURF.interp.parallel.default <- function(
 
   start <- Sys.time()
   
-  # one forest run to determine the problem type: classification or regression
-  rf <- randomForest(x=x, y=y, ...)
-  if (rf$type=="classification") {
+  # determinination the problem type: classification or regression
+  # (code gratefully stolen from randomForest.default function of randomForest package)
+  classRF <- is.factor(y)
+  if (!classRF && length(unique(y)) <= 5) {
+    warning("The response has five or fewer unique values.  Are you sure you want to do regression?")
+  }
+  if (classRF && length(unique(y)) < 2)
+    stop("Need at least two classes to do classification.")
+  
+  if (classRF) {
     type <- "classif"
   }
-  if (rf$type=="regression") {
+  else {
     type <- "reg"
-  } 
+  }
   
   nvars <- length(vars)
   n <- nrow(x)

@@ -115,15 +115,22 @@ VSURF.thres.default <- function(x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
 
   start <- Sys.time()
   
-  # one forest run to determine the problem type: classification or regression
-  rf <- randomForest(x=x, y=y, ntree=1, ...)
-  if (rf$type=="classification") {
+  # determinination the problem type: classification or regression
+  # (code gratefully stolen from randomForest.default function of randomForest package)
+  classRF <- is.factor(y)
+  if (!classRF && length(unique(y)) <= 5) {
+    warning("The response has five or fewer unique values.  Are you sure you want to do regression?")
+  }
+  if (classRF && length(unique(y)) < 2)
+    stop("Need at least two classes to do classification.")
+  
+  if (classRF) {
     type <- "classif"
   }
-  if (rf$type=="regression") {
+  else {
     type <- "reg"
-  } 
-
+  }
+  
   # m: matrix with IV
   # perf: matrix with OOB errors
   m <- matrix(NA, nrow=nfor.thres, ncol=ncol(x))
@@ -285,16 +292,23 @@ VSURF.thres.parallel.default <- function(x, y, ntree=2000, mtry=max(floor(ncol(x
   start <- Sys.time()
 
   ncores <- min(nfor.thres, ncores)
+ 
+  # determinination the problem type: classification or regression
+  # (code gratefully stolen from randomForest.default function of randomForest package)
+  classRF <- is.factor(y)
+  if (!classRF && length(unique(y)) <= 5) {
+    warning("The response has five or fewer unique values.  Are you sure you want to do regression?")
+  }
+  if (classRF && length(unique(y)) < 2)
+    stop("Need at least two classes to do classification.")
   
-  # one forest run to determine the problem type: classification or regression
-  rf <- randomForest(x=x, y=y, ntree=1, ...)
-  if (rf$type=="classification") {
+  if (classRF) {
     type <- "classif"
   }
-  if (rf$type=="regression") {
+  else {
     type <- "reg"
-  } 
-
+  }
+  
   # m: matrix with IV
   # perf: matrix with OOB errors
   m <- matrix(NA, nrow=nfor.thres, ncol=ncol(x))
