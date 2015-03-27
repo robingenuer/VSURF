@@ -1,0 +1,69 @@
+News about the R package VSURF:
+--------------------------------
+
+
+Main changes in Version 0.8.3 (dev)
+* Bug fix: in VSURF.parallel, there is no error anymore
+if the function is called for data with only one variable
+* Plot functions do not need anymore to have the data on which
+the VSURF object was built to be loaded. However, it is still
+mandatory if argument var.names is set to TRUE.
+
+
+Main changes in Version 0.8.2 (2014-05-12):
+* Bug fix: the random seed is now correctly set when using
+the VSURF.parallel function with clusterType="FORK"
+* Bug fix: VSURF function can now handle categorical input
+variables. Thanks to ONF researchers for pointing this out.
+
+
+Main changes in Version 0.8.1 (2014-01-28):
+* Bug fix: error of the model was wrongly updated in
+the VSURF.pred function. Thanks a lot to Dustin Fife.
+
+
+Main changes in Version 0.8 (2013-11-23):
+* Parallel version of VSURF added. Three new main functions:
+VSURF.parallel, VSURF.thres.parallel and VSURF.interp.parallel.
+Default for these functions is to run VSURF in parallel on a
+(local) SOCKET cluster with "number of cores detected by R" minus
+one core
+* Addition of a print function for VSURF results
+* Bug fix: the fact that the prediction step can not run
+does not give an error anymore
+
+
+Main changes in Version 0.7.6 (2013-11-13):
+* Plot functions changed. It is now possible to plot VI mean
+and VI standard deviation against variables names with function
+plot.VSURF.thres. By default index variables are plotted, and
+var.names argument is added to all plot functions
+* Bug concerning ylab and yticks fixed
+* Addition of a warning when using formula method of VSURF,
+VSURF.thres, VSURF.interp and VSURF.pred: indices of selected
+variables must be reordered to get indices of the original
+dataset
+
+
+Main changes in Version 0.7.5 (2013-10-04):
+* Only plot functions changed. It is now possible to choose the number
+of variables for the VI mean and the VI standard deviation plots.
+It is also possible to choose if VI mean and/or VI standard
+deviation plots must be plooted by function plot.VSURF.thres
+
+
+Main changes in Version 0.7 (2013-09-10):
+* The package can be used with the formula-type call. Hence the package can handle
+missing values (NA) (only when used with the formula-type call, as randomForest does)
+* Update of the plot.VSURF function: the two last graphs show the variables names on the
+x-axis
+* New functions (intermediate plots): plot.VSURF.thres, plot.VSURF.interp, plot.VSURF.pred
+* Functions renamed: VSURF.interp.tune -> tune.VSURF.interp, VSURF.thres.tune -> tune.thres.tune
+and S3method are now used for these functions
+
+
+Main changes in Version 0.6 (2013-07-23):
+* New functions: plot.VSURF, summary.VSURF, VSURF.interp.tune, VSURF.thres.tune.
+* Addition of a dataset: toys
+* Addition of new outputs of existing functions.
+* Bug fix: min.thres component of VSURF results list returns now the threshold value.

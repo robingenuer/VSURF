@@ -1,0 +1,21 @@
+Package: VSURF
+Type: Package
+Title: Variable Selection Using Random Forests
+Version: 0.8.2
+Date: 2013-05-12
+Author: Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
+Maintainer: Robin Genuer <Robin.Genuer@isped.u-bordeaux2.fr>
+Description: Three steps variable selection procedure based on random forests.
+    Initially developed to handle high dimensional data (for which number of
+    variables largely exceeds number of observations), the package is very
+    versatile and can treat most dimensions of data, for regression and
+    supervised classification problems. First step is dedicated to eliminate
+    irrelevant variables from the dataset. Second step aims to select all
+    variables related to the response for interpretation purpose. Third step
+    refines the selection by eliminating redundancy in the set of variables
+    selected by the second step, for prediction purpose.
+License: GPL (>= 2)
+Depends:
+    randomForest,
+    rpart,
+    doParallel
