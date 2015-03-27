@@ -59,11 +59,11 @@
 #' 
 #' \item{comput.time}{Computation time.}
 #'
-#' \item{clusterType}{The type of the cluster used to run
-#' \code{VSURF.parallel} (only if parallel version of VSURF is used).}
+#'\item{ncores}{The number of cores used to run \code{VSURF.interp}
+#'  in parallel (NULL if VSURF.interp did not run in parallel).}
 #'
-#' \item{ncores}{The number of cores used to run \code{VSURF.parallel}
-#' (only if parallel version of VSURF is used).}
+#' \item{clusterType}{The type of the cluster used to run
+#' \code{VSURF.interp} in parallel (NULL if VSURF.interp did not run in parallel).}
 #'
 #' \item{call}{The original call to \code{VSURF}.}
 #'
@@ -264,8 +264,8 @@ VSURF.interp.default <- function(
                  'num.varselect.interp'=nvarselect,
                  'varselect.thres' = vars,
                  'comput.time'=comput.time,
-                 'clusterType'=clusterType,
                  'ncores'=ncores,
+                 'clusterType'=clusterType,
                  'call'=cl)
   class(output) <- "VSURF.interp"
   output

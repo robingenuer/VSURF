@@ -170,6 +170,8 @@
 #' @import randomForest
 #' @import rpart
 #' @import doParallel
+#' @import parallel
+#' @import foreach
 #' 
 #' @rdname VSURF
 #' @method VSURF default

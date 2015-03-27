@@ -81,11 +81,11 @@ curve of the standard deviations of VI.}
 
 \item{comput.time}{Computation time.}
 
-\item{clusterType}{The type of the cluster used to run
-\code{VSURF.parallel} (only if parallel version of VSURF is used).}
+\item{ncores}{The number of cores used to run \code{VSURF.thres}
+ in parallel (NULL if VSURF.thres did not run in parallel).}
 
-\item{ncores}{The number of cores used to run \code{VSURF.parallel}
-(only if parallel version of VSURF is used).}
+\item{clusterType}{The type of the cluster used to run
+\code{VSURF.thres} in parallel (NULL if VSURF.thres did not run in parallel).}
 
 \item{call}{The original call to \code{VSURF}.}
 

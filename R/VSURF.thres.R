@@ -72,12 +72,12 @@
 #' 
 #' \item{comput.time}{Computation time.}
 #'
+#'\item{ncores}{The number of cores used to run \code{VSURF.thres}
+#'  in parallel (NULL if VSURF.thres did not run in parallel).}
+#'
 #' \item{clusterType}{The type of the cluster used to run
-#' \code{VSURF.parallel} (only if parallel version of VSURF is used).}
-#'
-#' \item{ncores}{The number of cores used to run \code{VSURF.parallel}
-#' (only if parallel version of VSURF is used).}
-#'
+#' \code{VSURF.thres} in parallel (NULL if VSURF.thres did not run in parallel).}
+#' 
 #' \item{call}{The original call to \code{VSURF}.}
 #'
 #' \item{terms}{Terms associated to the formula (only if formula-type call
@@ -282,8 +282,8 @@ VSURF.thres.default <- function(
                  'pred.pruned.tree'=pred.pruned.tree,
                  'nmin' = nmin,
                  'comput.time'=comput.time,
-                 'clusterType'=clusterType,
                  'ncores'=ncores,
+                 'clusterType'=clusterType,
                  'call'=cl)
   class(output) <- "VSURF.thres"
   output
