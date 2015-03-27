@@ -4,9 +4,6 @@
 \alias{VSURF.thres}
 \alias{VSURF.thres.default}
 \alias{VSURF.thres.formula}
-\alias{VSURF.thres.parallel}
-\alias{VSURF.thres.parallel.default}
-\alias{VSURF.thres.parallel.formula}
 \title{Thresholding step of VSURF}
 \usage{
 \method{VSURF.thres}{default}(x, y, ntree = 2000,
@@ -14,13 +11,6 @@
   para = FALSE, clusterType = "PSOCK", ncores = detectCores() - 1, ...)
 
 \method{VSURF.thres}{formula}(formula, data, ..., na.action = na.fail)
-
-\method{VSURF.thres.parallel}{default}(x, y, ntree = 2000,
-  mtry = max(floor(ncol(x)/3), 1), nfor.thres = 50, nmin = 1,
-  clusterType = "PSOCK", ncores = detectCores() - 1, ...)
-
-\method{VSURF.thres.parallel}{formula}(formula, data, ...,
-  na.action = na.fail)
 }
 \arguments{
 \item{x,formula}{A data frame or a matrix of predictors, the columns

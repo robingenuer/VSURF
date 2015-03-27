@@ -38,8 +38,7 @@
 #' VSURF is able to run using mutliple cores in parallel
 #' (see \code{parallel}, \code{clusterType} and \code{ncores} arguments).
 #' 
-#' @aliases VSURF VSURF.default VSURF.formula VSURF.parallel
-#' VSURF.parallel.default VSURF.parallel.formula
+#' @aliases VSURF VSURF.default VSURF.formula
 #' 
 #' @param data a data frame containing the variables in the model.
 #' @param na.action A function to specify the action to be taken if NAs are
@@ -279,117 +278,12 @@ you may reorder these to get indices of the original data")
     return(ret)
 }
 
-#' @rdname VSURF
-#' @method VSURF.parallel default
-#' @export VSURF.parallel.default
-VSURF.parallel.default <- function(
-    x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
-    nfor.thres=50, nmin=1, nfor.interp=25, nsd=1, nfor.pred=25, nmj=1,
-    clusterType="PSOCK", ncores=detectCores()-1, ...) {
-
-  start <- Sys.time()
-  
-  thres <- VSURF.thres.parallel(
-      x=x, y=y, ntree=ntree, mtry=mtry, nfor.thres=nfor.thres, nmin=nmin,
-      clusterType=clusterType, ncores=ncores, ...)
-  
-  interp <- VSURF.interp.parallel(
-      x=x, y=y, vars=thres$varselect.thres, nfor.interp=nfor.interp, nsd=nsd,
-      clusterType=clusterType, ncores=ncores, ...)
-  
-  pred <- VSURF.pred(x=x, y=y, err.interp=interp$err.interp,
-                     varselect.interp=interp$varselect.interp,
-                     nfor.pred=nfor.pred, nmj=nmj, ...)
-
-  cl <- match.call()
-  cl[[1]] <- as.name("VSURF")
-
-  overall.time <- Sys.time()-start
-
-  output <- list('varselect.thres'=thres$varselect.thres,
-                 'varselect.interp'=interp$varselect.interp,
-                 'varselect.pred'=pred$varselect.pred,
-                 'nums.varselect'=c(thres$num.varselect.thres,
-                   interp$num.varselect.interp,
-                   pred$num.varselect.pred),
-                 'imp.varselect.thres'=thres$imp.varselect.thres,
-                 'min.thres'=thres$min.thres,
-                 'ord.imp'=thres$ord.imp,
-                 'ord.sd'=thres$ord.sd,
-                 'mean.perf'=thres$mean.perf,
-                 'pred.pruned.tree' = thres$pred.pruned.tree,
-                 'err.interp'=interp$err.interp,
-                 'sd.min'=interp$sd.min,
-                 'err.pred'=pred$err.pred,
-                 'mean.jump'=pred$mean.jump,
-                 'nmin' = nmin,
-                 'nsd' = nsd,
-                 'nmj' = nmj,
-                 'overall.time'=overall.time,
-                 'comput.times'=list(thres$comput.time, interp$comput.time, pred$comput.time),
-                 'clusterType'=clusterType,
-                 'ncores'=ncores,
-                 'call'=cl)
-  class(output) <- "VSURF"
-  output
-}
-
-
-#' @rdname VSURF
-#' @method VSURF.parallel formula
-#' @export VSURF.parallel.formula
-VSURF.parallel.formula <- function(formula, data, ..., na.action = na.fail) {
-    ### formula interface for VSURF.parallel.
-    ### code gratefully stolen from svm.formula (package e1071).
-    ###
-    if (!inherits(formula, "formula"))
-        stop("method is only for formula objects")
-    m <- match.call(expand.dots = FALSE)
-    ## Catch xtest and ytest in arguments.
-    if (any(c("xtest", "ytest") %in% names(m)))
-        stop("xtest/ytest not supported through the formula interface")
-    names(m)[2] <- "formula"
-    if (is.matrix(eval(m$data, parent.frame())))
-        m$data <- as.data.frame(data)
-    m$... <- NULL
-    m$na.action <- na.action
-    m[[1]] <- as.name("model.frame")
-    m <- eval(m, parent.frame())
-    y <- model.response(m)
-    Terms <- attr(m, "terms")
-    attr(Terms, "intercept") <- 0
-    ## Drop any "negative" terms in the formula.
-    ## test with:
-    ## randomForest(Fertility~.-Catholic+I(Catholic<50),data=swiss,mtry=2)
-    m <- model.frame(terms(reformulate(attributes(Terms)$term.labels)),
-                     data.frame(m))
-    ## if (!is.null(y)) m <- m[, -1, drop=FALSE]
-    for (i in seq(along=ncol(m))) {
-        if (is.ordered(m[[i]])) m[[i]] <- as.numeric(m[[i]])
-    }
-    ret <- VSURF.parallel(x=m, y=y, ...)
-    cl <- match.call()
-    cl[[1]] <- as.name("VSURF")
-    ret$call <- cl
-    ret$terms <- Terms
-    if (!is.null(attr(m, "na.action")))
-        ret$na.action <- attr(m, "na.action")
-    class(ret) <- c("VSURF.formula", "VSURF")
-    warning(
-        "VSURF with a formula-type call outputs selected variables
-which are indices of the input matrix based on the formula:
-you may reorder these to get indices of the original data")
-    return(ret)
-}
-
-
 ##' @export
 VSURF <- function (x, ...) {
   UseMethod("VSURF")
 }
 
-
-##' @export
-VSURF.parallel <- function (x, ...) {
-  UseMethod("VSURF.parallel")
+# VSURF.parallel function is kept for backward compatibility
+VSURF.parallel <- function (...) {
+  VSURF(..., para=TRUE)
 }

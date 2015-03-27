@@ -4,9 +4,6 @@
 \alias{VSURF}
 \alias{VSURF.default}
 \alias{VSURF.formula}
-\alias{VSURF.parallel}
-\alias{VSURF.parallel.default}
-\alias{VSURF.parallel.formula}
 \title{Variable Selection Using Random Forests}
 \usage{
 \method{VSURF}{default}(x, y, ntree = 2000, mtry = max(floor(ncol(x)/3), 1),
@@ -15,13 +12,6 @@
   clusterType = "PSOCK", ...)
 
 \method{VSURF}{formula}(formula, data, ..., na.action = na.fail)
-
-\method{VSURF.parallel}{default}(x, y, ntree = 2000,
-  mtry = max(floor(ncol(x)/3), 1), nfor.thres = 50, nmin = 1,
-  nfor.interp = 25, nsd = 1, nfor.pred = 25, nmj = 1,
-  clusterType = "PSOCK", ncores = detectCores() - 1, ...)
-
-\method{VSURF.parallel}{formula}(formula, data, ..., na.action = na.fail)
 }
 \arguments{
 \item{x,formula}{A data frame or a matrix of predictors, the columns
@@ -196,7 +186,7 @@ toys.vsurf
 
 # VSURF run on 2 cores in parallel (using a SOCKET cluster):
 data(toys)
-toys.vsurf.para <- VSURF.parallel(x=toys$x, y=toys$y, ncores=2)
+toys.vsurf.para <- VSURF(x=toys$x, y=toys$y, para=TRUE, ncores=2)
 }
 }
 \author{

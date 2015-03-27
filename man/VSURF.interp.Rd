@@ -4,21 +4,12 @@
 \alias{VSURF.interp}
 \alias{VSURF.interp.default}
 \alias{VSURF.interp.formula}
-\alias{VSURF.interp.parallel}
-\alias{VSURF.interp.parallel.default}
-\alias{VSURF.interp.parallel.formula}
 \title{Interpretation step of VSURF}
 \usage{
 \method{VSURF.interp}{default}(x, y, vars, nfor.interp = 25, nsd = 1,
   para = FALSE, ncores = detectCores() - 1, clusterType = "PSOCK", ...)
 
 \method{VSURF.interp}{formula}(formula, data, ..., na.action = na.fail)
-
-\method{VSURF.interp.parallel}{default}(x, y, vars, nfor.interp = 25,
-  nsd = 1, clusterType = "PSOCK", ncores = detectCores() - 1, ...)
-
-\method{VSURF.interp.parallel}{formula}(formula, data, ...,
-  na.action = na.fail)
 }
 \arguments{
 \item{x,formula}{A data frame or a matrix of predictors, the columns
