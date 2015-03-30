@@ -25,8 +25,6 @@
 #' being that variables are added to the model in a step-wise manner). The
 #' retained model is the final one.
 #' 
-#' @aliases plot.VSURF plot.VSURF_thres plot.VSURF_interp plot.VSURF_pred
-#' 
 #' @param x An object of class \code{VSURF}, \code{VSURF_thres},
 #' \code{VSURF_interp} or \code{VSURF_pred}, which is the result of the
 #' \code{\link{VSURF}} function (or resp. \code{\link{VSURF_thres}},
@@ -139,7 +137,6 @@ plot.VSURF <- function(x, nvar.imp=NULL, nvar.sd=NULL, var.names=FALSE, ...) {
 
 
 #' @rdname plot.VSURF
-#' @export
 plot.VSURF_thres <- function(x, nvar.imp=NULL, nvar.sd=NULL, imp=TRUE, imp.sd=TRUE,
                              var.names=FALSE, ...) {
 
@@ -195,7 +192,6 @@ plot.VSURF_thres <- function(x, nvar.imp=NULL, nvar.sd=NULL, imp=TRUE, imp.sd=TR
 
 
 #' @rdname plot.VSURF
-#' @export
 plot.VSURF_interp <- function(x, var.names=FALSE, ...) {
 
   if (var.names) {
@@ -229,7 +225,6 @@ plot.VSURF_interp <- function(x, var.names=FALSE, ...) {
 
 
 #' @rdname plot.VSURF
-#' @export
 plot.VSURF_pred <- function(x, var.names=FALSE, ...) {
 
   if (var.names) {

@@ -14,8 +14,6 @@
 #' included in the model if the mean OOB error decrease is larger than
 #' \code{nmj} * \code{mean.jump}.
 #' 
-#' @aliases VSURF_pred VSURF_pred.default VSURF_pred.formula
-#' 
 #' @param data a data frame containing the variables in the model.
 #' @param na.action A function to specify the action to be taken if NAs are
 #' found.  (NOTE: If given, this argument must be named, and as
@@ -80,8 +78,12 @@
 #'                         varselect.interp=toys.interp$varselect.interp)
 #' toys.pred}
 #'
-#' @rdname VSURF_pred
 #' @export
+VSURF_pred <- function (x, ...) {
+  UseMethod("VSURF_pred")
+}
+
+#' @rdname VSURF_pred
 VSURF_pred.default <-function(x, y, err.interp, varselect.interp, nfor.pred=25, nmj=1, ...){
   
   # err.interp: interpretation models errors
@@ -190,7 +192,6 @@ did not eliminate variables")
 
 
 #' @rdname VSURF_pred
-#' @export
 VSURF_pred.formula <- function(formula, data, ..., na.action = na.fail) {
 ### formula interface for VSURF_pred.
 ### code gratefully stolen from svm.formula (package e1071).
@@ -235,8 +236,8 @@ VSURF_pred.formula <- function(formula, data, ..., na.action = na.fail) {
     return(ret)
 }
 
-
-#' @export
-VSURF_pred <- function (x, ...) {
-  UseMethod("VSURF_pred")
+# VSURF.pred function is kept for backward compatibility
+VSURF.pred <- function(...) {
+  .Deprecated("VSURF_pred")
+  VSURF_pred(...)
 }

@@ -20,8 +20,6 @@
 #' than default, choose a value of \code{nsd} less than 1, and to get a smaller
 #' one, choose a value larger than 1.
 #' 
-#' @aliases tune tune.VSURF_thres tune.VSURF_interp
-#' 
 #' @param x An object of class \code{VSURF_thres} or \code{VSURF_interp}, which
 #' is the result of the \code{\link{VSURF_thres}} or \code{\link{VSURF_interp}}
 #' function.
@@ -52,8 +50,12 @@
 #' iris.interp.tuned
 #' }
 #' 
-#' @rdname tune
 #' @export
+tune <- function (x, ...) {
+  UseMethod("tune")
+}
+
+#' @rdname tune
 tune.VSURF_thres <- function (x, nmin = 1, ...) {
   
   ord.imp <- x$ord.imp
@@ -84,7 +86,6 @@ tune.VSURF_thres <- function (x, nmin = 1, ...) {
 }
 
 #' @rdname tune
-#' @export
 tune.VSURF_interp <- function (x, nsd = 1, ...) {
   
   err.interp <- x$err.interp
@@ -100,10 +101,4 @@ tune.VSURF_interp <- function (x, nsd = 1, ...) {
                  'sd.min' = sd.min,
                  'num.varselect.interp'= length(varselect),
                  'varselect.thres' = vars)
-}
-
-
-#' @export
-tune <- function (x, ...) {
-  UseMethod("tune")
 }

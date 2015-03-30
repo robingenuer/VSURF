@@ -13,8 +13,6 @@
 #' corresponding variables) having a mean OOB error less than \code{err.min} +
 #' \code{nsd} * \code{sd.min} is selected.
 #' 
-#' @aliases VSURF_interp VSURF_interp.default VSURF_interp.formula
-#' 
 #' @param data a data frame containing the variables in the model.
 #' @param na.action A function to specify the action to be taken if NAs are
 #' found.  (NOTE: If given, this argument must be named, and as
@@ -91,8 +89,12 @@
 #' toys.interp <- VSURF_interp(x=toys$x, y=toys$y, vars=toys.thres$varselect.thres)
 #' toys.interp}
 #' 
-#' @rdname VSURF_interp
 #' @export
+VSURF_interp <- function (x, ...) {
+  UseMethod("VSURF_interp")
+}
+
+#' @rdname VSURF_interp
 VSURF_interp.default <- function(
   x, y, vars, nfor.interp=25, nsd=1, para=FALSE,
   ncores=detectCores()-1, clusterType="PSOCK",  ...) {
@@ -247,10 +249,7 @@ VSURF_interp.default <- function(
   output
 }
 
-
-
 #' @rdname VSURF_interp
-#' @export
 VSURF_interp.formula <- function(formula, data, ..., na.action = na.fail) {
 ### formula interface for VSURF_interp.
 ### code gratefully stolen from svm.formula (package e1071).
@@ -295,7 +294,14 @@ VSURF_interp.formula <- function(formula, data, ..., na.action = na.fail) {
     return(ret)
 }
 
-#' @export
-VSURF_interp <- function (x, ...) {
-  UseMethod("VSURF_interp")
+# VSURF.interp function is kept for backward compatibility
+VSURF.interp <- function(...) {
+  .Deprecated("VSURF_interp")
+  VSURF_interp(...)
+}
+
+# VSURF.interp.parallel function is kept for backward compatibility
+VSURF.interp.parallel <- function(...) {
+  .Deprecated("VSURF_interp(..., para = TRUE)")
+  VSURF_interp(..., para=TRUE)
 }

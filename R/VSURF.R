@@ -38,8 +38,6 @@
 #' VSURF is able to run using mutliple cores in parallel
 #' (see \code{parallel}, \code{clusterType} and \code{ncores} arguments).
 #' 
-#' @aliases VSURF VSURF.default VSURF.formula
-#' 
 #' @param data a data frame containing the variables in the model.
 #' @param na.action A function to specify the action to be taken if NAs are
 #' found.  (NOTE: If given, this argument must be named, and as
@@ -181,8 +179,12 @@
 #' @importFrom parallel mclapply
 #' @importFrom parallel detectCores
 #' 
-#' @rdname VSURF
 #' @export
+VSURF <- function (x, ...) {
+  UseMethod("VSURF")
+}
+
+#' @rdname VSURF
 VSURF.default <- function(
   x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
   nfor.thres=50, nmin=1, nfor.interp=25, nsd=1, nfor.pred=25, nmj=1,
@@ -242,7 +244,6 @@ VSURF.default <- function(
 }
 
 #' @rdname VSURF
-#' @export
 VSURF.formula <- function(formula, data, ..., na.action = na.fail) {
     ### formula interface for VSURF.
     ### code gratefully stolen from svm.formula (package e1071).
@@ -287,12 +288,10 @@ you may reorder these to get indices of the original data")
     return(ret)
 }
 
-##' @export
-VSURF <- function (x, ...) {
-  UseMethod("VSURF")
-}
-
 # VSURF.parallel function is kept for backward compatibility
 VSURF.parallel <- function (...) {
+  .Deprecated("VSURF(..., para = TRUE)")
   VSURF(..., para=TRUE)
 }
+
+

@@ -14,8 +14,6 @@
 #' actual thresholding is performed: only variables with a mean VI larger than
 #' \code{nmin} * \code{min.thres} are kept.
 #' 
-#' @aliases VSURF_thres VSURF_thres.default VSURF_thres.formula
-#' 
 #' @param data a data frame containing the variables in the model.
 #' @param na.action A function to specify the action to be taken if NAs are
 #' found.  (NOTE: If given, this argument must be named, and as
@@ -102,9 +100,13 @@
 #' data(toys)
 #' toys.thres <- VSURF_thres(x=toys$x, y=toys$y)
 #' toys.thres}
-#'
-#' @rdname VSURF_thres
+#' 
 #' @export
+VSURF_thres <- function (x, ...) {
+  UseMethod("VSURF_thres")
+}
+
+#' @rdname VSURF_thres
 VSURF_thres.default <- function(
   x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1), nfor.thres=50, nmin=1,
   para=FALSE, clusterType="PSOCK", ncores=detectCores()-1, ...) {
@@ -293,7 +295,6 @@ VSURF_thres.default <- function(
 
 
 #' @rdname VSURF_thres
-#' @export
 VSURF_thres.formula <- function(formula, data, ..., na.action = na.fail) {
 ### formula interface for VSURF_thres.
 ### code gratefully stolen from svm.formula (package e1071).
@@ -338,7 +339,15 @@ VSURF_thres.formula <- function(formula, data, ..., na.action = na.fail) {
     return(ret)
 }
 
-#' @export
-VSURF_thres <- function (x, ...) {
-  UseMethod("VSURF_thres")
+# VSURF.thres function is kept for backward compatibility
+VSURF.thres <- function(...) {
+  .Deprecated("VSURF_thres")
+  VSURF_thres(...)
 }
+
+# VSURF.thres.parallel function is kept for backward compatibility
+VSURF.thres.parallel <- function(...) {
+  .Deprecated("VSURF_thres(..., para = TRUE)")
+  VSURF_thres(..., para=TRUE)
+}
+
