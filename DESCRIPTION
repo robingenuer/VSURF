@@ -1,7 +1,7 @@
 Package: VSURF
 Type: Package
 Title: Variable Selection Using Random Forests
-Version: 0.8.2
+Version: 1.0
 Date: 2013-05-12
 Author: Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
 Maintainer: Robin Genuer <Robin.Genuer@isped.u-bordeaux2.fr>

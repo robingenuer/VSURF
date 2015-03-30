@@ -2,7 +2,7 @@ News about the R package VSURF:
 --------------------------------
 
 
-Main changes in Version 0.8.3 (dev)
+Main changes in Version 1.0 (dev)
 * Bug fix: in VSURF.parallel, there is no error anymore
 if the function is called for data with only one variable
 * Plot functions do not need anymore to have the data on which
