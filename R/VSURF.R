@@ -185,6 +185,7 @@ VSURF <- function (x, ...) {
 }
 
 #' @rdname VSURF
+#' @export
 VSURF.default <- function(
   x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
   nfor.thres=50, nmin=1, nfor.interp=25, nsd=1, nfor.pred=25, nmj=1,
@@ -244,6 +245,7 @@ VSURF.default <- function(
 }
 
 #' @rdname VSURF
+#' @export
 VSURF.formula <- function(formula, data, ..., na.action = na.fail) {
     ### formula interface for VSURF.
     ### code gratefully stolen from svm.formula (package e1071).

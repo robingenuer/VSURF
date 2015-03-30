@@ -56,6 +56,7 @@ tune <- function (x, ...) {
 }
 
 #' @rdname tune
+#' @export
 tune.VSURF_thres <- function (x, nmin = 1, ...) {
   
   ord.imp <- x$ord.imp
@@ -86,6 +87,7 @@ tune.VSURF_thres <- function (x, nmin = 1, ...) {
 }
 
 #' @rdname tune
+#' @export
 tune.VSURF_interp <- function (x, nsd = 1, ...) {
   
   err.interp <- x$err.interp

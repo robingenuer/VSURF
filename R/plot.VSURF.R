@@ -137,6 +137,7 @@ plot.VSURF <- function(x, nvar.imp=NULL, nvar.sd=NULL, var.names=FALSE, ...) {
 
 
 #' @rdname plot.VSURF
+#' @export
 plot.VSURF_thres <- function(x, nvar.imp=NULL, nvar.sd=NULL, imp=TRUE, imp.sd=TRUE,
                              var.names=FALSE, ...) {
 
@@ -192,6 +193,7 @@ plot.VSURF_thres <- function(x, nvar.imp=NULL, nvar.sd=NULL, imp=TRUE, imp.sd=TR
 
 
 #' @rdname plot.VSURF
+#' @export
 plot.VSURF_interp <- function(x, var.names=FALSE, ...) {
 
   if (var.names) {
@@ -225,6 +227,7 @@ plot.VSURF_interp <- function(x, var.names=FALSE, ...) {
 
 
 #' @rdname plot.VSURF
+#' @export
 plot.VSURF_pred <- function(x, var.names=FALSE, ...) {
 
   if (var.names) {

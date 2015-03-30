@@ -95,6 +95,7 @@ VSURF_interp <- function (x, ...) {
 }
 
 #' @rdname VSURF_interp
+#' @export
 VSURF_interp.default <- function(
   x, y, vars, nfor.interp=25, nsd=1, para=FALSE,
   ncores=detectCores()-1, clusterType="PSOCK",  ...) {
@@ -250,6 +251,7 @@ VSURF_interp.default <- function(
 }
 
 #' @rdname VSURF_interp
+#' @export
 VSURF_interp.formula <- function(formula, data, ..., na.action = na.fail) {
 ### formula interface for VSURF_interp.
 ### code gratefully stolen from svm.formula (package e1071).

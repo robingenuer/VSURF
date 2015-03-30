@@ -84,6 +84,7 @@ VSURF_pred <- function (x, ...) {
 }
 
 #' @rdname VSURF_pred
+#' @export
 VSURF_pred.default <-function(x, y, err.interp, varselect.interp, nfor.pred=25, nmj=1, ...){
   
   # err.interp: interpretation models errors
@@ -192,6 +193,7 @@ did not eliminate variables")
 
 
 #' @rdname VSURF_pred
+#' @export
 VSURF_pred.formula <- function(formula, data, ..., na.action = na.fail) {
 ### formula interface for VSURF_pred.
 ### code gratefully stolen from svm.formula (package e1071).
