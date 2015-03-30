@@ -2,26 +2,26 @@
 % Please edit documentation in R/plot.VSURF.R
 \name{plot.VSURF}
 \alias{plot.VSURF}
-\alias{plot.VSURF.interp}
-\alias{plot.VSURF.pred}
-\alias{plot.VSURF.thres}
+\alias{plot.VSURF_interp}
+\alias{plot.VSURF_pred}
+\alias{plot.VSURF_thres}
 \title{Plot of VSURF results}
 \usage{
 \method{plot}{VSURF}(x, nvar.imp = NULL, nvar.sd = NULL,
   var.names = FALSE, ...)
 
-\method{plot}{VSURF.thres}(x, nvar.imp = NULL, nvar.sd = NULL, imp = TRUE,
+\method{plot}{VSURF_thres}(x, nvar.imp = NULL, nvar.sd = NULL, imp = TRUE,
   imp.sd = TRUE, var.names = FALSE, ...)
 
-\method{plot}{VSURF.interp}(x, var.names = FALSE, ...)
+\method{plot}{VSURF_interp}(x, var.names = FALSE, ...)
 
-\method{plot}{VSURF.pred}(x, var.names = FALSE, ...)
+\method{plot}{VSURF_pred}(x, var.names = FALSE, ...)
 }
 \arguments{
-\item{x}{An object of class \code{VSURF}, \code{VSURF.thres},
-\code{VSURF.interp} or \code{VSURF.pred}, which is the result of the
-\code{\link{VSURF}} function (or resp. \code{\link{VSURF.thres}},
-\code{\link{VSURF.interp}} or \code{\link{VSURF.pred}}).}
+\item{x}{An object of class \code{VSURF}, \code{VSURF_thres},
+\code{VSURF_interp} or \code{VSURF_pred}, which is the result of the
+\code{\link{VSURF}} function (or resp. \code{\link{VSURF_thres}},
+\code{\link{VSURF_interp}} or \code{\link{VSURF_pred}}).}
 
 \item{nvar.imp}{The number of variables to be kept for the VI mean plot (top
 left graph).}
@@ -45,7 +45,7 @@ This function plots 4 graphs illustrating VSURF results.
 }
 \details{
 The 2 graphs of the top row correspond to the "thresholding step" (and only
-these 2 graphs are plotted by the \code{plot.VSURF.thres} function).  The
+these 2 graphs are plotted by the \code{plot.VSURF_thres} function).  The
 top left graph plots the mean variable importance in decreasing order (black
 curve). The red horizontal line represent the value of the threshold.  The
 top right graph plots the standard deviation of variable importance with
@@ -56,13 +56,13 @@ dotted horizontal red line represents the minimum value of the CART
 predictions, which actually is the value of the threshold.
 
 The bottom left graph corresponds to the "interpretation step" (and only
-this graph is plotted by the \code{plot.VSURF.interp} function). It plots
+this graph is plotted by the \code{plot.VSURF_interp} function). It plots
 the mean OOB error rate of embedded random forests models (from the one with
 only one variable as predictor, to the one with all variables kept after the
 "thresholding step"). The vertical red line indicates the retained model.
 
 The bottom right graph corresponds to the "predicton step" (and only this
-graph is plotted by the \code{plot.VSURF.pred} function). It plots the mean
+graph is plotted by the \code{plot.VSURF_pred} function). It plots the mean
 OOB error rate of embedded random forests models (the difference, here,
 being that variables are added to the model in a step-wise manner). The
 retained model is the final one.
@@ -80,13 +80,13 @@ data(toys)
 toys.vsurf <- VSURF(x=toys$x, y=toys$y)
 plot(toys.vsurf)
 plot(toys.vsurf, nvar.imp=50, nvar.sd=50)
-toys.thres <- VSURF.thres(x=toys$x, y=toys$y)
+toys.thres <- VSURF_thres(x=toys$x, y=toys$y)
 plot(toys.thres)
 par(mfrow=c(1,1))
 plot(toys.thres, nvar.imp=70, imp.sd=FALSE)
-toys.interp <- VSURF.interp(x=toys$x, y=toys$y, vars=toys.thres$varselect.thres)
+toys.interp <- VSURF_interp(x=toys$x, y=toys$y, vars=toys.thres$varselect.thres)
 plot(toys.interp, var.names=TRUE)
-toys.pred <- VSURF.pred(x=toys$x, y=toys$y, err.interp=toys.interp$err.interp,
+toys.pred <- VSURF_pred(x=toys$x, y=toys$y, err.interp=toys.interp$err.interp,
                         varselect.interp=toys.interp$varselect.interp)
 plot(toys.pred, var.names=TRUE)
 }

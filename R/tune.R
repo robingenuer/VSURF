@@ -3,27 +3,27 @@
 #' This function allows to tune the "thresholding" and "interpretation step" of
 #' VSURF, without rerunning all computations.
 #' 
-#' In \code{\link{VSURF.thres}} function, the actual threshold is performed
+#' In \code{\link{VSURF_thres}} function, the actual threshold is performed
 #' like this: only variables with a mean VI larger than \code{nmin} *
-#' \code{min.thres} are kept.  The function \code{tune.VSURF.thres} allows you
+#' \code{min.thres} are kept.  The function \code{tune.VSURF_thres} allows you
 #' to change the value of \code{nmin} (which multiply the estimated threshold
 #' value \code{min.thres}), without rerunning all computations.  To get a
 #' softer threshold than default, choose a value of \code{nmin} less than 1,
 #' and to get a harder one, choose a value larger than 1.
 #' 
-#' In \code{\link{VSURF.interp}} function, the smallest model (and hence its
+#' In \code{\link{VSURF_interp}} function, the smallest model (and hence its
 #' corresponding variables) having a mean OOB error rate less than
 #' \code{err.min} + \code{nsd} * \code{sd.min} is selected.  The function
-#' \code{tune.VSURF.interp} allows to change the value of \code{nsd} (which
+#' \code{tune.VSURF_interp} allows to change the value of \code{nsd} (which
 #' multiply the standard deviation of the minimum OOB error rate
 #' \code{sd.min}), without rerunning all computations.  To get a larger model
 #' than default, choose a value of \code{nsd} less than 1, and to get a smaller
 #' one, choose a value larger than 1.
 #' 
-#' @aliases tune tune.VSURF.thres tune.VSURF.interp
+#' @aliases tune tune.VSURF_thres tune.VSURF_interp
 #' 
-#' @param x An object of class \code{VSURF.thres} or \code{VSURF.interp}, which
-#' is the result of the \code{\link{VSURF.thres}} or \code{\link{VSURF.interp}}
+#' @param x An object of class \code{VSURF_thres} or \code{VSURF_interp}, which
+#' is the result of the \code{\link{VSURF_thres}} or \code{\link{VSURF_interp}}
 #' function.
 #' @param nmin Number of times the "minimum value" is multiplied to set
 #' threshold value. See details below.
@@ -32,10 +32,10 @@
 #' @param \dots Not used.
 #' 
 #' @return An object with the same structure than the original output (from
-#' \code{\link{VSURF.thres}} or \code{\link{VSURF.interp}}).
+#' \code{\link{VSURF_thres}} or \code{\link{VSURF_interp}}).
 #' @author Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
-#' @seealso \code{\link{VSURF}}, \code{\link{VSURF.thres}},
-#' \code{\link{VSURF.interp}}
+#' @seealso \code{\link{VSURF}}, \code{\link{VSURF_thres}},
+#' \code{\link{VSURF_interp}}
 #' @references Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2010),
 #' \emph{Variable selection using random forests}, Pattern Recognition Letters
 #' 31(14), 2225-2236
@@ -43,19 +43,18 @@
 #' 
 #' \dontrun{
 #' data(iris)
-#' iris.thres <- VSURF.thres(x=iris[,1:4], y=iris[,5], ntree=100, nfor.thres=20)
+#' iris.thres <- VSURF_thres(x=iris[,1:4], y=iris[,5], ntree=100, nfor.thres=20)
 #' iris.thres.tuned <- tune(x=iris.thres, nmin=10)
 #' iris.thres.tuned
-#' iris.interp <- VSURF.interp(x=iris[,1:4], y=iris[,5], vars=iris.thres$varselect.thres,
+#' iris.interp <- VSURF_interp(x=iris[,1:4], y=iris[,5], vars=iris.thres$varselect.thres,
 #'                             nfor.interp=10)
 #' iris.interp.tuned <- tune(x=iris.interp, nsd=10)
 #' iris.interp.tuned
 #' }
 #' 
 #' @rdname tune
-#' @method tune VSURF.thres
-#' @export tune.VSURF.thres
-tune.VSURF.thres <- function (x, nmin = 1, ...) {
+#' @export
+tune.VSURF_thres <- function (x, nmin = 1, ...) {
   
   ord.imp <- x$ord.imp
   ord.sd <- x$ord.sd
@@ -85,9 +84,8 @@ tune.VSURF.thres <- function (x, nmin = 1, ...) {
 }
 
 #' @rdname tune
-#' @method tune VSURF.interp
-#' @export tune.VSURF.interp
-tune.VSURF.interp <- function (x, nsd = 1, ...) {
+#' @export
+tune.VSURF_interp <- function (x, nsd = 1, ...) {
   
   err.interp <- x$err.interp
   sd.min <- x$sd.min

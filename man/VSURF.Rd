@@ -86,12 +86,14 @@ resp. by "thresholding step", "interpretation step" and "prediction step".}
 \item{min.thres}{The minimum predicted value of a pruned CART tree
 fitted to the curve of the standard deviations of VI.}
 
-\item{ord.imp}{A list containing the order of all variables mean
-importance. \code{$x} contains the mean importances sorted in decreasing
-order. \code{$ix} contains indexes of the variables.}
+\item{imp.mean.dec}{A vector of the variables importance means
+(over \code{nfor.thres} runs), in decreasing order.}
 
-\item{ord.sd}{A vector of standard deviations of all variables
-importance. The order is given by \code{ord.imp}.}
+\item{imp.mean.dec.ind}{The ordering index vector associated to the sorting
+of variables importance means.}
+
+\item{imp.sd.dec}{A vector of standard deviations of all variables
+importances. The order is given by \code{imp.mean.dec.ind}.}
 
 \item{mean.perf}{Mean OOB error rate, obtained by a random forests
 build on all variables.}
@@ -199,7 +201,7 @@ selection using random forests, Pattern Recognition Letters 31(14),
 }
 \seealso{
 \code{\link{plot.VSURF}}, \code{\link{summary.VSURF}},
-\code{\link{VSURF.thres}}, \code{\link{VSURF.interp}},
-\code{\link{VSURF.pred}}, \code{\link{tune}}
+\code{\link{VSURF_thres}}, \code{\link{VSURF_interp}},
+\code{\link{VSURF_pred}}, \code{\link{tune}}
 }
 

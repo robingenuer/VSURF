@@ -3,7 +3,7 @@
 #' Thresholding step is dedicated to roughly eliminate irrelevant variables a
 #' the dataset. This is the first step of the \code{\link{VSURF}} function. For
 #' refined variable selection, see VSURF other steps:
-#' \code{\link{VSURF.interp}} and \code{\link{VSURF.pred}}.
+#' \code{\link{VSURF_interp}} and \code{\link{VSURF_pred}}.
 #' 
 #' First, \code{nfor.thres} random forests are computed using the function
 #' \code{randomForest} with arguments \code{importance=TRUE}. Then variables
@@ -14,7 +14,7 @@
 #' actual thresholding is performed: only variables with a mean VI larger than
 #' \code{nmin} * \code{min.thres} are kept.
 #' 
-#' @aliases VSURF.thres VSURF.thres.default VSURF.thres.formula
+#' @aliases VSURF_thres VSURF_thres.default VSURF_thres.formula
 #' 
 #' @param data a data frame containing the variables in the model.
 #' @param na.action A function to specify the action to be taken if NAs are
@@ -43,7 +43,7 @@
 #' @param ...  others parameters to be passed on to the \code{randomForest}
 #' function (see ?randomForest for further information).
 #' 
-#' @return An object of class \code{VSURF.thres}, which is a list with the
+#' @return An object of class \code{VSURF_thres}, which is a list with the
 #' following components:
 #' 
 #' \item{varselect.thres}{A vector of indices of selected variables,
@@ -57,12 +57,14 @@
 #' 
 #' \item{num.varselect.thres}{The number of selected variables.}
 #' 
-#' \item{ord.imp}{A list containing the order of all variables mean
-#' importance. \code{$x} contains the mean importances in decreasing order.
-#' \code{$ix} contains indices of the variables.}
+#' \item{imp.mean.dec}{A vector of the variables importance means
+#' (over \code{nfor.thres} runs), in decreasing order.}
 #' 
-#' \item{ord.sd}{A vector of standard deviations of all variables
-#' importances. The order is given by \code{ord.imp}.}
+#' \item{imp.mean.dec.ind}{The ordering index vector associated to the sorting
+#' of variables importance means.}
+#' 
+#' \item{imp.sd.dec}{A vector of standard deviations of all variables
+#' importances. The order is given by \code{imp.mean.dec.ind}.}
 #' 
 #' \item{mean.perf}{The mean OOB error rate, obtained by a random forests
 #' build with all variables.}
@@ -72,11 +74,11 @@
 #' 
 #' \item{comput.time}{Computation time.}
 #'
-#'\item{ncores}{The number of cores used to run \code{VSURF.thres}
-#'  in parallel (NULL if VSURF.thres did not run in parallel).}
+#'\item{ncores}{The number of cores used to run \code{VSURF_thres}
+#'  in parallel (NULL if VSURF_thres did not run in parallel).}
 #'
 #' \item{clusterType}{The type of the cluster used to run
-#' \code{VSURF.thres} in parallel (NULL if VSURF.thres did not run in parallel).}
+#' \code{VSURF_thres} in parallel (NULL if VSURF_thres did not run in parallel).}
 #' 
 #' \item{call}{The original call to \code{VSURF}.}
 #'
@@ -91,26 +93,25 @@
 #' @examples
 #' 
 #' data(iris)
-#' iris.thres <- VSURF.thres(x=iris[,1:4], y=iris[,5], ntree=100, nfor.thres=20)
+#' iris.thres <- VSURF_thres(x=iris[,1:4], y=iris[,5], ntree=100, nfor.thres=20)
 #' iris.thres
 #' 
 #' \dontrun{
 #' # A more interesting example with toys data (see \code{\link{toys}})
 #' # (a few minutes to execute)
 #' data(toys)
-#' toys.thres <- VSURF.thres(x=toys$x, y=toys$y)
+#' toys.thres <- VSURF_thres(x=toys$x, y=toys$y)
 #' toys.thres}
 #'
-#' @rdname VSURF.thres
-#' @method VSURF.thres default
-#' @export VSURF.thres.default
-VSURF.thres.default <- function(
+#' @rdname VSURF_thres
+#' @export
+VSURF_thres.default <- function(
   x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1), nfor.thres=50, nmin=1,
   para=FALSE, clusterType="PSOCK", ncores=detectCores()-1, ...) {
   
   # x: input
   # y: output
-  # nfor.thres: number of forests to compute the mean importance of variables (IV)
+  # nfor.thres: number of forests to compute the mean importance of variables (VI)
   # nmin: thresholding parameter (if this procedure step keeps too much variables,
   # this value can be increased, e.g. to 3 or 5)
   
@@ -139,7 +140,7 @@ VSURF.thres.default <- function(
     type <- "reg"
   }
   
-  # m: matrix with IV
+  # m: matrix with VI
   # perf: matrix with OOB errors
   m <- matrix(NA, nrow=nfor.thres, ncol=ncol(x))
   perf <- matrix(NA, nrow=nfor.thres, ncol=1)
@@ -147,18 +148,18 @@ VSURF.thres.default <- function(
   # if all forests have to be stored in memory, lines involving "rfmem" must be uncommented
   #rfmem=list()
   
-  # filling of matrix m by running nfor.thres forests and keeping IV
+  # filling of matrix m by running nfor.thres forests and keeping VI
   # filling of perf with the nfor.thres forests OOB errors
   
   rf.classif <- function(i, ...) {
-    rf <- randomForest(x=x, y=y, ntree=ntree, mtry=mtry, importance=TRUE, ...)
+    rf <- randomForest::randomForest(x=x, y=y, ntree=ntree, mtry=mtry, importance=TRUE, ...)
     m <- rf$importance[, length(levels(y))+1]
     perf <- tail(rf$err.rate[,1], n=1)
     out <- list(m=m, perf=perf)
   }
   
   rf.reg <- function(i, ...) {
-    rf <- randomForest(x=x, y=y, ntree=ntree, mtry=mtry, importance=TRUE, ...)
+    rf <- randomForest::randomForest(x=x, y=y, ntree=ntree, mtry=mtry, importance=TRUE, ...)
     m <- rf$importance[, 1]
     perf <- tail(rf$mse, n=1)
     out <- list(m=m, perf=perf)
@@ -167,18 +168,16 @@ VSURF.thres.default <- function(
   if (!para) {
     if (type=="classif") {
       for (i in 1:nfor.thres){
-        rf <- randomForest(x=x, y=y, ntree=ntree, mtry=mtry, importance=TRUE, ...)
-        #rfmem=c(rfmem,list(rf))
-        m[i,] <- rf$importance[, length(levels(y))+1]
-        perf[i] <- tail(rf$err.rate[,1], n=1)
+        rf <- rf.classif(i, ...)
+        m[i,] <- rf$m
+        perf[i] <- rf$perf
       }
     }
     if (type=="reg") {
       for (i in 1:nfor.thres){
-        rf <- randomForest(x=x, y=y, ntree=ntree, mtry=mtry, importance=TRUE, ...)
-        #rfmem=c(rfmem,list(rf))
-        m[i,] <- rf$importance[, 1]
-        perf[i] <- tail(rf$mse, n=1)
+        rf <- rf.reg(i, ...)
+        m[i,] <- rf$m
+        perf[i] <- rf$perf
       }
     }
   }
@@ -186,29 +185,29 @@ VSURF.thres.default <- function(
   else {
     if (clusterType=="FORK") {
       if (type=="classif") {
-        res <- mclapply(X=1:nfor.thres, FUN=rf.classif, ..., mc.cores=ncores)
+        res <- parallel::mclapply(X=1:nfor.thres, FUN=rf.classif, ..., mc.cores=ncores)
       }
       if (type=="reg") {
-        res <- mclapply(X=1:nfor.thres, FUN=rf.reg, ..., mc.cores=ncores)
+        res <- parallel::mclapply(X=1:nfor.thres, FUN=rf.reg, ..., mc.cores=ncores)
       }
     }
     
     else {
-      clust <- makeCluster(spec=ncores, type=clusterType)
-      registerDoParallel(clust)
+      clust <- parallel::makeCluster(spec=ncores, type=clusterType)
+      doParallel::registerDoParallel(clust)
       
       if (type=="classif") {
-        res <- foreach(i=1:nfor.thres, .packages="randomForest") %dopar% {
+        res <- foreach::foreach(i=1:nfor.thres, .packages="randomForest") %dopar% {
           out <- rf.classif(i, ...)
         }
       }
       
       if (type=="reg") {
-        res <- foreach(i=1:nfor.thres, .packages="randomForest") %dopar% {
+        res <- foreach::foreach(i=1:nfor.thres, .packages="randomForest") %dopar% {
           out <- rf.reg(i, ...)
         }
       }
-      stopCluster(clust)
+      parallel::stopCluster(clust)
     }
     
     for (i in 1:nfor.thres) {
@@ -217,15 +216,17 @@ VSURF.thres.default <- function(
     }
   }
   
-  # ord.imp contains the IV means in decreasing order
+  # ord.imp contains the VI means in decreasing order
   ord.imp <- sort( colMeans(m), index.return=TRUE, decreasing=TRUE)
+  imp.mean.dec <- ord.imp$x
+  imp.mean.dec.ind <- ord.imp$ix
   
   # mean.perf contains the forests mean OOB error
   mean.perf <- mean(perf)
   
-  # ord.sd contains IV standard deviations of all variables sorted according to ord.imp
+  # imp.sd.dec contains VI standard deviations of all variables sorted according to imp.mean.dec.ind
   sd.imp <- apply(m, 2, sd)
-  ord.sd <- sd.imp[ord.imp$ix]
+  imp.sd.dec <- sd.imp[imp.mean.dec.ind]
   
   # particular case where x has only one variable
   s <- NULL
@@ -234,25 +235,25 @@ VSURF.thres.default <- function(
   }
   else {
     p <- ncol(x)
-    u <- data.frame(ord.sd, 1:p)
+    u <- data.frame(imp.sd.dec, 1:p)
     
     # estimation of the standard deviations curve with CART (using "rpart" package)
     
     # construction of the maximal tree and search of optimal complexity
-    tree <- rpart(ord.sd ~., data=u, control=rpart.control(cp=0, minsplit=2))
+    tree <- rpart::rpart(imp.sd.dec ~., data=u, control=rpart::rpart.control(cp=0, minsplit=2))
     d <- tree$cptable
     argmin.cp <- which.min(d[,4])
     
     # pruning
-    pruned.tree <- prune(tree, cp=d[argmin.cp, 1])
+    pruned.tree <- rpart::prune(tree, cp=d[argmin.cp, 1])
     pred.pruned.tree <- predict(pruned.tree)
     
     # determination of the y-value of the lowest stair: this is the estimation
-    # of the mean standard deviation of IV
+    # of the mean standard deviation of VI
     min.pred <- min(pred.pruned.tree)
     
-    # thresholding: all variables with IV mean lower than min.pred are discarded
-    w <- which(ord.imp$x < nmin*min.pred)
+    # thresholding: all variables with VI mean lower than min.pred are discarded
+    w <- which(imp.mean.dec < nmin*min.pred)
     
     if (length(w)==0) {
       s <- p
@@ -263,12 +264,12 @@ VSURF.thres.default <- function(
   }
   
   # varselect: selected variables index
-  # impvarselect: corresponding IV means
-  varselect.thres <- ord.imp$ix[1:s]
-  imp.varselect.thres <- ord.imp$x[1:s]
+  # impvarselect: corresponding VI means
+  varselect.thres <- imp.mean.dec.ind[1:s]
+  imp.varselect.thres <- imp.mean.dec[1:s]
   
   cl <- match.call()
-  cl[[1]] <- as.name("VSURF.thres")
+  cl[[1]] <- as.name("VSURF_thres")
   
   comput.time <- Sys.time()-start
   
@@ -276,8 +277,9 @@ VSURF.thres.default <- function(
                  'imp.varselect.thres'=imp.varselect.thres,
                  'min.thres'=min.pred,
                  'num.varselect.thres'=s,
-                 'ord.imp'=ord.imp,
-                 'ord.sd'=ord.sd,
+                 'imp.mean.dec'=imp.mean.dec,
+                 'imp.mean.dec.ind'=imp.mean.dec.ind,
+                 'imp.sd.dec'=imp.sd.dec,
                  'mean.perf'=mean.perf,
                  'pred.pruned.tree'=pred.pruned.tree,
                  'nmin' = nmin,
@@ -285,16 +287,15 @@ VSURF.thres.default <- function(
                  'ncores'=ncores,
                  'clusterType'=clusterType,
                  'call'=cl)
-  class(output) <- "VSURF.thres"
+  class(output) <- "VSURF_thres"
   output
 }
 
 
-#' @rdname VSURF.thres
-#' @method VSURF.thres formula
-#' @export VSURF.thres.formula
-VSURF.thres.formula <- function(formula, data, ..., na.action = na.fail) {
-### formula interface for VSURF.thres.
+#' @rdname VSURF_thres
+#' @export
+VSURF_thres.formula <- function(formula, data, ..., na.action = na.fail) {
+### formula interface for VSURF_thres.
 ### code gratefully stolen from svm.formula (package e1071).
 ###
     if (!inherits(formula, "formula"))
@@ -322,14 +323,14 @@ VSURF.thres.formula <- function(formula, data, ..., na.action = na.fail) {
     for (i in seq(along=ncol(m))) {
         if (is.ordered(m[[i]])) m[[i]] <- as.numeric(m[[i]])
     }
-    ret <- VSURF.thres(m, y, ...)
+    ret <- VSURF_thres(m, y, ...)
     cl <- match.call()
-    cl[[1]] <- as.name("VSURF.thres")
+    cl[[1]] <- as.name("VSURF_thres")
     ret$call <- cl
     ret$terms <- Terms
     if (!is.null(attr(m, "na.action")))
         ret$na.action <- attr(m, "na.action")
-    class(ret) <- c("VSURF.thres.formula", "VSURF.thres")
+    class(ret) <- c("VSURF_thres.formula", "VSURF_thres")
         warning(
         "VSURF with a formula-type call outputs selected variables
   which are indices of the input matrix based on the formula:
@@ -338,11 +339,6 @@ VSURF.thres.formula <- function(formula, data, ..., na.action = na.fail) {
 }
 
 #' @export
-VSURF.thres <- function (x, ...) {
-  UseMethod("VSURF.thres")
-}
-
-# VSURF.thres.parallel function is kept for backward compatibility
-VSURF.thres.parallel <- function (...) {
-  VSURF.thres(..., para=TRUE)
+VSURF_thres <- function (x, ...) {
+  UseMethod("VSURF_thres")
 }

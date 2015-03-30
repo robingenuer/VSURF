@@ -96,12 +96,14 @@
 #' \item{min.thres}{The minimum predicted value of a pruned CART tree
 #' fitted to the curve of the standard deviations of VI.}
 #' 
-#' \item{ord.imp}{A list containing the order of all variables mean
-#' importance. \code{$x} contains the mean importances sorted in decreasing
-#' order. \code{$ix} contains indexes of the variables.}
+#' \item{imp.mean.dec}{A vector of the variables importance means
+#' (over \code{nfor.thres} runs), in decreasing order.}
 #' 
-#' \item{ord.sd}{A vector of standard deviations of all variables
-#' importance. The order is given by \code{ord.imp}.}
+#' \item{imp.mean.dec.ind}{The ordering index vector associated to the sorting
+#' of variables importance means.}
+#' 
+#' \item{imp.sd.dec}{A vector of standard deviations of all variables
+#' importances. The order is given by \code{imp.mean.dec.ind}.}
 #' 
 #' \item{mean.perf}{Mean OOB error rate, obtained by a random forests
 #' build on all variables.}
@@ -143,8 +145,8 @@
 #' 
 #' @author Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
 #' @seealso \code{\link{plot.VSURF}}, \code{\link{summary.VSURF}},
-#' \code{\link{VSURF.thres}}, \code{\link{VSURF.interp}},
-#' \code{\link{VSURF.pred}}, \code{\link{tune}}
+#' \code{\link{VSURF_thres}}, \code{\link{VSURF_interp}},
+#' \code{\link{VSURF_pred}}, \code{\link{tune}}
 #' @references Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2010), Variable
 #' selection using random forests, Pattern Recognition Letters 31(14),
 #' 2225-2236
@@ -167,15 +169,20 @@
 #' toys.vsurf.para <- VSURF(x=toys$x, y=toys$y, para=TRUE, ncores=2)
 #' }
 #' 
-#' @import randomForest
-#' @import rpart
-#' @import doParallel
-#' @import parallel
-#' @import foreach
+#' @importFrom randomForest randomForest
+#' @importFrom rpart rpart
+#' @importFrom rpart rpart.control
+#' @importFrom rpart prune
+#' @importFrom doParallel registerDoParallel
+#' @importFrom foreach foreach
+#' @importFrom foreach %dopar%
+#' @importFrom parallel makeCluster
+#' @importFrom parallel stopCluster
+#' @importFrom parallel mclapply
+#' @importFrom parallel detectCores
 #' 
 #' @rdname VSURF
-#' @method VSURF default
-#' @export VSURF.default
+#' @export
 VSURF.default <- function(
   x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
   nfor.thres=50, nmin=1, nfor.interp=25, nsd=1, nfor.pred=25, nmj=1,
@@ -188,15 +195,15 @@ VSURF.default <- function(
     ncores <- NULL
   }
   
-  thres <- VSURF.thres(
+  thres <- VSURF_thres(
     x=x, y=y, ntree=ntree, mtry=mtry, nfor.thres=nfor.thres, nmin=nmin,
     para=para, clusterType=clusterType, ncores=ncores, ...)
   
-  interp <- VSURF.interp(
+  interp <- VSURF_interp(
     x=x, y=y, vars=thres$varselect.thres, nfor.interp=nfor.interp, nsd=nsd,
     para=para, clusterType=clusterType, ncores=ncores, ...)
   
-  pred <- VSURF.pred(x=x, y=y, err.interp=interp$err.interp,
+  pred <- VSURF_pred(x=x, y=y, err.interp=interp$err.interp,
                      varselect.interp=interp$varselect.interp,
                      nfor.pred=nfor.pred, nmj=nmj, ...)
   
@@ -213,17 +220,18 @@ VSURF.default <- function(
                                     pred$num.varselect.pred),
                  'imp.varselect.thres'=thres$imp.varselect.thres,
                  'min.thres'=thres$min.thres,
-                 'ord.imp'=thres$ord.imp,
-                 'ord.sd'=thres$ord.sd,
+                 'imp.mean.dec'=thres$imp.mean.dec,
+                 'imp.mean.dec.ind'=thres$imp.mean.dec.ind,
+                 'imp.sd.dec'=thres$imp.sd.dec,
                  'mean.perf'=thres$mean.perf,
-                 'pred.pruned.tree' = thres$pred.pruned.tree,
+                 'pred.pruned.tree'=thres$pred.pruned.tree,
                  'err.interp'=interp$err.interp,
                  'sd.min'=interp$sd.min,
                  'err.pred'=pred$err.pred,
                  'mean.jump'=pred$mean.jump,
-                 'nmin' = nmin,
-                 'nsd' = nsd,
-                 'nmj' = nmj,
+                 'nmin'=nmin,
+                 'nsd'=nsd,
+                 'nmj'=nmj,
                  'overall.time'=overall.time,
                  'comput.times'=list(thres$comput.time, interp$comput.time, pred$comput.time),
                  'ncores'=ncores,          
@@ -234,8 +242,7 @@ VSURF.default <- function(
 }
 
 #' @rdname VSURF
-#' @method VSURF formula
-#' @export VSURF.formula
+#' @export
 VSURF.formula <- function(formula, data, ..., na.action = na.fail) {
     ### formula interface for VSURF.
     ### code gratefully stolen from svm.formula (package e1071).

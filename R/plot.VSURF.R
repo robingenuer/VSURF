@@ -3,7 +3,7 @@
 #' This function plots 4 graphs illustrating VSURF results.
 #' 
 #' The 2 graphs of the top row correspond to the "thresholding step" (and only
-#' these 2 graphs are plotted by the \code{plot.VSURF.thres} function).  The
+#' these 2 graphs are plotted by the \code{plot.VSURF_thres} function).  The
 #' top left graph plots the mean variable importance in decreasing order (black
 #' curve). The red horizontal line represent the value of the threshold.  The
 #' top right graph plots the standard deviation of variable importance with
@@ -14,23 +14,23 @@
 #' predictions, which actually is the value of the threshold.
 #' 
 #' The bottom left graph corresponds to the "interpretation step" (and only
-#' this graph is plotted by the \code{plot.VSURF.interp} function). It plots
+#' this graph is plotted by the \code{plot.VSURF_interp} function). It plots
 #' the mean OOB error rate of embedded random forests models (from the one with
 #' only one variable as predictor, to the one with all variables kept after the
 #' "thresholding step"). The vertical red line indicates the retained model.
 #' 
 #' The bottom right graph corresponds to the "predicton step" (and only this
-#' graph is plotted by the \code{plot.VSURF.pred} function). It plots the mean
+#' graph is plotted by the \code{plot.VSURF_pred} function). It plots the mean
 #' OOB error rate of embedded random forests models (the difference, here,
 #' being that variables are added to the model in a step-wise manner). The
 #' retained model is the final one.
 #' 
-#' @aliases plot.VSURF plot.VSURF.thres plot.VSURF.interp plot.VSURF.pred
+#' @aliases plot.VSURF plot.VSURF_thres plot.VSURF_interp plot.VSURF_pred
 #' 
-#' @param x An object of class \code{VSURF}, \code{VSURF.thres},
-#' \code{VSURF.interp} or \code{VSURF.pred}, which is the result of the
-#' \code{\link{VSURF}} function (or resp. \code{\link{VSURF.thres}},
-#' \code{\link{VSURF.interp}} or \code{\link{VSURF.pred}}).
+#' @param x An object of class \code{VSURF}, \code{VSURF_thres},
+#' \code{VSURF_interp} or \code{VSURF_pred}, which is the result of the
+#' \code{\link{VSURF}} function (or resp. \code{\link{VSURF_thres}},
+#' \code{\link{VSURF_interp}} or \code{\link{VSURF_pred}}).
 #' @param nvar.imp The number of variables to be kept for the VI mean plot (top
 #' left graph).
 #' @param nvar.sd The number of variables to be kept for the VI standard
@@ -62,20 +62,18 @@
 #' toys.vsurf <- VSURF(x=toys$x, y=toys$y)
 #' plot(toys.vsurf)
 #' plot(toys.vsurf, nvar.imp=50, nvar.sd=50)
-#' toys.thres <- VSURF.thres(x=toys$x, y=toys$y)
+#' toys.thres <- VSURF_thres(x=toys$x, y=toys$y)
 #' plot(toys.thres)
 #' par(mfrow=c(1,1))
 #' plot(toys.thres, nvar.imp=70, imp.sd=FALSE)
-#' toys.interp <- VSURF.interp(x=toys$x, y=toys$y, vars=toys.thres$varselect.thres)
+#' toys.interp <- VSURF_interp(x=toys$x, y=toys$y, vars=toys.thres$varselect.thres)
 #' plot(toys.interp, var.names=TRUE)
-#' toys.pred <- VSURF.pred(x=toys$x, y=toys$y, err.interp=toys.interp$err.interp,
+#' toys.pred <- VSURF_pred(x=toys$x, y=toys$y, err.interp=toys.interp$err.interp,
 #'                         varselect.interp=toys.interp$varselect.interp)
 #' plot(toys.pred, var.names=TRUE)
 #' }
 #' 
-#' @rdname plot.VSURF
-#' @method plot VSURF
-#' @export plot.VSURF
+#' @export
 plot.VSURF <- function(x, nvar.imp=NULL, nvar.sd=NULL, var.names=FALSE, ...) {
 
   if (var.names) {
@@ -141,9 +139,8 @@ plot.VSURF <- function(x, nvar.imp=NULL, nvar.sd=NULL, var.names=FALSE, ...) {
 
 
 #' @rdname plot.VSURF
-#' @method plot VSURF.thres
-#' @export plot.VSURF.thres
-plot.VSURF.thres <- function(x, nvar.imp=NULL, nvar.sd=NULL, imp=TRUE, imp.sd=TRUE,
+#' @export
+plot.VSURF_thres <- function(x, nvar.imp=NULL, nvar.sd=NULL, imp=TRUE, imp.sd=TRUE,
                              var.names=FALSE, ...) {
 
   if (var.names) {
@@ -198,9 +195,8 @@ plot.VSURF.thres <- function(x, nvar.imp=NULL, nvar.sd=NULL, imp=TRUE, imp.sd=TR
 
 
 #' @rdname plot.VSURF
-#' @method plot VSURF.interp
-#' @export plot.VSURF.interp
-plot.VSURF.interp <- function(x, var.names=FALSE, ...) {
+#' @export
+plot.VSURF_interp <- function(x, var.names=FALSE, ...) {
 
   if (var.names) {
     if (!is.null(x$terms)) {
@@ -233,9 +229,8 @@ plot.VSURF.interp <- function(x, var.names=FALSE, ...) {
 
 
 #' @rdname plot.VSURF
-#' @method plot VSURF.pred
-#' @export plot.VSURF.pred
-plot.VSURF.pred <- function(x, var.names=FALSE, ...) {
+#' @export
+plot.VSURF_pred <- function(x, var.names=FALSE, ...) {
 
   if (var.names) {
     if (!is.null(x$terms)) {

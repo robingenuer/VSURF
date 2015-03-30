@@ -30,8 +30,7 @@
 #' toys.vsurf <- VSURF(x=toys$x, y=toys$y)
 #' summary(toys.vsurf)}
 #' 
-#' @method summary VSURF
-#' @export summary.VSURF
+#' @export
 summary.VSURF <- function(object, ...) {
   
   cat(paste("\n VSURF computation time:", round(object$overall.time, 1),

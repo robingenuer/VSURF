@@ -38,7 +38,7 @@ After simulation, the obtained variables are finally standardized.
 }
 \examples{
 data(toys)
-toys.rf <- randomForest(x=toys$x, y=toys$y)
+toys.rf <- randomForest::randomForest(x=toys$x, y=toys$y)
 toys.rf
 
 \dontrun{

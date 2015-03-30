@@ -21,8 +21,7 @@
 ##' iris.vsurf
 ##' }
 ##'
-##' @method print VSURF
-##' @export print.VSURF
+##' @export
 print.VSURF <- function(x, ...) {
     
     cat(paste("** VSURF results **", 

@@ -3,7 +3,7 @@
 #' Interpretation step aims to select all variables related to the response for
 #' interpretation prupose. This is the second step of the \code{\link{VSURF}}
 #' function. It is designed to be executed after the thresholding step
-#' \code{\link{VSURF.thres}}.
+#' \code{\link{VSURF_thres}}.
 #' 
 #' \code{nfor.interp} embedded random forests models are grown, starting with
 #' the random forest build with only the most important variable and ending
@@ -13,7 +13,7 @@
 #' corresponding variables) having a mean OOB error less than \code{err.min} +
 #' \code{nsd} * \code{sd.min} is selected.
 #' 
-#' @aliases VSURF.interp VSURF.interp.default VSURF.interp.formula
+#' @aliases VSURF_interp VSURF_interp.default VSURF_interp.formula
 #' 
 #' @param data a data frame containing the variables in the model.
 #' @param na.action A function to specify the action to be taken if NAs are
@@ -25,7 +25,7 @@
 #' numeric for regression ones).
 #' @param vars A vector of variable indices. Typically, indices of variables
 #' selected by thresholding step (see value \code{varselect.thres} of
-#' \code{\link{VSURF.thres}} function).
+#' \code{\link{VSURF_thres}} function).
 #' @param nfor.interp Number of forests grown.
 #' @param nsd Number of times the standard deviation of the minimum value of
 #' \code{err.interp} is multiplied. See details below.
@@ -41,7 +41,7 @@
 #' @param ...  others parameters to be passed on to the \code{randomForest}
 #' function (see ?randomForest for further information).
 #' 
-#' @return An object of class \code{VSURF.interp}, which is a list with the
+#' @return An object of class \code{VSURF_interp}, which is a list with the
 #' following components:
 #' 
 #' \item{varselect.interp}{A vector of indices of selected variables.}
@@ -59,11 +59,11 @@
 #' 
 #' \item{comput.time}{Computation time.}
 #'
-#'\item{ncores}{The number of cores used to run \code{VSURF.interp}
-#'  in parallel (NULL if VSURF.interp did not run in parallel).}
+#'\item{ncores}{The number of cores used to run \code{VSURF_interp}
+#'  in parallel (NULL if VSURF_interp did not run in parallel).}
 #'
 #' \item{clusterType}{The type of the cluster used to run
-#' \code{VSURF.interp} in parallel (NULL if VSURF.interp did not run in parallel).}
+#' \code{VSURF_interp} in parallel (NULL if VSURF_interp did not run in parallel).}
 #'
 #' \item{call}{The original call to \code{VSURF}.}
 #'
@@ -78,8 +78,8 @@
 #' @examples
 #' 
 #' data(iris)
-#' iris.thres <- VSURF.thres(x=iris[,1:4], y=iris[,5], ntree=100, nfor.thres=20)
-#' iris.interp <- VSURF.interp(x=iris[,1:4], y=iris[,5], vars=iris.thres$varselect.thres,
+#' iris.thres <- VSURF_thres(x=iris[,1:4], y=iris[,5], ntree=100, nfor.thres=20)
+#' iris.interp <- VSURF_interp(x=iris[,1:4], y=iris[,5], vars=iris.thres$varselect.thres,
 #'                             nfor.interp=10)
 #' iris.interp
 #' 
@@ -87,14 +87,13 @@
 #' # A more interesting example with toys data (see \code{\link{toys}})
 #' # (a few minutes to execute)
 #' data(toys)
-#' toys.thres <- VSURF.thres(x=toys$x, y=toys$y)
-#' toys.interp <- VSURF.interp(x=toys$x, y=toys$y, vars=toys.thres$varselect.thres)
+#' toys.thres <- VSURF_thres(x=toys$x, y=toys$y)
+#' toys.interp <- VSURF_interp(x=toys$x, y=toys$y, vars=toys.thres$varselect.thres)
 #' toys.interp}
 #' 
-#' @rdname VSURF.interp
-#' @method VSURF.interp default
+#' @rdname VSURF_interp
 #' @export
-VSURF.interp.default <- function(
+VSURF_interp.default <- function(
   x, y, vars, nfor.interp=25, nsd=1, para=FALSE,
   ncores=detectCores()-1, clusterType="PSOCK",  ...) {
   
@@ -131,114 +130,91 @@ VSURF.interp.default <- function(
   err.interp <- rep(NA, nvars)
   sd.interp <- rep(NA, nvars)
  
-  if (!para) {  
-    for (i in 1:nvars){
-      rf <- rep(NA, nfor.interp)
-      u <- vars[1:i]
-      w <- x[,u, drop=FALSE]
-      if (type=="classif") {
-        if (i <= n) {
-          for (j in 1:nfor.interp) {
-            rf[j] <- tail(randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
-          }
-        }
-        else {
-          for (j in 1:nfor.interp) {
-            rf[j] <- tail(randomForest(x=w, y=y, ntree=1000, mtry=i/3, ...)$err.rate[,1], n=1)
-          }
-        }
+  rf.interp.classif <- function(i, ...) {
+    rf <- rep(NA, nfor.interp)
+    u <- vars[1:i]
+    w <- x[,u, drop=FALSE]
+    
+    if (i <= n) {
+      for (j in 1:nfor.interp) {
+        rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
       }
-      if (type=="reg") {
-        if (i <= n) {
-          for (j in 1:nfor.interp) {
-            rf[j] <- tail(randomForest(x=w, y=y, ...)$mse, n=1)
-          }
-        }
-        else {
-          for (j in 1:nfor.interp) {
-            rf[j] <- tail(randomForest(x=w, y=y, ntree=1000, ...)$mse, n=1)
-          }
-        }
+    }
+    
+    else {
+      for (j in 1:nfor.interp) {
+        rf[j] <- tail(randomForest::randomForest(x=w, y=y, ntree=1000, mtry=i/3, ...)$err.rate[,1], n=1)
       }
-      err.interp[i] <- mean(rf)
-      sd.interp[i] <- sd(rf)
+    }
+    out <- c(mean(rf), sd(rf))
+  }
+  
+  rf.interp.reg <- function(i, ...) {
+    rf <- rep(NA, nfor.interp)
+    u <- vars[1:i]
+    w <- x[,u, drop=FALSE]
+    
+    if (i <= n) {
+      for (j in 1:nfor.interp) {
+        rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$mse, n=1)
+      }
+    }
+    
+    else {
+      for (j in 1:nfor.interp) {
+        rf[j] <- tail(randomForest::randomForest(x=w, y=y, ntree=1000, ...)$mse, n=1)
+      }
+    }
+    out <- c(mean(rf), sd(rf))
+  }
+  
+  if (!para) {
+    if (type=="classif") {
+      for (i in 1:nvars){
+        res <- rf.interp.classif(i, ...)
+        err.interp[i] <- res[1]
+        sd.interp[i] <- res[2]
+      }
+    }
+    if (type=="reg") {
+      for (i in 1:nvars){
+        res <- rf.interp.reg(i, ...)
+        err.interp[i] <- res[1]
+        sd.interp[i] <- res[2]
+      }
     }
   }  
   
-  else {  
-    rf.interp.classif <- function(i, ...) {
-      rf <- rep(NA, nfor.interp)
-      u <- vars[1:i]
-      w <- x[,u, drop=FALSE]
-      
-      if (i <= n) {
-        for (j in 1:nfor.interp) {
-          rf[j] <- tail(randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
-        }
-      }
-      
-      else {
-        for (j in 1:nfor.interp) {
-          rf[j] <- tail(randomForest(x=w, y=y, ntree=1000, mtry=i/3, ...)$err.rate[,1], n=1)
-        }
-      }
-      out <- c(mean(rf), sd(rf))
-    }
-    
-    rf.interp.reg <- function(i, ...) {
-      rf <- rep(NA, nfor.interp)
-      u <- vars[1:i]
-      w <- x[,u, drop=FALSE]
-      
-      if (i <= n) {
-        for (j in 1:nfor.interp) {
-          rf[j] <- tail(randomForest(x=w, y=y, ...)$mse, n=1)
-        }
-      }
-      
-      else {
-        for (j in 1:nfor.interp) {
-          rf[j] <- tail(randomForest(x=w, y=y, ntree=1000, ...)$mse, n=1)
-        }
-      }
-      out <- c(mean(rf), sd(rf))
-    }
-    
+  else {    
     ncores <- min(nvars, ncores)
     
     if (clusterType=="FORK") {
       if (type=="classif") {
-        res <- mclapply(X=1:nvars, FUN=rf.interp.classif, ..., mc.cores=ncores,
-                        mc.preschedule=FALSE)
+        res <- parallel::mclapply(X=1:nvars, FUN=rf.interp.classif, ..., mc.cores=ncores,
+                                  mc.preschedule=FALSE)
       }
-      
       if (type=="reg") {
-        res <- mclapply(X=1:nvars, FUN=rf.interp.reg, ..., mc.cores=ncores,
-                        mc.preschedule=FALSE)
+        res <- parallel::mclapply(X=1:nvars, FUN=rf.interp.reg, ..., mc.cores=ncores,
+                                  mc.preschedule=FALSE)
       }
-      
     }
     
-    else {
-      
-      clust <- makeCluster(spec=ncores, type=clusterType)
-      registerDoParallel(clust)
-      
-      #   i <- NULL #to avoid check NOTE...
+    else { 
+      clust <- parallel::makeCluster(spec=ncores, type=clusterType)
+      doParallel::registerDoParallel(clust)
+      # i <- NULL #to avoid check NOTE...
       
       if (type=="classif") {
-        res <- foreach(i=1:nvars, .packages="randomForest") %dopar% {
+        res <- foreach::foreach(i=1:nvars, .packages="randomForest") %dopar% {
           out <- rf.interp.classif(i, ...)
         }
       }
-      
       if (type=="reg") {
-        res <- foreach(i=1:nvars, .packages="randomForest") %dopar% {
+        res <- foreach::foreach(i=1:nvars, .packages="randomForest") %dopar% {
           out <- rf.interp.reg(i, ...)
         }
-      }
-      
-      stopCluster(clust)
+      }     
+      parallel::stopCluster(clust)
     }
     
     for (i in 1:nvars) {
@@ -254,7 +230,7 @@ VSURF.interp.default <- function(
   varselect <- vars[1:nvarselect]
   
   cl <- match.call()
-  cl[[1]] <- as.name("VSURF.interp")
+  cl[[1]] <- as.name("VSURF_interp")
   
   comput.time <- Sys.time()-start
   
@@ -267,17 +243,16 @@ VSURF.interp.default <- function(
                  'ncores'=ncores,
                  'clusterType'=clusterType,
                  'call'=cl)
-  class(output) <- "VSURF.interp"
+  class(output) <- "VSURF_interp"
   output
 }
 
 
 
-#' @rdname VSURF.interp
-#' @method VSURF.interp formula
+#' @rdname VSURF_interp
 #' @export
-VSURF.interp.formula <- function(formula, data, ..., na.action = na.fail) {
-### formula interface for VSURF.interp.
+VSURF_interp.formula <- function(formula, data, ..., na.action = na.fail) {
+### formula interface for VSURF_interp.
 ### code gratefully stolen from svm.formula (package e1071).
 ###
     if (!inherits(formula, "formula"))
@@ -305,14 +280,14 @@ VSURF.interp.formula <- function(formula, data, ..., na.action = na.fail) {
     for (i in seq(along=ncol(m))) {
         if (is.ordered(m[[i]])) m[[i]] <- as.numeric(m[[i]])
     }
-    ret <- VSURF.interp(m, y, ...)
+    ret <- VSURF_interp(m, y, ...)
     cl <- match.call()
-    cl[[1]] <- as.name("VSURF.interp")
+    cl[[1]] <- as.name("VSURF_interp")
     ret$call <- cl
     ret$terms <- Terms
     if (!is.null(attr(m, "na.action")))
         ret$na.action <- attr(m, "na.action")
-    class(ret) <- c("VSURF.interp.formula", "VSURF.interp")
+    class(ret) <- c("VSURF_interp.formula", "VSURF_interp")
     warning(
         "VSURF with a formula-type call outputs selected variables
   which are indices of the input matrix based on the formula:
@@ -321,12 +296,6 @@ VSURF.interp.formula <- function(formula, data, ..., na.action = na.fail) {
 }
 
 #' @export
-VSURF.interp <- function (x, ...) {
-  UseMethod("VSURF.interp")
-}
-
-
-# VSURF.interp.parallel function is kept for backward compatibility
-VSURF.interp.parallel <- function (...) {
-  VSURF.interp(..., para=TRUE)
+VSURF_interp <- function (x, ...) {
+  UseMethod("VSURF_interp")
 }

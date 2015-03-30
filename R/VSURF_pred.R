@@ -1,7 +1,7 @@
 #' Prediction step of VSURF
 #' 
 #' Prediction step refines the selection of intepretation step
-#' \code{\link{VSURF.interp}} by eliminating redundancy in the set of variables
+#' \code{\link{VSURF_interp}} by eliminating redundancy in the set of variables
 #' selected, for prediction prupose. This is the third step of the
 #' \code{\link{VSURF}} function.
 #' 
@@ -14,7 +14,7 @@
 #' included in the model if the mean OOB error decrease is larger than
 #' \code{nmj} * \code{mean.jump}.
 #' 
-#' @aliases VSURF.pred VSURF.pred.default VSURF.pred.formula
+#' @aliases VSURF_pred VSURF_pred.default VSURF_pred.formula
 #' 
 #' @param data a data frame containing the variables in the model.
 #' @param na.action A function to specify the action to be taken if NAs are
@@ -26,7 +26,7 @@
 #' numeric for regression ones).
 #' @param err.interp A vector of the mean OOB error rates of the embedded
 #' random forests models build during interpretation step (value
-#' \code{err.interp} of function \code{\link{VSURF.interp}}).
+#' \code{err.interp} of function \code{\link{VSURF_interp}}).
 #' @param varselect.interp A vector of indices of variables selected after
 #' interpretation step.
 #' @param nfor.pred Number of forests grown.
@@ -34,7 +34,7 @@
 #' @param ...  others parameters to be passed on to the \code{\link{VSURF}}
 #' function.
 #' 
-#' @return An object of class \code{VSURF.pred}, which is a list with the
+#' @return An object of class \code{VSURF_pred}, which is a list with the
 #' following components:
 #' 
 #' \item{varselect.pred}{A vector of indices of variables selected after
@@ -63,10 +63,10 @@
 #' @examples
 #' 
 #' data(iris)
-#' iris.thres <- VSURF.thres(x=iris[,1:4], y=iris[,5], ntree=100, nfor.thres=20)
-#' iris.interp <- VSURF.interp(x=iris[,1:4], y=iris[,5], vars=iris.thres$varselect.thres,
+#' iris.thres <- VSURF_thres(x=iris[,1:4], y=iris[,5], ntree=100, nfor.thres=20)
+#' iris.interp <- VSURF_interp(x=iris[,1:4], y=iris[,5], vars=iris.thres$varselect.thres,
 #'                             nfor.interp=10)
-#' iris.pred <- VSURF.pred(x=iris[,1:4], y=iris[,5], err.interp=iris.interp$err.interp,
+#' iris.pred <- VSURF_pred(x=iris[,1:4], y=iris[,5], err.interp=iris.interp$err.interp,
 #'                         varselect.interp=iris.interp$varselect.interp, nfor.pred=10)
 #' iris.pred
 #' 
@@ -74,16 +74,15 @@
 #' # A more interesting example with toys data (see \code{\link{toys}})
 #' # (a few minutes to execute)
 #' data(toys)
-#' toys.thres <- VSURF.thres(x=toys$x, y=toys$y)
-#' toys.interp <- VSURF.interp(x=toys$x, y=toys$y, vars=toys.thres$varselect.thres)
-#' toys.pred <- VSURF.pred(x=toys$x, y=toys$y, err.interp=toys.interp$err.interp,
+#' toys.thres <- VSURF_thres(x=toys$x, y=toys$y)
+#' toys.interp <- VSURF_interp(x=toys$x, y=toys$y, vars=toys.thres$varselect.thres)
+#' toys.pred <- VSURF_pred(x=toys$x, y=toys$y, err.interp=toys.interp$err.interp,
 #'                         varselect.interp=toys.interp$varselect.interp)
 #' toys.pred}
 #'
-#' @rdname VSURF.pred
-#' @method VSURF.pred default
-#' @export VSURF.pred.default
-VSURF.pred.default <-function(x, y, err.interp, varselect.interp, nfor.pred=25, nmj=1, ...){
+#' @rdname VSURF_pred
+#' @export
+VSURF_pred.default <-function(x, y, err.interp, varselect.interp, nfor.pred=25, nmj=1, ...){
   
   # err.interp: interpretation models errors
   # varselect.interp: interpretation variables indices
@@ -175,7 +174,7 @@ did not eliminate variables")
   }
 
   cl <- match.call()
-  cl[[1]] <- as.name("VSURF.pred")
+  cl[[1]] <- as.name("VSURF_pred")
 
   comput.time <- Sys.time()-start
   
@@ -185,16 +184,15 @@ did not eliminate variables")
                  'num.varselect.pred'=length(varselect.pred),
                  'comput.time'=comput.time,
                  'call'=cl)
-  class(output) <- "VSURF.pred"
+  class(output) <- "VSURF_pred"
   output
 }
 
 
-#' @rdname VSURF.pred
-#' @method VSURF.pred formula
-#' @export VSURF.pred.formula
-VSURF.pred.formula <- function(formula, data, ..., na.action = na.fail) {
-### formula interface for VSURF.pred.
+#' @rdname VSURF_pred
+#' @export
+VSURF_pred.formula <- function(formula, data, ..., na.action = na.fail) {
+### formula interface for VSURF_pred.
 ### code gratefully stolen from svm.formula (package e1071).
 ###
     if (!inherits(formula, "formula"))
@@ -222,14 +220,14 @@ VSURF.pred.formula <- function(formula, data, ..., na.action = na.fail) {
     for (i in seq(along=ncol(m))) {
         if (is.ordered(m[[i]])) m[[i]] <- as.numeric(m[[i]])
     }
-    ret <- VSURF.pred(m, y, ...)
+    ret <- VSURF_pred(m, y, ...)
     cl <- match.call()
-    cl[[1]] <- as.name("VSURF.pred")
+    cl[[1]] <- as.name("VSURF_pred")
     ret$call <- cl
     ret$terms <- Terms
     if (!is.null(attr(m, "na.action")))
         ret$na.action <- attr(m, "na.action")
-    class(ret) <- c("VSURF.pred.formula", "VSURF.pred")
+    class(ret) <- c("VSURF_pred.formula", "VSURF_pred")
     warning(
         "VSURF with a formula-type call outputs selected variables
   which are indices of the input matrix based on the formula:
@@ -239,6 +237,6 @@ VSURF.pred.formula <- function(formula, data, ..., na.action = na.fail) {
 
 
 #' @export
-VSURF.pred <- function (x, ...) {
-  UseMethod("VSURF.pred")
+VSURF_pred <- function (x, ...) {
+  UseMethod("VSURF_pred")
 }
