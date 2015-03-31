@@ -141,13 +141,13 @@ plot.VSURF_interp <- function(x, var.names=FALSE, nvar.interp=length(x$varselect
     }
     
     plot(x$err.interp[1:nvar.interp], type="l", xaxt="n", xlab="nested models",
-         ylab="OOB error", ylim=c(0, max(x$err.interp[1:nvar.interp])*1.05), ...)
+         ylab="OOB error", ...)
     axis(side=1, at=1:nvar.interp,
          labels=colnames(input[x$varselect.thres[1:nvar.interp]]))
   }
   else {
     plot(x$err.interp[1:nvar.interp], type="l", xlab="nested models",
-         ylab="OOB error", ylim=c(0, max(x$err.interp[1:nvar.interp])*1.05), ...)
+         ylab="OOB error", ...)
   }
   
   abline(v=length(x$varselect.interp), col="red", ...)
@@ -168,14 +168,14 @@ plot.VSURF_pred <- function(x, var.names=FALSE, nvar.pred=length(x$varselect.pre
     }
     
     plot(x$err.pred[1:nvar.pred], type="l", xaxt="n", xlab="predictive models",
-         ylab="OOB error", ylim=c(0, max(x$err.pred[1:nvar.pred])*1.05), ...)
+         ylab="OOB error", ...)
     axis(side=1, at=1:length(x$varselect.pred[1:nvar.pred]),
          labels=colnames(input[x$varselect.pred[1:nvar.pred]]))
   }
   
   else {
     plot(x$err.pred[1:nvar.pred], type="l", xlab="predictive models",
-         ylab="OOB error", ylim=c(0, max(x$err.pred[1:nvar.pred])*1.05), ...)
+         ylab="OOB error", ...)
   }  
 }
 
