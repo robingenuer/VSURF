@@ -38,14 +38,14 @@ After simulation, the obtained variables are finally standardized.
 }
 \examples{
 data(toys)
-toys.rf <- randomForest::randomForest(x=toys$x, y=toys$y)
+toys.rf <- randomForest::randomForest(toys$x, toys$y)
 toys.rf
 
 \dontrun{
 # VSURF applied for toys data:
 # (a few minutes to execute)
 data(toys)
-toys.vsurf <- VSURF(x=toys$x, y=toys$y)
+toys.vsurf <- VSURF(toys$x, toys$y)
 toys.vsurf
 }
 }

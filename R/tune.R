@@ -41,12 +41,12 @@
 #' 
 #' \dontrun{
 #' data(iris)
-#' iris.thres <- VSURF_thres(x=iris[,1:4], y=iris[,5], ntree=100, nfor.thres=20)
-#' iris.thres.tuned <- tune(x=iris.thres, nmin=10)
+#' iris.thres <- VSURF_thres(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20)
+#' iris.thres.tuned <- tune(iris.thres, nmin = 10)
 #' iris.thres.tuned
-#' iris.interp <- VSURF_interp(x=iris[,1:4], y=iris[,5], vars=iris.thres$varselect.thres,
-#'                             nfor.interp=10)
-#' iris.interp.tuned <- tune(x=iris.interp, nsd=10)
+#' iris.interp <- VSURF_interp(iris[,1:4], iris[,5], vars = iris.thres$varselect.thres,
+#'                             nfor.interp = 10)
+#' iris.interp.tuned <- tune(iris.interp, nsd = 10)
 #' iris.interp.tuned
 #' }
 #' 
@@ -59,29 +59,31 @@ tune <- function (x, ...) {
 #' @export
 tune.VSURF_thres <- function (x, nmin = 1, ...) {
   
-  ord.imp <- x$ord.imp
-  ord.sd <- x$ord.sd
+  imp.mean.dec <- x$imp.mean.dec
+  imp.mean.dec.ind <- x$imp.mean.dec.ind
+  imp.sd.dec <- x$imp.sd.dec
   min.pred <- x$min.thres
   mean.perf <- x$mean.perf
   pred.pruned.tree <- x$pred.pruned.tree
   
-  w <- which(ord.imp$x < nmin * min.pred)
+  w <- which(imp.mean.dec < nmin * min.pred)
   if (length(w) == 0) {
-    s <- length(ord.sd)
+    s <- length(imp.sd.dec)
   }
   else {
     s <- min(w)-1
   }
   
-  varselect.thres <- ord.imp$ix[1:s]
-  imp.varselect.thres <- ord.imp$x[1:s]
+  varselect.thres <- imp.mean.dec.ind[1:s]
+  imp.varselect.thres <- imp.mean.dec[1:s]
   
   output <- list('varselect.thres' = varselect.thres,
                  'imp.varselect.thres' = imp.varselect.thres, 
                  'min.thres' = min.pred,
                  'num.varselect' = s,
-                 'ord.imp' = ord.imp,
-                 'ord.sd' = ord.sd,
+                 'imp.mean.dec'=imp.mean.dec,
+                 'imp.mean.dec.ind'=imp.mean.dec.ind,
+                 'imp.sd.dec'=imp.sd.dec,
                  'mean.perf' = mean.perf,
                  'pred.pruned.tree' = pred.pruned.tree)
 }

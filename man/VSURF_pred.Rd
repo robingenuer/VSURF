@@ -80,21 +80,21 @@ included in the model if the mean OOB error decrease is larger than
 }
 \examples{
 data(iris)
-iris.thres <- VSURF_thres(x=iris[,1:4], y=iris[,5], ntree=100, nfor.thres=20)
-iris.interp <- VSURF_interp(x=iris[,1:4], y=iris[,5], vars=iris.thres$varselect.thres,
-                            nfor.interp=10)
-iris.pred <- VSURF_pred(x=iris[,1:4], y=iris[,5], err.interp=iris.interp$err.interp,
-                        varselect.interp=iris.interp$varselect.interp, nfor.pred=10)
+iris.thres <- VSURF_thres(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20)
+iris.interp <- VSURF_interp(iris[,1:4], iris[,5], vars = iris.thres$varselect.thres,
+                            nfor.interp = 10)
+iris.pred <- VSURF_pred(iris[,1:4], iris[,5], err.interp = iris.interp$err.interp,
+                        varselect.interp = iris.interp$varselect.interp, nfor.pred = 10)
 iris.pred
 
 \dontrun{
 # A more interesting example with toys data (see \\code{\\link{toys}})
 # (a few minutes to execute)
 data(toys)
-toys.thres <- VSURF_thres(x=toys$x, y=toys$y)
-toys.interp <- VSURF_interp(x=toys$x, y=toys$y, vars=toys.thres$varselect.thres)
-toys.pred <- VSURF_pred(x=toys$x, y=toys$y, err.interp=toys.interp$err.interp,
-                        varselect.interp=toys.interp$varselect.interp)
+toys.thres <- VSURF_thres(toys$x, toys$y)
+toys.interp <- VSURF_interp(toys$x, toys$y, vars = toys.thres$varselect.thres)
+toys.pred <- VSURF_pred(toys$x, toys$y, err.interp = toys.interp$err.interp,
+                        varselect.interp = toys.interp$varselect.interp)
 toys.pred}
 }
 \author{

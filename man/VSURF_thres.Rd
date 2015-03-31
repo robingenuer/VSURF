@@ -114,14 +114,14 @@ actual thresholding is performed: only variables with a mean VI larger than
 }
 \examples{
 data(iris)
-iris.thres <- VSURF_thres(x=iris[,1:4], y=iris[,5], ntree=100, nfor.thres=20)
+iris.thres <- VSURF_thres(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20)
 iris.thres
 
 \dontrun{
 # A more interesting example with toys data (see \\code{\\link{toys}})
 # (a few minutes to execute)
 data(toys)
-toys.thres <- VSURF_thres(x=toys$x, y=toys$y)
+toys.thres <- VSURF_thres(toys$x, toys$y)
 toys.thres}
 }
 \author{

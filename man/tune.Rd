@@ -54,12 +54,12 @@ one, choose a value larger than 1.
 \examples{
 \dontrun{
 data(iris)
-iris.thres <- VSURF_thres(x=iris[,1:4], y=iris[,5], ntree=100, nfor.thres=20)
-iris.thres.tuned <- tune(x=iris.thres, nmin=10)
+iris.thres <- VSURF_thres(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20)
+iris.thres.tuned <- tune(iris.thres, nmin = 10)
 iris.thres.tuned
-iris.interp <- VSURF_interp(x=iris[,1:4], y=iris[,5], vars=iris.thres$varselect.thres,
-                            nfor.interp=10)
-iris.interp.tuned <- tune(x=iris.interp, nsd=10)
+iris.interp <- VSURF_interp(iris[,1:4], iris[,5], vars = iris.thres$varselect.thres,
+                            nfor.interp = 10)
+iris.interp.tuned <- tune(iris.interp, nsd = 10)
 iris.interp.tuned
 }
 }

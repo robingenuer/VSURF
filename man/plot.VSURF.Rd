@@ -7,15 +7,21 @@
 \alias{plot.VSURF_thres}
 \title{Plot of VSURF results}
 \usage{
-\method{plot}{VSURF}(x, nvar.imp = NULL, nvar.sd = NULL,
-  var.names = FALSE, ...)
+\method{plot}{VSURF}(x, step = "all", var.names = FALSE, imp.mean = TRUE,
+  imp.sd = TRUE, nvar.imp.mean = length(x$imp.mean.dec),
+  nvar.imp.sd = length(x$imp.sd.dec),
+  nvar.interp = length(x$varselect.thres),
+  nvar.pred = length(x$varselect.pred), ...)
 
-\method{plot}{VSURF_thres}(x, nvar.imp = NULL, nvar.sd = NULL, imp = TRUE,
-  imp.sd = TRUE, var.names = FALSE, ...)
+\method{plot}{VSURF_thres}(x, var.names = FALSE, imp.mean = TRUE,
+  imp.sd = TRUE, nvar.imp.mean = length(x$imp.mean.dec),
+  nvar.imp.sd = length(x$imp.sd.dec), ...)
 
-\method{plot}{VSURF_interp}(x, var.names = FALSE, ...)
+\method{plot}{VSURF_interp}(x, var.names = FALSE,
+  nvar.interp = length(x$varselect.thres), ...)
 
-\method{plot}{VSURF_pred}(x, var.names = FALSE, ...)
+\method{plot}{VSURF_pred}(x, var.names = FALSE,
+  nvar.pred = length(x$varselect.pred), ...)
 }
 \arguments{
 \item{x}{An object of class \code{VSURF}, \code{VSURF_thres},
@@ -23,22 +29,28 @@
 \code{\link{VSURF}} function (or resp. \code{\link{VSURF_thres}},
 \code{\link{VSURF_interp}} or \code{\link{VSURF_pred}}).}
 
-\item{nvar.imp}{The number of variables to be kept for the VI mean plot (top
-left graph).}
-
-\item{nvar.sd}{The number of variables to be kept for the VI standard
-deviation plot (top left graph).}
+\item{step}{A character string indicating which step must be plotted (default is "all").
+Available choices are "thres", "interp", "pred".}
 
 \item{var.names}{If FALSE (default) xticks are the numbering given by the
 sorting of VI mean, if TRUE they are the variables names.}
 
-\item{imp}{If TRUE (default) VI mean is plotted, if FALSE not.}
+\item{imp.mean}{If TRUE (default) VI mean is plotted, if FALSE it is not.}
 
 \item{imp.sd}{If TRUE (default) VI standard deviation is plotted, if FALSE
-not.}
+it is not.}
+
+\item{nvar.imp.mean}{The number of variables to be kept for the VI mean plot.}
+
+\item{nvar.imp.sd}{The number of variables to be kept for the VI standard
+deviation plot.}
+
+\item{nvar.interp}{The number of variables to be kept for the "interp" plot.}
+
+\item{nvar.pred}{The number of variables to be kept for the "pred" plot.}
 
 \item{\dots}{Arguments to be passed to \code{\link{par}} (they will affect
-all plots)}
+all plots) or to others methods of plot.}
 }
 \description{
 This function plots 4 graphs illustrating VSURF results.
@@ -70,25 +82,25 @@ retained model is the final one.
 \examples{
 \dontrun{
 data(iris)
-iris.vsurf <- VSURF(x=iris[,1:4], y=iris[,5])
+iris.vsurf <- VSURF(iris[,1:4], iris[,5])
 plot(iris.vsurf)
 plot(iris.vsurf, var.names=TRUE)
+plot(iris.vsurf, step="thres")
 
 # A more interesting example with toys data (see \\code{\\link{toys}})
 # (a few minutes to execute) and intermediate functions
 data(toys)
-toys.vsurf <- VSURF(x=toys$x, y=toys$y)
+toys.vsurf <- VSURF(toys$x, toys$y)
 plot(toys.vsurf)
-plot(toys.vsurf, nvar.imp=50, nvar.sd=50)
-toys.thres <- VSURF_thres(x=toys$x, y=toys$y)
+plot(toys.vsurf, nvar.imp.mean = 50, nvar.imp.sd = 50)
+toys.thres <- VSURF_thres(toys$x, toys$y)
 plot(toys.thres)
-par(mfrow=c(1,1))
-plot(toys.thres, nvar.imp=70, imp.sd=FALSE)
-toys.interp <- VSURF_interp(x=toys$x, y=toys$y, vars=toys.thres$varselect.thres)
-plot(toys.interp, var.names=TRUE)
-toys.pred <- VSURF_pred(x=toys$x, y=toys$y, err.interp=toys.interp$err.interp,
-                        varselect.interp=toys.interp$varselect.interp)
-plot(toys.pred, var.names=TRUE)
+plot(toys.thres, nvar.imp.mean = 70, imp.sd = FALSE)
+toys.interp <- VSURF_interp(toys$x, toys$y, vars = toys.thres$varselect.thres)
+plot(toys.interp, var.names = TRUE)
+toys.pred <- VSURF_pred(toys$x, toys$y, err.interp = toys.interp$err.interp,
+                        varselect.interp = toys.interp$varselect.interp)
+plot(toys.pred, var.names = TRUE)
 }
 }
 \author{

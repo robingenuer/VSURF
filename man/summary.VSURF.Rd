@@ -24,14 +24,14 @@ if the parallel version of VSURF was used.
 \examples{
 \dontrun{
 data(iris)
-iris.vsurf <- VSURF(x=iris[,1:4], y=iris[,5], ntree=100, nfor.thres=20,
-                    nfor.interp=10, nfor.pred=10)
+iris.vsurf <- VSURF(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20,
+                    nfor.interp = 10, nfor.pred = 10)
 summary(iris.vsurf)
 
 # A more interesting example with toys data (see \\code{\\link{toys}})
 # (a few minutes to execute)
 data(toys)
-toys.vsurf <- VSURF(x=toys$x, y=toys$y)
+toys.vsurf <- VSURF(toys$x, toys$y)
 summary(toys.vsurf)}
 }
 \author{

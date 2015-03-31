@@ -177,20 +177,20 @@ VSURF is able to run using mutliple cores in parallel
 }
 \examples{
 data(iris)
-iris.vsurf <- VSURF(x=iris[,1:4], y=iris[,5], ntree=100, nfor.thres=20,
-                    nfor.interp=10, nfor.pred=10)
+iris.vsurf <- VSURF(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20,
+                    nfor.interp = 10, nfor.pred = 10)
 iris.vsurf
 
 \dontrun{
 # A more interesting example with toys data (see \\code{\\link{toys}})
 # (a few minutes to execute)
 data(toys)
-toys.vsurf <- VSURF(x=toys$x, y=toys$y)
+toys.vsurf <- VSURF(toys$x, toys$y)
 toys.vsurf
 
 # VSURF run on 2 cores in parallel (using a SOCKET cluster):
 data(toys)
-toys.vsurf.para <- VSURF(x=toys$x, y=toys$y, para=TRUE, ncores=2)
+toys.vsurf.para <- VSURF(toys$x, toys$y, para = TRUE, ncores = 2)
 }
 }
 \author{
