@@ -46,6 +46,8 @@
 #' 
 #' \item{num.varselect.pred}{The number of selected variables.}
 #' 
+#' \item{nmj}{Value of the parameter in the call.}
+#' 
 #' \item{comput.time}{Computation time.}
 #'
 #' \item{call}{The original call to \code{VSURF}.}
@@ -185,6 +187,7 @@ did not eliminate variables")
                  'err.pred'=err.pred,
                  'mean.jump'=mean.jump,
                  'num.varselect.pred'=length(varselect.pred),
+                 'nmj' = nmj,
                  'comput.time'=comput.time,
                  'call'=cl)
   class(output) <- "VSURF_pred"

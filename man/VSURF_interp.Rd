@@ -67,6 +67,8 @@ the random forests model attaining the minimum mean OOB error rate.}
 \item{varselect.thres}{A vector of indexes of variables selected after
 "thresholding step", sorted according to their mean VI, in decreasing order.}
 
+\item{nsd}{Value of the parameter in the call.}
+
 \item{comput.time}{Computation time.}
 
 \item{ncores}{The number of cores used to run \code{VSURF_interp}

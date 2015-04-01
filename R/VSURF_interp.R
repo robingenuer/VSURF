@@ -55,6 +55,8 @@
 #' \item{varselect.thres}{A vector of indexes of variables selected after
 #' "thresholding step", sorted according to their mean VI, in decreasing order.}
 #' 
+#' \item{nsd}{Value of the parameter in the call.}
+#' 
 #' \item{comput.time}{Computation time.}
 #'
 #'\item{ncores}{The number of cores used to run \code{VSURF_interp}
@@ -242,6 +244,7 @@ VSURF_interp.default <- function(
                  'sd.min'=sd.min,
                  'num.varselect.interp'=nvarselect,
                  'varselect.thres' = vars,
+                 'nsd' = nsd,
                  'comput.time'=comput.time,
                  'ncores'=ncores,
                  'clusterType'=clusterType,

@@ -83,6 +83,8 @@ build with all variables.}
 \item{pred.pruned.tree}{The predictions of the CART tree fitted to the
 curve of the standard deviations of VI.}
 
+\item{nmin}{Value of the parameter in the call.}
+
 \item{comput.time}{Computation time.}
 
 \item{ncores}{The number of cores used to run \code{VSURF_thres}

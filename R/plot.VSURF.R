@@ -182,6 +182,14 @@ plot.VSURF_pred <- function(x, var.names=FALSE, nvar.pred=length(x$varselect.pre
 
 # non-exported function which only plots VI means
 plot_imp.mean <- function(x, var.names=FALSE, nvar.imp.mean=length(x$imp.mean.dec), ...) {
+  # Begin "for bakward compatibility only"
+  if (is.null(x$imp.mean.dec)) {
+    x$imp.mean.dec <- x$ord.imp$x
+    x$imp.mean.dec.ind <- x$ord.imp$ix
+    nvar.imp.mean <- length(x$imp.mean.dec)
+  }
+  # End "for bakward compatibility only"
+  
   if (var.names) {
     if (!is.null(x$terms)) {
       input <- model.frame(terms(reformulate(attributes(x$terms)$term.labels)),
@@ -207,6 +215,14 @@ plot_imp.mean <- function(x, var.names=FALSE, nvar.imp.mean=length(x$imp.mean.de
 
 # non-exported function which only plots VI sds
 plot_imp.sd <- function(x, var.names=FALSE, nvar.imp.sd=length(x$imp.sd.dec), ...) {
+  # Begin "for bakward compatibility only"
+  if (is.null(x$imp.sd.dec)) {
+    x$imp.sd.dec <- x$ord.sd
+    x$imp.mean.dec.ind <- x$ord.imp$ix
+    nvar.imp.sd <- length(x$imp.sd.dec)
+  }
+  # End "for bakward compatibility only"
+  
   if (var.names) {
     if (!is.null(x$terms)) {
       input <- model.frame(terms(reformulate(attributes(x$terms)$term.labels)),

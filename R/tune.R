@@ -59,50 +59,48 @@ tune <- function (x, ...) {
 #' @export
 tune.VSURF_thres <- function (x, nmin = 1, ...) {
   
-  imp.mean.dec <- x$imp.mean.dec
-  imp.mean.dec.ind <- x$imp.mean.dec.ind
-  imp.sd.dec <- x$imp.sd.dec
-  min.pred <- x$min.thres
-  mean.perf <- x$mean.perf
-  pred.pruned.tree <- x$pred.pruned.tree
+  # Begin "for bakward compatibility only"
+  if (is.null(x$imp.mean.dec)) {
+    x$imp.mean.dec <- x$ord.imp$x
+    x$imp.mean.dec.ind <- x$ord.imp$ix
+    x$imp.sd.dec <- x$ord.sd
+  }
+  # End "for bakward compatibility only"
   
-  w <- which(imp.mean.dec < nmin * min.pred)
+  if (x$min.thres == 0) {
+    stop("Tuning can not be performed because the minimum value of the CART
+         fit (min.thres) is null.")
+  }
+  
+  w <- which(x$imp.mean.dec < nmin * x$min.thres)
   if (length(w) == 0) {
-    s <- length(imp.sd.dec)
+    s <- length(x$imp.sd.dec)
   }
   else {
     s <- min(w)-1
   }
   
-  varselect.thres <- imp.mean.dec.ind[1:s]
-  imp.varselect.thres <- imp.mean.dec[1:s]
+  x$varselect.thres <- x$imp.mean.dec.ind[1:s]
+  x$imp.varselect.thres <- x$imp.mean.dec[1:s]
+  x$num.varselect.thres <- s
+  x$nmin <- nmin
   
-  output <- list('varselect.thres' = varselect.thres,
-                 'imp.varselect.thres' = imp.varselect.thres, 
-                 'min.thres' = min.pred,
-                 'num.varselect' = s,
-                 'imp.mean.dec'=imp.mean.dec,
-                 'imp.mean.dec.ind'=imp.mean.dec.ind,
-                 'imp.sd.dec'=imp.sd.dec,
-                 'mean.perf' = mean.perf,
-                 'pred.pruned.tree' = pred.pruned.tree)
+  output <- x
 }
 
 #' @rdname tune
 #' @export
 tune.VSURF_interp <- function (x, nsd = 1, ...) {
+
+  if (x$sd.min == 0) {
+    stop("Tuning can not be performed because the standard deviation of the minimum
+         (sd.min) is null.")
+  }
   
-  err.interp <- x$err.interp
-  sd.min <- x$sd.min
-  vars <- x$varselect.thres
-
-  var.min <- which.min(err.interp)
-  nvarselect <- min(which(err.interp <= (err.interp[var.min] + nsd * sd.min)))
-  varselect <- vars[1:nvarselect]
-
-  output <- list('varselect.interp' = varselect,
-                 'err.interp' = err.interp,
-                 'sd.min' = sd.min,
-                 'num.varselect.interp'= length(varselect),
-                 'varselect.thres' = vars)
+  var.min <- which.min(x$err.interp)
+  x$num.varselect.interp <- min(which(x$err.interp <= (x$err.interp[var.min] + nsd * x$sd.min)))
+  x$varselect.interp <- x$varselect.interp[1:x$num.varselect.interp]
+  x$nsd <- nsd
+  
+  output <- x
 }
