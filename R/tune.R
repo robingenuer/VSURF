@@ -99,7 +99,7 @@ tune.VSURF_interp <- function (x, nsd = 1, ...) {
   
   var.min <- which.min(x$err.interp)
   x$num.varselect.interp <- min(which(x$err.interp <= (x$err.interp[var.min] + nsd * x$sd.min)))
-  x$varselect.interp <- x$varselect.interp[1:x$num.varselect.interp]
+  x$varselect.interp <- x$varselect.thres[1:x$num.varselect.interp]
   x$nsd <- nsd
   
   output <- x
