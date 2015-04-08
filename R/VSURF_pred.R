@@ -240,9 +240,3 @@ VSURF_pred.formula <- function(formula, data, ..., na.action = na.fail) {
   you may reorder these to get indices of the original data")
     return(ret)
 }
-
-# VSURF.pred function is kept for backward compatibility
-VSURF.pred <- function(...) {
-  .Deprecated("VSURF_pred")
-  VSURF_pred(...)
-}

@@ -9,7 +9,8 @@
 VSURF_interp(x, ...)
 
 \method{VSURF_interp}{default}(x, y, vars, nfor.interp = 25, nsd = 1,
-  para = FALSE, ncores = detectCores() - 1, clusterType = "PSOCK", ...)
+  para = FALSE, ncores = parallel::detectCores() - 1,
+  clusterType = "PSOCK", ...)
 
 \method{VSURF_interp}{formula}(formula, data, ..., na.action = na.fail)
 }

@@ -1,6 +1,6 @@
 #' Summary of VSURF results
 #' 
-#' This function display a summary of VSURF results
+#' This function displays a summary of VSURF results
 #' 
 #' This function prints the total computation time of VSURF.  It also gives the
 #' number of selected variables (and the computation time) at each step of

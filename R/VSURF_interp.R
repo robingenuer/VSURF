@@ -100,7 +100,7 @@ VSURF_interp <- function (x, ...) {
 #' @export
 VSURF_interp.default <- function(
   x, y, vars, nfor.interp=25, nsd=1, para=FALSE,
-  ncores=detectCores()-1, clusterType="PSOCK",  ...) {
+  ncores=parallel::detectCores()-1, clusterType="PSOCK",  ...) {
   
   # vars: selected variables indices after thresholding step
   # nfor.interp: number of forests to estimate each model
@@ -259,54 +259,44 @@ VSURF_interp.formula <- function(formula, data, ..., na.action = na.fail) {
 ### formula interface for VSURF_interp.
 ### code gratefully stolen from svm.formula (package e1071).
 ###
-    if (!inherits(formula, "formula"))
-        stop("method is only for formula objects")
-    m <- match.call(expand.dots = FALSE)
-    ## Catch xtest and ytest in arguments.
-    if (any(c("xtest", "ytest") %in% names(m)))
-        stop("xtest/ytest not supported through the formula interface")
-    names(m)[2] <- "formula"
-    if (is.matrix(eval(m$data, parent.frame())))
-        m$data <- as.data.frame(data)
-    m$... <- NULL
-    m$na.action <- na.action
-    m[[1]] <- as.name("model.frame")
-    m <- eval(m, parent.frame())
-    y <- model.response(m)
-    Terms <- attr(m, "terms")
-    attr(Terms, "intercept") <- 0
-    ## Drop any "negative" terms in the formula.
-    ## test with:
-    ## randomForest(Fertility~.-Catholic+I(Catholic<50),data=swiss,mtry=2)
-    m <- model.frame(terms(reformulate(attributes(Terms)$term.labels)),
-                     data.frame(m))
-    ## if (!is.null(y)) m <- m[, -1, drop=FALSE]
-    for (i in seq(along=ncol(m))) {
-        if (is.ordered(m[[i]])) m[[i]] <- as.numeric(m[[i]])
-    }
-    ret <- VSURF_interp(m, y, ...)
-    cl <- match.call()
-    cl[[1]] <- as.name("VSURF_interp")
-    ret$call <- cl
-    ret$terms <- Terms
-    if (!is.null(attr(m, "na.action")))
-        ret$na.action <- attr(m, "na.action")
-    class(ret) <- c("VSURF_interp.formula", "VSURF_interp")
+  if (!inherits(formula, "formula"))
+    stop("method is only for formula objects")
+  m <- match.call(expand.dots = FALSE)
+  ## Catch xtest and ytest in arguments.
+  if (any(c("xtest", "ytest") %in% names(m)))
+    stop("xtest/ytest not supported through the formula interface")
+  names(m)[2] <- "formula"
+  if (is.matrix(eval(m$data, parent.frame())))
+    m$data <- as.data.frame(data)
+  m$... <- NULL
+  m$na.action <- na.action
+  m[[1]] <- as.name("model.frame")
+  m <- eval(m, parent.frame())
+  y <- model.response(m)
+  Terms <- attr(m, "terms")
+  attr(Terms, "intercept") <- 0
+  attr(y, "na.action") <- attr(m, "na.action")
+  ## Drop any "negative" terms in the formula.
+  ## test with:
+  ## randomForest(Fertility~.-Catholic+I(Catholic<50),data=swiss,mtry=2)
+  m <- model.frame(terms(reformulate(attributes(Terms)$term.labels)),
+                   data.frame(m))
+  ## if (!is.null(y)) m <- m[, -1, drop=FALSE]
+  for (i in seq(along=ncol(m))) {
+    if (is.ordered(m[[i]])) m[[i]] <- as.numeric(m[[i]])
+  }
+  ret <- VSURF_interp.default(x=m, y=y, ...)
+  cl <- match.call()
+  cl[[1]] <- as.name("VSURF")
+  ret$call <- cl
+  ret$terms <- Terms
+  if (!is.null(attr(y, "na.action"))) {
+    ret$na.action <- attr(y, "na.action")
+  }
+  class(ret) <- c("VSURF_interp.formula", "VSURF_interp")
     warning(
         "VSURF with a formula-type call outputs selected variables
   which are indices of the input matrix based on the formula:
   you may reorder these to get indices of the original data")
     return(ret)
-}
-
-# VSURF.interp function is kept for backward compatibility
-VSURF.interp <- function(...) {
-  .Deprecated("VSURF_interp")
-  VSURF_interp(...)
-}
-
-# VSURF.interp.parallel function is kept for backward compatibility
-VSURF.interp.parallel <- function(...) {
-  .Deprecated("VSURF_interp(..., para = TRUE)")
-  VSURF_interp(..., para=TRUE)
 }

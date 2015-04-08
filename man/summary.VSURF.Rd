@@ -13,7 +13,7 @@
 \item{\dots}{Not used.}
 }
 \description{
-This function display a summary of VSURF results
+This function displays a summary of VSURF results
 }
 \details{
 This function prints the total computation time of VSURF.  It also gives the

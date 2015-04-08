@@ -141,6 +141,9 @@
 #' \item{terms}{Terms associated to the formula (only if formula-type call
 #' was used).}
 #' 
+#' \item{na.action}{Method used to deal with missing values (only if formula-type call
+#' was used).}
+#' 
 #' @author Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
 #' @seealso \code{\link{plot.VSURF}}, \code{\link{summary.VSURF}},
 #' \code{\link{VSURF_thres}}, \code{\link{VSURF_interp}},
@@ -189,7 +192,7 @@ VSURF <- function (x, ...) {
 VSURF.default <- function(
   x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
   nfor.thres=50, nmin=1, nfor.interp=25, nsd=1, nfor.pred=25, nmj=1,
-  para=FALSE, ncores=detectCores()-1, clusterType="PSOCK", ...) {
+  para=FALSE, ncores=parallel::detectCores()-1, clusterType="PSOCK", ...) {
   
   start <- Sys.time()
   
@@ -266,6 +269,7 @@ VSURF.formula <- function(formula, data, ..., na.action = na.fail) {
     y <- model.response(m)
     Terms <- attr(m, "terms")
     attr(Terms, "intercept") <- 0
+    attr(y, "na.action") <- attr(m, "na.action")
     ## Drop any "negative" terms in the formula.
     ## test with:
     ## randomForest(Fertility~.-Catholic+I(Catholic<50),data=swiss,mtry=2)
@@ -275,13 +279,14 @@ VSURF.formula <- function(formula, data, ..., na.action = na.fail) {
     for (i in seq(along=ncol(m))) {
         if (is.ordered(m[[i]])) m[[i]] <- as.numeric(m[[i]])
     }
-    ret <- VSURF(x=m, y=y, ...)
+    ret <- VSURF.default(x=m, y=y, ...)
     cl <- match.call()
     cl[[1]] <- as.name("VSURF")
     ret$call <- cl
     ret$terms <- Terms
-    if (!is.null(attr(m, "na.action")))
-        ret$na.action <- attr(m, "na.action")
+    if (!is.null(attr(y, "na.action"))) {
+      ret$na.action <- attr(y, "na.action")
+    }
     class(ret) <- c("VSURF.formula", "VSURF")
     warning(
         "VSURF with a formula-type call outputs selected variables
@@ -289,11 +294,3 @@ which are indices of the input matrix based on the formula:
 you may reorder these to get indices of the original data")
     return(ret)
 }
-
-# VSURF.parallel function is kept for backward compatibility
-VSURF.parallel <- function (...) {
-  .Deprecated("VSURF(..., para = TRUE)")
-  VSURF(..., para=TRUE)
-}
-
-
