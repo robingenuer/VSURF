@@ -102,7 +102,18 @@
 #' data(toys)
 #' toys.thres <- VSURF_thres(toys$x, toys$y)
 #' toys.thres}
-#' 
+#'
+#' @importFrom randomForest randomForest
+#' @importFrom rpart rpart
+#' @importFrom rpart rpart.control
+#' @importFrom rpart prune
+#' @importFrom doParallel registerDoParallel
+#' @importFrom foreach foreach
+#' @importFrom foreach %dopar%
+#' @importFrom parallel makeCluster
+#' @importFrom parallel stopCluster
+#' @importFrom parallel mclapply
+#' @importFrom parallel detectCores
 #' @export
 VSURF_thres <- function (x, ...) {
   UseMethod("VSURF_thres")
@@ -112,7 +123,7 @@ VSURF_thres <- function (x, ...) {
 #' @export
 VSURF_thres.default <- function(
   x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1), nfor.thres=50, nmin=1,
-  para=FALSE, clusterType="PSOCK", ncores=parallel::detectCores()-1, ...) {
+  para=FALSE, clusterType="PSOCK", ncores=detectCores()-1, ...) {
   
   # x: input
   # y: output
@@ -292,7 +303,7 @@ VSURF_thres.default <- function(
                  'ncores'=ncores,
                  'clusterType'=clusterType,
                  'call'=cl)
-  class(output) <- "VSURF_thres"
+  class(output) <- c("VSURF_thres")
   output
 }
 
@@ -337,7 +348,7 @@ VSURF_thres.formula <- function(formula, data, ..., na.action = na.fail) {
   if (!is.null(attr(y, "na.action"))) {
     ret$na.action <- attr(y, "na.action")
   }
-  class(ret) <- c("VSURF_thres.formula", "VSURF_thres")
+  class(ret) <- c("VSURF_thres.formula", class(ret))
         warning(
         "VSURF with a formula-type call outputs selected variables
   which are indices of the input matrix based on the formula:

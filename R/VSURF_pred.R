@@ -80,6 +80,7 @@
 #'                         varselect.interp = toys.interp$varselect.interp)
 #' toys.pred}
 #'
+#' @importFrom randomForest randomForest
 #' @export
 VSURF_pred <- function (x, ...) {
   UseMethod("VSURF_pred")
@@ -140,13 +141,13 @@ did not eliminate variables")
     rf <- rep(NA, nfor.pred)
     if (type=="classif") {
       for (j in 1:nfor.pred) {
-          rf[j] <- tail(randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
+          rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
         }
       err.pred <- mean(rf)
     }
     if (type=="reg") {
       for (j in 1:nfor.pred) {
-        rf[j] <- tail(randomForest(x=w, y=y, ...)$mse, n=1)
+        rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$mse, n=1)
       }
       err.pred <- mean(rf)
     }
@@ -159,13 +160,13 @@ did not eliminate variables")
         rf <- rep(NA, nfor.pred)
         if (type=="classif") {
             for (j in 1:nfor.pred) {
-                rf[j] <- tail(randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
+                rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
             }
             z <- mean(rf)
         }
         if (type=="reg") {
             for (j in 1:nfor.pred) {
-                rf[j] <- tail(randomForest(x=w, y=y, ...)$mse, n=1)
+                rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$mse, n=1)
             }
             z <- mean(rf)
         }
@@ -190,7 +191,7 @@ did not eliminate variables")
                  'nmj' = nmj,
                  'comput.time'=comput.time,
                  'call'=cl)
-  class(output) <- "VSURF_pred"
+  class(output) <- c("VSURF_pred")
   output
 }
 
@@ -233,7 +234,7 @@ VSURF_pred.formula <- function(formula, data, ..., na.action = na.fail) {
     ret$terms <- Terms
     if (!is.null(attr(m, "na.action")))
         ret$na.action <- attr(m, "na.action")
-    class(ret) <- c("VSURF_pred.formula", "VSURF_pred")
+    class(ret) <- c("VSURF_pred.formula", class(ret))
     warning(
         "VSURF with a formula-type call outputs selected variables
   which are indices of the input matrix based on the formula:

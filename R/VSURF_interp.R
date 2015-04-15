@@ -90,7 +90,15 @@
 #' toys.thres <- VSURF_thres(toys$x, toys$y)
 #' toys.interp <- VSURF_interp(toys$x, toys$y, vars = toys.thres$varselect.thres)
 #' toys.interp}
-#' 
+#'
+#' @importFrom randomForest randomForest
+#' @importFrom doParallel registerDoParallel
+#' @importFrom foreach foreach
+#' @importFrom foreach %dopar%
+#' @importFrom parallel makeCluster
+#' @importFrom parallel stopCluster
+#' @importFrom parallel mclapply
+#' @importFrom parallel detectCores
 #' @export
 VSURF_interp <- function (x, ...) {
   UseMethod("VSURF_interp")
@@ -100,7 +108,7 @@ VSURF_interp <- function (x, ...) {
 #' @export
 VSURF_interp.default <- function(
   x, y, vars, nfor.interp=25, nsd=1, para=FALSE,
-  ncores=parallel::detectCores()-1, clusterType="PSOCK",  ...) {
+  ncores=detectCores()-1, clusterType="PSOCK",  ...) {
   
   # vars: selected variables indices after thresholding step
   # nfor.interp: number of forests to estimate each model
@@ -139,18 +147,11 @@ VSURF_interp.default <- function(
     rf <- rep(NA, nfor.interp)
     u <- vars[1:i]
     w <- x[,u, drop=FALSE]
-    
-    if (i <= n) {
-      for (j in 1:nfor.interp) {
-        rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
-      }
+
+    for (j in 1:nfor.interp) {
+      rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
     }
     
-    else {
-      for (j in 1:nfor.interp) {
-        rf[j] <- tail(randomForest::randomForest(x=w, y=y, ntree=1000, mtry=i/3, ...)$err.rate[,1], n=1)
-      }
-    }
     out <- c(mean(rf), sd(rf))
   }
   
@@ -159,17 +160,10 @@ VSURF_interp.default <- function(
     u <- vars[1:i]
     w <- x[,u, drop=FALSE]
     
-    if (i <= n) {
-      for (j in 1:nfor.interp) {
-        rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$mse, n=1)
-      }
+    for (j in 1:nfor.interp) {
+      rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$mse, n=1)
     }
     
-    else {
-      for (j in 1:nfor.interp) {
-        rf[j] <- tail(randomForest::randomForest(x=w, y=y, ntree=1000, ...)$mse, n=1)
-      }
-    }
     out <- c(mean(rf), sd(rf))
   }
   
@@ -249,7 +243,7 @@ VSURF_interp.default <- function(
                  'ncores'=ncores,
                  'clusterType'=clusterType,
                  'call'=cl)
-  class(output) <- "VSURF_interp"
+  class(output) <- c("VSURF_interp")
   output
 }
 
@@ -293,7 +287,7 @@ VSURF_interp.formula <- function(formula, data, ..., na.action = na.fail) {
   if (!is.null(attr(y, "na.action"))) {
     ret$na.action <- attr(y, "na.action")
   }
-  class(ret) <- c("VSURF_interp.formula", "VSURF_interp")
+  class(ret) <- c("VSURF_interp.formula", class(ret))
     warning(
         "VSURF with a formula-type call outputs selected variables
   which are indices of the input matrix based on the formula:

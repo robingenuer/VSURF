@@ -170,18 +170,7 @@
 #' toys.vsurf.para <- VSURF(toys$x, toys$y, para = TRUE, ncores = 2)
 #' }
 #' 
-#' @importFrom randomForest randomForest
-#' @importFrom rpart rpart
-#' @importFrom rpart rpart.control
-#' @importFrom rpart prune
-#' @importFrom doParallel registerDoParallel
-#' @importFrom foreach foreach
-#' @importFrom foreach %dopar%
-#' @importFrom parallel makeCluster
-#' @importFrom parallel stopCluster
-#' @importFrom parallel mclapply
 #' @importFrom parallel detectCores
-#' 
 #' @export
 VSURF <- function (x, ...) {
   UseMethod("VSURF")
@@ -192,7 +181,7 @@ VSURF <- function (x, ...) {
 VSURF.default <- function(
   x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
   nfor.thres=50, nmin=1, nfor.interp=25, nsd=1, nfor.pred=25, nmj=1,
-  para=FALSE, ncores=parallel::detectCores()-1, clusterType="PSOCK", ...) {
+  para=FALSE, ncores=detectCores()-1, clusterType="PSOCK", ...) {
   
   start <- Sys.time()
   
@@ -243,7 +232,7 @@ VSURF.default <- function(
                  'ncores'=ncores,          
                  'clusterType'=clusterType,
                  'call'=cl)
-  class(output) <- "VSURF"
+  class(output) <- c("VSURF")
   output
 }
 
@@ -287,7 +276,7 @@ VSURF.formula <- function(formula, data, ..., na.action = na.fail) {
     if (!is.null(attr(y, "na.action"))) {
       ret$na.action <- attr(y, "na.action")
     }
-    class(ret) <- c("VSURF.formula", "VSURF")
+    class(ret) <- c("VSURF.formula", class(ret))
     warning(
         "VSURF with a formula-type call outputs selected variables
 which are indices of the input matrix based on the formula:

@@ -10,8 +10,7 @@ VSURF_thres(x, ...)
 
 \method{VSURF_thres}{default}(x, y, ntree = 2000,
   mtry = max(floor(ncol(x)/3), 1), nfor.thres = 50, nmin = 1,
-  para = FALSE, clusterType = "PSOCK", ncores = parallel::detectCores() -
-  1, ...)
+  para = FALSE, clusterType = "PSOCK", ncores = detectCores() - 1, ...)
 
 \method{VSURF_thres}{formula}(formula, data, ..., na.action = na.fail)
 }

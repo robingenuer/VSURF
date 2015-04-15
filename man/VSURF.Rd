@@ -10,8 +10,8 @@ VSURF(x, ...)
 
 \method{VSURF}{default}(x, y, ntree = 2000, mtry = max(floor(ncol(x)/3), 1),
   nfor.thres = 50, nmin = 1, nfor.interp = 25, nsd = 1,
-  nfor.pred = 25, nmj = 1, para = FALSE,
-  ncores = parallel::detectCores() - 1, clusterType = "PSOCK", ...)
+  nfor.pred = 25, nmj = 1, para = FALSE, ncores = detectCores() - 1,
+  clusterType = "PSOCK", ...)
 
 \method{VSURF}{formula}(formula, data, ..., na.action = na.fail)
 }
