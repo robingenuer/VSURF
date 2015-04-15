@@ -14,7 +14,7 @@ selected by the second step, for prediction purpose.
 
 ## Install
 
-To install the latest released version is available on CRAN, use :
+To install the latest released version available on CRAN, use :
 
 
 ```r
