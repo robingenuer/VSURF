@@ -6,7 +6,11 @@
 #' \code{\link{VSURF_interp}} and \code{\link{VSURF_pred}}.
 #' 
 #' First, \code{nfor.thres} random forests are computed using the function
-#' \code{randomForest} with arguments \code{importance=TRUE}. Then variables
+#' \code{randomForest} with arguments \code{importance=TRUE}, and our choice
+#' of default values for 
+#' \code{ntree} and \code{mtry} (which are higher than default in
+#' \code{\link{randomForest}} to get a more stable variable importance measure).
+#' Then variables
 #' are sorted according to their mean variable importance (VI), in decreasing
 #' order. This order is kept all along the procedure.  Next, a threshold is
 #' computed: \code{min.thres}, the minimum predicted value of a pruned CART

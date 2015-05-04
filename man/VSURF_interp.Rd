@@ -96,6 +96,13 @@ error rate of these models and its associated standard deviation
 \code{sd.min} are computed.  Finally, the smallest model (and hence its
 corresponding variables) having a mean OOB error less than \code{err.min} +
 \code{nsd} * \code{sd.min} is selected.
+
+Note that,
+the \code{mtry} parameter of \code{randomForest} is set to its default value
+(see \code{\link{randomForest}}) if \code{nvm}, the number of variables
+in the model, is not greater than the number of observations,
+while it is set to \code{nvm/3} otherwise. This is to ensure quality of OOB
+error estimations along embedded RF models.
 }
 \examples{
 data(iris)

@@ -150,9 +150,12 @@ set of variables selected by the second step, for prediction prupose.
 \details{
 \itemize{ \item First step ("thresholding step"): first, \code{nfor.thres}
 random forests are computed using the function \code{randomForest} with
-arguments \code{importance=TRUE}. Then variables are sorted according to
-their mean variable importance (VI), in decreasing order.  This order is
-kept all along the procedure. Next, a threshold is computed:
+arguments \code{importance=TRUE}, and our choice of default values for
+\code{ntree} and \code{mtry} (which are higher than default in
+\code{\link{randomForest}} to get a more stable variable importance measure).
+Then variables are sorted according to their mean variable importance (VI),
+in decreasing order.  This order is kept all along the procedure.
+Next, a threshold is computed:
 \code{min.thres}, the minimum predicted value of a pruned CART tree fitted
 to the curve of the standard deviations of VI.  Finally, the actual
 "thresholding step" is performed: only variables with a mean VI larger than
@@ -167,13 +170,26 @@ and its associated standard deviation \code{sd.min} are computed.  Finally,
 the smallest model (and hence its corresponding variables) having a mean OOB
 error less than \code{err.min} + \code{nsd} * \code{sd.min} is selected.
 
+Note that for this step (and the next one),
+the \code{mtry} parameter of \code{randomForest} is set to its default value
+(see \code{\link{randomForest}}) if \code{nvm}, the number of variables
+in the model, is not greater than the number of observations,
+while it is set to \code{nvm/3} otherwise. This is to ensure quality of OOB
+error estimations along embedded RF models.
+
 \item Third step ("prediction step"): the starting point is the same than in
 the second step. However, now the variables are added to the model in a
 stepwise manner. \code{mean.jump}, the mean jump value is calculated using
 variables that have been left out by the second step, and is set as the mean
 absolute difference between mean OOB errors of one model and its first
 following model.  Hence a variable is included in the model if the mean OOB
-error decrease is larger than \code{nmj} * \code{mean.jump}.  }
+error decrease is larger than \code{nmj} * \code{mean.jump}.
+
+As for interpretation step,
+the \code{mtry} parameter of \code{randomForest} is set to its default value
+if \code{nvm}, the number of variables
+in the model, is not greater than the number of observations,
+while it is set to \code{nvm/3} otherwise.}
 
 VSURF is able to run using mutliple cores in parallel
 (see \code{parallel}, \code{clusterType} and \code{ncores} arguments).

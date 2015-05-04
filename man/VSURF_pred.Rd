@@ -79,6 +79,13 @@ interpretation step, and is set as the mean absolute difference between mean
 OOB errors of one model and its first following model. Hence a variable is
 included in the model if the mean OOB error decrease is larger than
 \code{nmj} * \code{mean.jump}.
+
+Note that,
+the \code{mtry} parameter of \code{randomForest} is set to its default value
+(see \code{\link{randomForest}}) if \code{nvm}, the number of variables
+in the model, is not greater than the number of observations,
+while it is set to \code{nvm/3} otherwise. This is to ensure quality of OOB
+error estimations along embedded RF models.
 }
 \examples{
 data(iris)

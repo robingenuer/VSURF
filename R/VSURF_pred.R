@@ -14,6 +14,13 @@
 #' included in the model if the mean OOB error decrease is larger than
 #' \code{nmj} * \code{mean.jump}.
 #' 
+#' Note that,
+#' the \code{mtry} parameter of \code{randomForest} is set to its default value
+#' (see \code{\link{randomForest}}) if \code{nvm}, the number of variables
+#' in the model, is not greater than the number of observations,
+#' while it is set to \code{nvm/3} otherwise. This is to ensure quality of OOB
+#' error estimations along embedded RF models.
+#' 
 #' @param data a data frame containing the variables in the model.
 #' @param na.action A function to specify the action to be taken if NAs are
 #' found.  (NOTE: If given, this argument must be named, and as
