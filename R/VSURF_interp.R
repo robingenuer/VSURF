@@ -148,8 +148,16 @@ VSURF_interp.default <- function(
     u <- vars[1:i]
     w <- x[,u, drop=FALSE]
 
-    for (j in 1:nfor.interp) {
-      rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
+    if (i <= n) {
+      for (j in 1:nfor.interp) {
+        rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
+      }
+    }
+    
+    else {
+      for (j in 1:nfor.interp) {
+        rf[j] <- tail(randomForest::randomForest(x=w, y=y, mtry=i/3, ...)$err.rate[,1], n=1)
+      }
     }
     
     out <- c(mean(rf), sd(rf))

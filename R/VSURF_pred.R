@@ -135,14 +135,25 @@ did not eliminate variables")
     
     # comparison between the error with the variable and the precedent error
     # and test of the addition of the variable
+    n <- nrow(x)
     varselect.pred <- varselect.interp[1]
     u <- varselect.pred
     w <- x[,u, drop=FALSE]
     rf <- rep(NA, nfor.pred)
     if (type=="classif") {
-      for (j in 1:nfor.pred) {
+      if (i <= n) {
+        for (j in 1:nfor.pred) {
+          essai <- randomForest::randomForest(x=w, y=y, ...)
+          print(essai$ntree)
           rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
         }
+      }
+      
+      else {
+        for (j in 1:nfor.pred) {
+          rf[j] <- tail(randomForest::randomForest(x=w, y=y, mtry=i/3, ...)$err.rate[,1], n=1)
+        }
+      }
       err.pred <- mean(rf)
     }
     if (type=="reg") {
@@ -159,16 +170,24 @@ did not eliminate variables")
         w <- x[,u, drop=FALSE]
         rf <- rep(NA, nfor.pred)
         if (type=="classif") {
+          if (i <= n) {
             for (j in 1:nfor.pred) {
-                rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
+              rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
             }
-            z <- mean(rf)
+          }
+          
+          else {
+            for (j in 1:nfor.pred) {
+              rf[j] <- tail(randomForest::randomForest(x=w, y=y, mtry=i/3, ...)$err.rate[,1], n=1)
+            }
+          }
+          z <- mean(rf)
         }
         if (type=="reg") {
-            for (j in 1:nfor.pred) {
-                rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$mse, n=1)
-            }
-            z <- mean(rf)
+          for (j in 1:nfor.pred) {
+            rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$mse, n=1)
+          }
+          z <- mean(rf)
         }
         if ((t-z) > nmj*mean.jump){
             varselect.pred <- c(varselect.pred, varselect.interp[i])

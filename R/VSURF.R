@@ -182,7 +182,7 @@ VSURF.default <- function(
   x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
   nfor.thres=50, nmin=1, nfor.interp=25, nsd=1, nfor.pred=25, nmj=1,
   para=FALSE, ncores=detectCores()-1, clusterType="PSOCK", ...) {
-  
+
   start <- Sys.time()
   
   if (!para) {
@@ -196,11 +196,11 @@ VSURF.default <- function(
   
   interp <- VSURF_interp(
     x=x, y=y, vars=thres$varselect.thres, nfor.interp=nfor.interp, nsd=nsd,
-    para=para, clusterType=clusterType, ncores=ncores, ...)
+    para=para, clusterType=clusterType, ncores=ncores, ntree=ntree, ...)
   
   pred <- VSURF_pred(x=x, y=y, err.interp=interp$err.interp,
                      varselect.interp=interp$varselect.interp,
-                     nfor.pred=nfor.pred, nmj=nmj, ...)
+                     nfor.pred=nfor.pred, nmj=nmj, ntree=ntree, ...)
   
   cl <- match.call()
   cl[[1]] <- as.name("VSURF")
