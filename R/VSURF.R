@@ -211,12 +211,12 @@ VSURF.default <- function(
     para=para, clusterType=clusterType, ncores=ncores, ...)
   
   interp <- VSURF_interp(
-    x=x, y=y, vars=thres$varselect.thres, nfor.interp=nfor.interp, nsd=nsd,
-    para=para, clusterType=clusterType, ncores=ncores, ntree=ntree, ...)
+    x=x, y=y, ntree=ntree, vars=thres$varselect.thres, nfor.interp=nfor.interp, nsd=nsd,
+    para=para, clusterType=clusterType, ncores=ncores, ...)
   
-  pred <- VSURF_pred(x=x, y=y, err.interp=interp$err.interp,
+  pred <- VSURF_pred(x=x, y=y, ntree=ntree, err.interp=interp$err.interp,
                      varselect.interp=interp$varselect.interp,
-                     nfor.pred=nfor.pred, nmj=nmj, ntree=ntree, ...)
+                     nfor.pred=nfor.pred, nmj=nmj, ...)
   
   cl <- match.call()
   cl[[1]] <- as.name("VSURF")

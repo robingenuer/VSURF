@@ -28,6 +28,8 @@
 #' represent the variables. Or a formula describing the model to be fitted.
 #' @param y A response vector (must be a factor for classification problems and
 #' numeric for regression ones).
+#' @param ntree Number of trees in each forests grown. Standard parameter of
+#' \code{randomForest}.
 #' @param vars A vector of variable indices. Typically, indices of variables
 #' selected by thresholding step (see value \code{varselect.thres} of
 #' \code{\link{VSURF_thres}} function).
@@ -114,7 +116,7 @@ VSURF_interp <- function (x, ...) {
 #' @rdname VSURF_interp
 #' @export
 VSURF_interp.default <- function(
-  x, y, vars, nfor.interp=25, nsd=1, para=FALSE,
+  x, y, ntree = 2000, vars, nfor.interp=25, nsd=1, para=FALSE,
   ncores=detectCores()-1, clusterType="PSOCK",  ...) {
   
   # vars: selected variables indices after thresholding step

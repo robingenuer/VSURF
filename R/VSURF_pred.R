@@ -29,6 +29,8 @@
 #' represent the variables. Or a formula describing the model to be fitted.
 #' @param y A response vector (must be a factor for classification problems and
 #' numeric for regression ones).
+#' @param ntree Number of trees in each forests grown. Standard parameter of
+#' \code{randomForest}.
 #' @param err.interp A vector of the mean OOB error rates of the embedded
 #' random forests models build during interpretation step (value
 #' \code{err.interp} of function \code{\link{VSURF_interp}}).
@@ -95,7 +97,8 @@ VSURF_pred <- function (x, ...) {
 
 #' @rdname VSURF_pred
 #' @export
-VSURF_pred.default <-function(x, y, err.interp, varselect.interp, nfor.pred=25, nmj=1, ...){
+VSURF_pred.default <-function(x, y, ntree = 2000, err.interp, varselect.interp,
+                              nfor.pred=25, nmj=1, ...){
   
   # err.interp: interpretation models errors
   # varselect.interp: interpretation variables indices

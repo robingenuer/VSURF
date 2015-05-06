@@ -8,7 +8,7 @@
 \usage{
 VSURF_pred(x, ...)
 
-\method{VSURF_pred}{default}(x, y, err.interp, varselect.interp,
+\method{VSURF_pred}{default}(x, y, ntree = 2000, err.interp, varselect.interp,
   nfor.pred = 25, nmj = 1, ...)
 
 \method{VSURF_pred}{formula}(formula, data, ..., na.action = na.fail)
@@ -22,6 +22,9 @@ function.}
 
 \item{y}{A response vector (must be a factor for classification problems and
 numeric for regression ones).}
+
+\item{ntree}{Number of trees in each forests grown. Standard parameter of
+\code{randomForest}.}
 
 \item{err.interp}{A vector of the mean OOB error rates of the embedded
 random forests models build during interpretation step (value

@@ -8,8 +8,9 @@
 \usage{
 VSURF_interp(x, ...)
 
-\method{VSURF_interp}{default}(x, y, vars, nfor.interp = 25, nsd = 1,
-  para = FALSE, ncores = detectCores() - 1, clusterType = "PSOCK", ...)
+\method{VSURF_interp}{default}(x, y, ntree = 2000, vars, nfor.interp = 25,
+  nsd = 1, para = FALSE, ncores = detectCores() - 1,
+  clusterType = "PSOCK", ...)
 
 \method{VSURF_interp}{formula}(formula, data, ..., na.action = na.fail)
 }
@@ -22,6 +23,9 @@ function (see ?randomForest for further information).}
 
 \item{y}{A response vector (must be a factor for classification problems and
 numeric for regression ones).}
+
+\item{ntree}{Number of trees in each forests grown. Standard parameter of
+\code{randomForest}.}
 
 \item{vars}{A vector of variable indices. Typically, indices of variables
 selected by thresholding step (see value \code{varselect.thres} of
