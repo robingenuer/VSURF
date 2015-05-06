@@ -150,8 +150,6 @@ did not eliminate variables")
     if (type=="classif") {
       if (i <= n) {
         for (j in 1:nfor.pred) {
-          essai <- randomForest::randomForest(x=w, y=y, ...)
-          print(essai$ntree)
           rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
         }
       }
