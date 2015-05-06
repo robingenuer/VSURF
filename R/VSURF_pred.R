@@ -104,7 +104,7 @@ VSURF_pred.default <-function(x, y, ntree = 2000, err.interp, varselect.interp,
   # varselect.interp: interpretation variables indices
   # nmj: number of mean jump: addition of a variable if it gives an error reduction of at
   # least nmj * mean jump value
-
+  
   start <- Sys.time()
   
   # determinination the problem type: classification or regression
@@ -122,13 +122,13 @@ VSURF_pred.default <-function(x, y, ntree = 2000, err.interp, varselect.interp,
   else {
     type <- "reg"
   }
-
+  
   k <- length(err.interp)
   l <- length(varselect.interp)
   
   if (k==l) {
     warning(
-"Unable to perform prediction step, because the interpretation step
+      "Unable to perform prediction step, because the interpretation step
 did not eliminate variables")
     varselect.pred <- NULL
     err.pred <- NULL
@@ -151,17 +151,10 @@ did not eliminate variables")
     w <- x[,u, drop=FALSE]
     rf <- rep(NA, nfor.pred)
     if (type=="classif") {
-      if (i <= n) {
-        for (j in 1:nfor.pred) {
-          rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
-        }
+      for (j in 1:nfor.pred) {
+        rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
       }
       
-      else {
-        for (j in 1:nfor.pred) {
-          rf[j] <- tail(randomForest::randomForest(x=w, y=y, mtry=i/3, ...)$err.rate[,1], n=1)
-        }
-      }
       err.pred <- mean(rf)
     }
     if (type=="reg") {
