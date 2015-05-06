@@ -65,6 +65,11 @@ predict.VSURF <- function(object, newdata, step = c("interp", "pred"), ...) {
     y <- eval(object$call$y)
   }
   
+  if (is.null(colnames(x)) & is.null(colnames(newdata))) {
+    colnames(x) <- 1:ncol(x)
+    colnames(newdata) <- 1:ncol(newdata)
+  }
+  
   if ("thres" %in% step) {
     varsel <- object$varselect.thres
     rf_thres <- randomForest::randomForest(x[, varsel, drop = FALSE], y, ...)
