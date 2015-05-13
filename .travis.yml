@@ -1,3 +1,8 @@
 language: r
 warnings_are_errors: true
 sudo: required
+r_binary_packages:
+- randomForest
+- foreach
+- iterators
+- doParallel
