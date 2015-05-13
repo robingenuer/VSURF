@@ -1,6 +1,6 @@
 #' Predict method for VSURF object
 #' 
-#' This function predict new data with random forests, using variables selected by VSURF only.
+#' This function predicts new data with random forests, using variables selected by VSURF only.
 #' 
 #' This method applies for a VSURF object. VSURF selects two sets of variables during its two
 #' last steps. For each set of variables, a random forest object is created, by running
