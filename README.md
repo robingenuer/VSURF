@@ -1,5 +1,6 @@
 
-# VSURF
+# VSURF [![Travis-CI Build Status](https://travis-ci.org/robingenuer/VSURF.png?branch=master)](https://travis-ci.org/robingenuer/VSURF)
+
 Variable Selection Using Random Forests
 
 R package, implementing a three steps variable selection procedure based on random forests.
