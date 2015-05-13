@@ -51,12 +51,15 @@ predict.VSURF <- function(object, newdata, step = c("interp", "pred"), ...) {
   }
   
   if (!is.null(object$terms)) {
-    x <- model.frame(terms(reformulate(attributes(object$terms)$term.labels)),
-                         eval(as.expression(object$call$data)))
+    x <-
+      model.frame(terms(reformulate(attributes(object$terms)$term.labels)),
+                  eval(as.expression(object$call$data)))
     rownames_del <- intersect(rownames(x), object$na.action)
-    x <- x[-which(rownames(x) %in% rownames_del), ]
+    x <- x[-which(rownames(x) %in% rownames_del),]
     train_data <- object$call$data
-    eval(parse(text = paste("y <- ", train_data, "$", object$call$formula[[2]], sep = "")))
+    eval(parse(text = paste(
+      "y <- ", train_data, "$", object$call$formula[[2]], sep = ""
+    )))
     y <- y[-object$na.action]
   }
   
