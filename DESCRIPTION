@@ -3,7 +3,7 @@ Type: Package
 Title: Variable Selection Using Random Forests
 Version: 1.0
 Date: 2015-05-15
-Authors@R: c(person("Robin", "Genuer", email = "robin.genuer@isped.u-bordeaux2.fr", role = c("aut", "cre")),
+Authors@R: c(person("Robin", "Genuer", email = "Robin.Genuer@isped.u-bordeaux2.fr", role = c("aut", "cre")),
              person("Jean-Michel", "Poggi", role = "aut"),
              person("Christine", "Tuleau-Malot", role = "aut"))
 Description: Three steps variable selection procedure based on random forests.
@@ -17,6 +17,8 @@ Description: Three steps variable selection procedure based on random forests.
     selected by the second step, for prediction purpose.
 License: GPL (>= 2)
 LazyData: true
+URL: http://github.com/robingenuer/VSURF
+BugReports: http://github.com/robingenuer/VSURF/issues
 Imports: doParallel,
     foreach,
     parallel,
