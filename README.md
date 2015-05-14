@@ -1,5 +1,7 @@
 
-# VSURF [![Travis-CI Build Status](https://travis-ci.org/robingenuer/VSURF.png?branch=master)](https://travis-ci.org/robingenuer/VSURF)
+# VSURF
+
+[![Travis-CI Build Status](https://travis-ci.org/robingenuer/VSURF.png?branch=master)](https://travis-ci.org/robingenuer/VSURF)
 
 Variable Selection Using Random Forests
 
