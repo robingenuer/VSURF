@@ -2,12 +2,31 @@ News about the R package VSURF:
 --------------------------------
 
 
-Main changes in Version 1.0 (dev)
-* Bug fix: in VSURF.parallel, there is no error anymore
+Main changes in Version 1.0.0
+WARNING: MAJOR UPDATE.
+* VSURF is now on github.
+* Change of name functions :
+    VSURF.thres becomes VSURF_thres
+    VSURF.interp becomes VSURF_interp
+    VSURF.pred becomes VSURF_pred
+* VSURF, VSURF_thres and VSURF_interp can now be used to parallel
+executions, by fixing "para = TRUE".
+* Add a predict method for VSURF objects.
+* Change of name outputs in VSURF and VSURF_thres :
+    ord.imp$x becomes imp.mean.dec
+    ord.imp$ix becomes imp.mean.dec.ind
+    ord.sd becomes imp.sd.dec
+* The ntree value now affects all random forests of the procedure
+(in all three steps).
+* S3 methods are no longer exported.
+* Add several parameters to plot function, allowing to plot
+each plot individually from a VSURF object.
+* Bug fix: in a VSURF run in parallel, there is no error anymore
 if the function is called for data with only one variable
 * Plot functions do not need anymore to have the data on which
 the VSURF object was built to be loaded. However, it is still
 mandatory if argument var.names is set to TRUE.
+* Dependencies replaced by Imports.
 
 
 Main changes in Version 0.8.2 (2014-05-12):
