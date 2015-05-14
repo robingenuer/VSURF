@@ -17,6 +17,7 @@ Description: Three steps variable selection procedure based on random forests.
     refines the selection by eliminating redundancy in the set of variables
     selected by the second step, for prediction purpose.
 License: GPL (>= 2)
+LazyData: true
 Imports: doParallel,
     foreach,
     parallel,
