@@ -17,8 +17,8 @@ Description: Three steps variable selection procedure based on random forests.
     selected by the second step, for prediction purpose.
 License: GPL (>= 2)
 LazyData: true
-URL: http://github.com/robingenuer/VSURF
-BugReports: http://github.com/robingenuer/VSURF/issues
+URL: https://github.com/robingenuer/VSURF
+BugReports: https://github.com/robingenuer/VSURF/issues
 Imports: doParallel,
     foreach,
     parallel,
