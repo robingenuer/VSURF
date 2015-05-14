@@ -9,6 +9,8 @@ WARNING: MAJOR UPDATE.
     VSURF.thres becomes VSURF_thres
     VSURF.interp becomes VSURF_interp
     VSURF.pred becomes VSURF_pred
+* VSURF.parallel, VSURF.thres.parallel and VSURF.interp.parallel
+are removed from the package.
 * VSURF, VSURF_thres and VSURF_interp can now be used to parallel
 executions, by fixing "para = TRUE".
 * Add a predict method for VSURF objects.
