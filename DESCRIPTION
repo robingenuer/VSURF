@@ -2,9 +2,11 @@ Package: VSURF
 Type: Package
 Title: Variable Selection Using Random Forests
 Version: 1.0
-Date: 2013-05-12
-Author: Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
-Maintainer: Robin Genuer <Robin.Genuer@isped.u-bordeaux2.fr>
+Date: 2015-05-15
+Authors@R: c(person("Robin", "Genuer", email = "Robin.Genuer@isped.u-bordeaux2.fr",
+                    role = c("aut", "cre")),
+             person("Jean-Michel", "Poggi", role = "aut"),
+             person("Christine", "Tuleau-Malot", role = "aut"))
 Description: Three steps variable selection procedure based on random forests.
     Initially developed to handle high dimensional data (for which number of
     variables largely exceeds number of observations), the package is very

@@ -27,7 +27,7 @@ If two or more steps are indicated in \code{step}, a data frame of predicted val
 (each column corresponding to a variable set).
 }
 \description{
-This function predict new data with random forests, using variables selected by VSURF only.
+This function predicts new data with random forests, using variables selected by VSURF only.
 }
 \details{
 This method applies for a VSURF object. VSURF selects two sets of variables during its two
