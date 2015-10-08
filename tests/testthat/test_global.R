@@ -12,5 +12,7 @@ test_that("Selected variables for the 3 steps", {
 })
 
 test_that("Variable importances thresholding selected",{
-  expect_equal(iris.vsurf$imp.varselect.thres, c(0.26841716, 0.25882658, 0.08853212, 0.03913999))
+  expect_equal(iris.vsurf$imp.varselect.thres,
+               c(0.26841716, 0.25882658, 0.08853212, 0.03913999),
+               tolerance = 1e-7)
 })
