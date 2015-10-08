@@ -24,4 +24,4 @@ Imports: doParallel,
     parallel,
     randomForest,
     rpart
-
+Suggests: testthat
