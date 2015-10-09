@@ -22,7 +22,7 @@ for (k in 1:K) {
   
   vsurf.fold <-
     VSURF(
-      xtrain, ytrain, para = TRUE, clusterType = "FORK", ncores = 40
+      xtrain, ytrain, parallel = TRUE, clusterType = "FORK", ncores = 40
     )
   errtest.mat[k, 1] <-
     sum(ytest != predict(vsurf.fold, newdata = xtest, step = "interp"))
