@@ -33,7 +33,7 @@
 #' @param nfor.thres Number of forests grown.
 #' @param nmin Number of times the "minimum value" is multiplied to set
 #' threshold value. See details below.
-#' @param para A logical indicating if you want VSURF to run in parallel on
+#' @param parallel A logical indicating if you want VSURF to run in parallel on
 #' multiple cores (default to FALSE).
 #' @param ncores Number of cores to use. Default is set to the number of cores
 #' detected by R minus 1.
@@ -126,8 +126,8 @@ VSURF_thres <- function (x, ...) {
 #' @rdname VSURF_thres
 #' @export
 VSURF_thres.default <- function(
-  x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1), nfor.thres=50, nmin=1,
-  para=FALSE, clusterType="PSOCK", ncores=detectCores()-1, ...) {
+  x, y, ntree = 2000, mtry = max(floor(ncol(x) / 3), 1), nfor.thres = 50, nmin = 1,
+  parallel = FALSE, clusterType = "PSOCK", ncores = detectCores() - 1, ...) {
   
   # x: input
   # y: output
@@ -137,7 +137,7 @@ VSURF_thres.default <- function(
   
   start <- Sys.time()
   
-  if (!para) {
+  if (!parallel) {
     clusterType <- NULL
     ncores <- NULL
   }
@@ -185,7 +185,7 @@ VSURF_thres.default <- function(
     out <- list(m=m, perf=perf)
   }
   
-  if (!para) {
+  if (!parallel) {
     if (type=="classif") {
       for (i in 1:nfor.thres){
         rf <- rf.classif(i, ...)

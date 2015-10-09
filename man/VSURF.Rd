@@ -10,7 +10,7 @@ VSURF(x, ...)
 
 \method{VSURF}{default}(x, y, ntree = 2000, mtry = max(floor(ncol(x)/3), 1),
   nfor.thres = 50, nmin = 1, nfor.interp = 25, nsd = 1,
-  nfor.pred = 25, nmj = 1, para = FALSE, ncores = detectCores() - 1,
+  nfor.pred = 25, nmj = 1, parallel = FALSE, ncores = detectCores() - 1,
   clusterType = "PSOCK", ...)
 
 \method{VSURF}{formula}(formula, data, ..., na.action = na.fail)
@@ -48,7 +48,7 @@ three steps).}
 
 \item{nmj}{Number of times the mean jump is multiplied.}
 
-\item{para}{A logical indicating if you want VSURF to run in parallel on
+\item{parallel}{A logical indicating if you want VSURF to run in parallel on
 multiple cores (default to FALSE).}
 
 \item{ncores}{Number of cores to use. Default is set to the number of cores
@@ -209,7 +209,7 @@ toys.vsurf
 
 # VSURF run on 2 cores in parallel (using a SOCKET cluster):
 data(toys)
-toys.vsurf.para <- VSURF(toys$x, toys$y, para = TRUE, ncores = 2)
+toys.vsurf.parallel <- VSURF(toys$x, toys$y, parallel = TRUE, ncores = 2)
 }
 }
 \author{

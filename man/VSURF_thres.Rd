@@ -10,7 +10,8 @@ VSURF_thres(x, ...)
 
 \method{VSURF_thres}{default}(x, y, ntree = 2000,
   mtry = max(floor(ncol(x)/3), 1), nfor.thres = 50, nmin = 1,
-  para = FALSE, clusterType = "PSOCK", ncores = detectCores() - 1, ...)
+  parallel = FALSE, clusterType = "PSOCK", ncores = detectCores() - 1,
+  ...)
 
 \method{VSURF_thres}{formula}(formula, data, ..., na.action = na.fail)
 }
@@ -35,7 +36,7 @@ split. Standard \code{randomForest} parameter.}
 \item{nmin}{Number of times the "minimum value" is multiplied to set
 threshold value. See details below.}
 
-\item{para}{A logical indicating if you want VSURF to run in parallel on
+\item{parallel}{A logical indicating if you want VSURF to run in parallel on
 multiple cores (default to FALSE).}
 
 \item{clusterType}{Type of the multiple cores cluster used to run VSURF in

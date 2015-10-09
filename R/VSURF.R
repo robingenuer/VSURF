@@ -77,7 +77,7 @@
 #' @param nfor.pred Number of forests grown for "prediction step" (last of the
 #' three steps).
 #' @param nmj Number of times the mean jump is multiplied.
-#' @param para A logical indicating if you want VSURF to run in parallel on
+#' @param parallel A logical indicating if you want VSURF to run in parallel on
 #' multiple cores (default to FALSE).
 #' @param ncores Number of cores to use. Default is set to the number of cores
 #' detected by R minus 1.
@@ -183,7 +183,7 @@
 #'
 #' # VSURF run on 2 cores in parallel (using a SOCKET cluster):
 #' data(toys)
-#' toys.vsurf.para <- VSURF(toys$x, toys$y, para = TRUE, ncores = 2)
+#' toys.vsurf.parallel <- VSURF(toys$x, toys$y, parallel = TRUE, ncores = 2)
 #' }
 #' 
 #' @importFrom parallel detectCores
@@ -195,24 +195,24 @@ VSURF <- function (x, ...) {
 #' @rdname VSURF
 #' @export
 VSURF.default <- function(
-  x, y, ntree=2000, mtry=max(floor(ncol(x)/3), 1),
-  nfor.thres=50, nmin=1, nfor.interp=25, nsd=1, nfor.pred=25, nmj=1,
-  para=FALSE, ncores=detectCores()-1, clusterType="PSOCK", ...) {
+  x, y, ntree = 2000, mtry = max(floor(ncol(x)/3), 1),
+  nfor.thres = 50, nmin = 1, nfor.interp = 25, nsd = 1, nfor.pred = 25, nmj = 1,
+  parallel = FALSE, ncores = detectCores() - 1, clusterType = "PSOCK", ...) {
 
   start <- Sys.time()
   
-  if (!para) {
+  if (!parallel) {
     clusterType <- NULL
     ncores <- NULL
   }
   
   thres <- VSURF_thres(
     x=x, y=y, ntree=ntree, mtry=mtry, nfor.thres=nfor.thres, nmin=nmin,
-    para=para, clusterType=clusterType, ncores=ncores, ...)
+    parallel=parallel, clusterType=clusterType, ncores=ncores, ...)
   
   interp <- VSURF_interp(
     x=x, y=y, ntree=ntree, vars=thres$varselect.thres, nfor.interp=nfor.interp, nsd=nsd,
-    para=para, clusterType=clusterType, ncores=ncores, ...)
+    parallel=parallel, clusterType=clusterType, ncores=ncores, ...)
   
   pred <- VSURF_pred(x=x, y=y, ntree=ntree, err.interp=interp$err.interp,
                      varselect.interp=interp$varselect.interp,

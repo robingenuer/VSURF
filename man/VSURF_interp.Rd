@@ -9,7 +9,7 @@
 VSURF_interp(x, ...)
 
 \method{VSURF_interp}{default}(x, y, ntree = 2000, vars, nfor.interp = 25,
-  nsd = 1, para = FALSE, ncores = detectCores() - 1,
+  nsd = 1, parallel = FALSE, ncores = detectCores() - 1,
   clusterType = "PSOCK", ...)
 
 \method{VSURF_interp}{formula}(formula, data, ..., na.action = na.fail)
@@ -36,7 +36,7 @@ selected by thresholding step (see value \code{varselect.thres} of
 \item{nsd}{Number of times the standard deviation of the minimum value of
 \code{err.interp} is multiplied. See details below.}
 
-\item{para}{A logical indicating if you want VSURF to run in parallel on
+\item{parallel}{A logical indicating if you want VSURF to run in parallel on
 multiple cores (default to FALSE).}
 
 \item{ncores}{Number of cores to use. Default is set to the number of cores

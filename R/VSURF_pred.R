@@ -98,7 +98,7 @@ VSURF_pred <- function (x, ...) {
 #' @rdname VSURF_pred
 #' @export
 VSURF_pred.default <-function(x, y, ntree = 2000, err.interp, varselect.interp,
-                              nfor.pred=25, nmj=1, ...){
+                              nfor.pred = 25, nmj = 1, ...){
   
   # err.interp: interpretation models errors
   # varselect.interp: interpretation variables indices

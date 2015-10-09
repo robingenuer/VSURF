@@ -36,7 +36,7 @@
 #' @param nfor.interp Number of forests grown.
 #' @param nsd Number of times the standard deviation of the minimum value of
 #' \code{err.interp} is multiplied. See details below.
-#' @param para A logical indicating if you want VSURF to run in parallel on
+#' @param parallel A logical indicating if you want VSURF to run in parallel on
 #' multiple cores (default to FALSE).
 #' @param ncores Number of cores to use. Default is set to the number of cores
 #' detected by R minus 1.
@@ -116,8 +116,8 @@ VSURF_interp <- function (x, ...) {
 #' @rdname VSURF_interp
 #' @export
 VSURF_interp.default <- function(
-  x, y, ntree = 2000, vars, nfor.interp=25, nsd=1, para=FALSE,
-  ncores=detectCores()-1, clusterType="PSOCK",  ...) {
+  x, y, ntree = 2000, vars, nfor.interp = 25, nsd = 1, parallel = FALSE,
+  ncores = detectCores()-1, clusterType = "PSOCK",  ...) {
   
   # vars: selected variables indices after thresholding step
   # nfor.interp: number of forests to estimate each model
@@ -126,7 +126,7 @@ VSURF_interp.default <- function(
   
   start <- Sys.time()
   
-  if (!para) {
+  if (!parallel) {
     clusterType <- NULL
     ncores <- NULL
   }  
@@ -184,7 +184,7 @@ VSURF_interp.default <- function(
     out <- c(mean(rf), sd(rf))
   }
   
-  if (!para) {
+  if (!parallel) {
     if (type=="classif") {
       for (i in 1:nvars){
         res <- rf.interp.classif(i, ...)
