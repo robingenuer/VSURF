@@ -6,6 +6,7 @@ Main changes in Version 1.0.1 (2015-05-15)
 the package.
 * para parameter of VSURF, VSURF_thres and VSURF_interp is now
 called parallel.
+* add imports to all necessary packages except base
 
 
 Main changes in Version 1.0.0 (2015-05-15)
