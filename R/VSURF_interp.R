@@ -102,12 +102,8 @@
 #'
 #' @importFrom randomForest randomForest
 #' @importFrom doParallel registerDoParallel
-#' @importFrom foreach foreach
-#' @importFrom foreach %dopar%
-#' @importFrom parallel makeCluster
-#' @importFrom parallel stopCluster
-#' @importFrom parallel mclapply
-#' @importFrom parallel detectCores
+#' @importFrom foreach foreach %dopar%
+#' @importFrom parallel makeCluster stopCluster mclapply detectCores
 #' @export
 VSURF_interp <- function (x, ...) {
   UseMethod("VSURF_interp")

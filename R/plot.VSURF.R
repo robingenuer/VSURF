@@ -74,6 +74,7 @@
 #' plot(toys.pred, var.names = TRUE)
 #' }
 #' 
+#' @importFrom graphics abline axis lines par plot
 #' @export
 plot.VSURF <- function(x, step="all", var.names=FALSE, imp.mean=TRUE,
                        imp.sd=TRUE, nvar.imp.mean=length(x$imp.mean.dec),

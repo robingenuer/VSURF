@@ -108,16 +108,13 @@
 #' toys.thres}
 #'
 #' @importFrom randomForest randomForest
-#' @importFrom rpart rpart
-#' @importFrom rpart rpart.control
-#' @importFrom rpart prune
+#' @importFrom rpart rpart prune
 #' @importFrom doParallel registerDoParallel
-#' @importFrom foreach foreach
-#' @importFrom foreach %dopar%
-#' @importFrom parallel makeCluster
-#' @importFrom parallel stopCluster
-#' @importFrom parallel mclapply
-#' @importFrom parallel detectCores
+#' @importFrom foreach foreach %dopar%
+#' @importFrom parallel makeCluster stopCluster mclapply detectCores
+#' @importFrom utils tail
+#' @importFrom stats model.frame model.response na.fail predict reformulate
+#' @importFrom stats sd terms
 #' @export
 VSURF_thres <- function (x, ...) {
   UseMethod("VSURF_thres")
@@ -260,7 +257,7 @@ VSURF_thres.default <- function(
     # estimation of the standard deviations curve with CART (using "rpart" package)
     
     # construction of the maximal tree and search of optimal complexity
-    tree <- rpart::rpart(imp.sd.dec ~., data=u, control=rpart::rpart.control(cp=0, minsplit=2))
+    tree <- rpart::rpart(imp.sd.dec ~., data=u, cp=0, minsplit=2)
     d <- tree$cptable
     argmin.cp <- which.min(d[,4])
     
