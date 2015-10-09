@@ -1,8 +1,14 @@
 News about the R package VSURF:
 --------------------------------
 
+Main changes in Version 1.0.1 (2015-05-15)
+* tests were added in the package, testing basic features of
+the package.
+* para parameter of VSURF, VSURF_thres and VSURF_interp is now
+called parallel.
 
-Main changes in Version 1.0.0
+
+Main changes in Version 1.0.0 (2015-05-15)
 WARNING: MAJOR UPDATE.
 * VSURF is now on github.
 * Change of name functions :
