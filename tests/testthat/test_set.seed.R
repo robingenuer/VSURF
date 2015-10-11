@@ -1,0 +1,27 @@
+context("Global VSURF test for classification iris data")
+
+set.seed(2219, kind = "Wichmann-Hill")
+wh <- runif(1)
+set.seed(2219, kind = "Marsaglia-Multicarry")
+mm <- runif(1)
+set.seed(2219, kind = "Super-Duper")
+sd <- runif(1)
+set.seed(2219, kind = "Mersenne-Twister")
+mt <- runif(1)
+set.seed(2219, kind = "Knuth-TAOCP-2002")
+kt2 <- runif(1)
+set.seed(2219, kind = "Knuth-TAOCP")
+kt <- runif(1)
+set.seed(2219, kind = "L'Ecuyer-CMRG")
+le <- runif(1)
+
+test_that("Different kind in set.seed", {
+  expect_equal(wh, 0.8847879, tolerance = 1e-7)
+  expect_equal(mm, 0.4702886, tolerance = 1e-7)
+  expect_equal(sd, 0.1150311, tolerance = 1e-7)
+  expect_equal(mt, 0.4305179, tolerance = 1e-7)
+  expect_equal(kt2, 0.9513694, tolerance = 1e-7)
+  expect_equal(kt, 0.7426598, tolerance = 1e-7)
+  expect_equal(le, 0.4891133, tolerance = 1e-7)
+  
+})
