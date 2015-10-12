@@ -15,5 +15,5 @@ iris.rf <- randomForest(iris[,1:4], iris[,5])
 
 test_that("OOB error of rf", {
   expect_equal(iris.rf$err.rate[500],
-               ifelse(is.64(platform), 0.04666667, 0.04), tolerance = 1e-7)
+               if(is.64(platform)) 0.04666667 else 0.04, tolerance = 1e-7)
 })
