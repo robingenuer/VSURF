@@ -1,6 +1,6 @@
 context("Global VSURF test for classification iris data")
 
-set.seed(2219, kind = "Mersenne-Twister")
+set.seed(2219)
 data(iris)
 iris.vsurf <- VSURF(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20,
                     nfor.interp = 10, nfor.pred = 10)
