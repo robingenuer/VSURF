@@ -1,10 +1,12 @@
-context("Global VSURF test for classification iris data")
+context("(skip on cran) Global VSURF parallel test for classification iris data")
 
-set.seed(221921186, "L'Ecuyer-CMRG")
-data(iris)
-iris.vsurf <- VSURF(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20,
-                    nfor.interp = 10, nfor.pred = 10,
+if (identical(Sys.getenv("NOT_CRAN"), "true")) {
+  set.seed(221921186, "L'Ecuyer-CMRG")
+  data(iris)
+  iris.vsurf <- VSURF(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20,
+                      nfor.interp = 10, nfor.pred = 10,
                     parallel = TRUE, ncores = 4, clusterType = "FORK")
+}
 
 test_that("Selected variables for the 3 steps", {
   skip_on_cran()

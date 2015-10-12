@@ -9,7 +9,7 @@ is.64 <- function(platform) {
   }
 }
 
-set.seed(2219)
+set.seed(2219, kind = "Mersenne-Twister")
 data(iris)
 iris.vsurf <- VSURF(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20,
                     nfor.interp = 10, nfor.pred = 10)

@@ -9,7 +9,7 @@ is.64 <- function(platform) {
   }
 }
 
-set.seed(2219)
+set.seed(2219, kind = "Mersenne-Twister")
 data(Orange)
 Orange[, 4:10] <- rnorm(7*nrow(Orange))
 orange.vsurf <- VSURF(circumference~., Orange, ntree = 100, nfor.thres = 20,
