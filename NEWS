@@ -1,7 +1,12 @@
 News about the R package VSURF:
 --------------------------------
 
-Main changes in Version 1.0.1 (2015-05-15)
+Main changes in Version 1.0.1 (2015-10-09)
+* fix in tests: they do not pass on windows 32-bit, but do on all other
+platforms.
+
+
+Main changes in Version 1.0.1 (2015-10-09)
 * tests were added in the package, testing basic features of
 the package.
 * para parameter of VSURF, VSURF_thres and VSURF_interp is now
