@@ -192,7 +192,14 @@ VSURF_thres.default <- function(
     }
     if (type=="reg") {
       for (i in 1:nfor.thres){
-        rf <- rf.reg(i, ...)
+        test = 1
+        rf <- NULL
+        while(test==1){
+          rf <- rf.reg(i, ...)
+          if( length(which(complete.cases(rf$m)==FALSE)) == 0 ){
+            test = 0
+          }
+        }
         m[i,] <- rf$m
         perf[i] <- rf$perf
       }
@@ -312,9 +319,9 @@ VSURF_thres.default <- function(
 #' @rdname VSURF_thres
 #' @export
 VSURF_thres.formula <- function(formula, data, ..., na.action = na.fail) {
-### formula interface for VSURF_thres.
-### code gratefully stolen from svm.formula (package e1071).
-###
+  ### formula interface for VSURF_thres.
+  ### code gratefully stolen from svm.formula (package e1071).
+  ###
   if (!inherits(formula, "formula"))
     stop("method is only for formula objects")
   m <- match.call(expand.dots = FALSE)
@@ -350,9 +357,9 @@ VSURF_thres.formula <- function(formula, data, ..., na.action = na.fail) {
     ret$na.action <- attr(y, "na.action")
   }
   class(ret) <- c("VSURF_thres.formula", class(ret))
-        warning(
-        "VSURF with a formula-type call outputs selected variables
+  warning(
+    "VSURF with a formula-type call outputs selected variables
   which are indices of the input matrix based on the formula:
   you may reorder these to get indices of the original data")
-    return(ret)
+  return(ret)
 }
