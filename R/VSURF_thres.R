@@ -233,6 +233,16 @@ VSURF_thres.default <- function(
     }
   }
   
+  m_na.omit <- na.omit(m)
+  if (nrow(m_na.omit) != nrow(m)) {
+      warning(
+          paste0(nrow(m) - nrow(m_na.omit), " runs of randomForest were removed
+                (among ", nfor.thres, ") because they contained no OOB
+                observations for some trees")
+      )
+      m <- m_na.omit
+  }
+  
   # ord.imp contains the VI means in decreasing order
   ord.imp <- sort( colMeans(m), index.return=TRUE, decreasing=TRUE)
   imp.mean.dec <- ord.imp$x
