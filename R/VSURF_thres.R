@@ -118,7 +118,7 @@
 #' @importFrom parallel makeCluster stopCluster mclapply detectCores
 #' @importFrom utils tail
 #' @importFrom stats model.frame model.response na.fail predict reformulate
-#' @importFrom stats sd terms
+#' @importFrom stats sd terms na.omit
 #' @export
 VSURF_thres <- function (x, ...) {
   UseMethod("VSURF_thres")
@@ -237,7 +237,7 @@ VSURF_thres.default <- function(
     }
   }
   
-  m_na.omit <- na.omit(m)
+  m_na.omit <- stats::na.omit(m)
   if (nrow(m_na.omit) != nrow(m)) {
       warning(
           paste0(nrow(m) - nrow(m_na.omit), " runs of randomForest were removed
