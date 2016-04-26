@@ -1,6 +1,13 @@
 News about the R package VSURF:
 --------------------------------
 
+Main changes in Version 1.0.3 (2016-04-26)
+* fix VSURF_thres bug in order to always return importance for all variables
+(in case of very low sample size, NaN are sometimes produced for importance
+of some variables)
+* add R Journal references in help pages
+
+
 Main changes in Version 1.0.2 (2015-10-09)
 * fix in tests: they do not pass on windows 32-bit, but do on all other
 platforms.

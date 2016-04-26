@@ -11,6 +11,9 @@
 ##' @references Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2010),
 ##' \emph{Variable selection using random forests}, Pattern Recognition Letters
 ##' 31(14), 2225-2236
+##' @references Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2015),
+##' \emph{VSURF: An R Package for Variable Selection Using Random Forests},
+##' The R Journal 7(2):19-33
 ##'
 ##' @examples
 ##'

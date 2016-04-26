@@ -1,5 +1,5 @@
 ## Test environments
-* local ubuntu 15.04 install, R 3.2.2
+* local ubuntu 15.10 install, R 3.2.4
 * linux (travis-ci), current devel, release and oldrel
 * win-builder (devel and release)
 
