@@ -5,3 +5,4 @@
 ^README\.*
 ^cran-comments\.md$
 ^tests/testthat/test_iris_parallel.R$
+^appveyor\.yml$
