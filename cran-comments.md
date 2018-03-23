@@ -1,6 +1,6 @@
 ## Test environments
 * local ubuntu 17.10 install, R 3.4.4
-* linux (travis-ci), current devel, release and oldrel
+* linux (travis-ci) current devel
 * windows (appveyor-ci)
 
 ## R CMD check results
