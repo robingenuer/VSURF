@@ -15,6 +15,7 @@ iris.vsurf <- VSURF(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20,
                     nfor.interp = 10, nfor.pred = 10)
 
 test_that("Selected variables for the 3 steps", {
+  skip_on_cran()
   expect_identical(iris.vsurf$varselect.thres,
                    if (!is.win32b(platform)) c(4L, 3L, 1L, 2L) else c(3L, 4L, 1L, 2L))
   expect_identical(iris.vsurf$varselect.interp,
@@ -24,6 +25,7 @@ test_that("Selected variables for the 3 steps", {
 })
 
 test_that("Variable importance",{
+  skip_on_cran()
   expect_equal(iris.vsurf$imp.mean.dec,
                if (!is.win32b(platform)) 
                c(0.26633637, 0.25610509, 0.09020064, 0.03915156) else
@@ -39,6 +41,7 @@ test_that("Variable importance",{
 })
 
 test_that("OOB erros of nested models", {
+  skip_on_cran()
   expect_equal(iris.vsurf$err.interp,
                if (!is.win32b(platform)) 
                c(0.04666667, 0.03600000, 0.05000000, 0.04533333) else
@@ -52,6 +55,7 @@ test_that("OOB erros of nested models", {
 })
 
 test_that("Thresholds for the 3 steps", {
+  skip_on_cran()
   expect_equal(min(iris.vsurf$pred.pruned.tree),
                ifelse(!is.win32b(platform), 0.007075411, 0.007335576),
                tolerance = 1e-7)
