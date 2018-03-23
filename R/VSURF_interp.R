@@ -1,7 +1,7 @@
 #' Interpretation step of VSURF
 #' 
 #' Interpretation step aims to select all variables related to the response for
-#' interpretation prupose. This is the second step of the \code{\link{VSURF}}
+#' interpretation purpose. This is the second step of the \code{\link{VSURF}}
 #' function. It is designed to be executed after the thresholding step
 #' \code{\link{VSURF_thres}}.
 #' 

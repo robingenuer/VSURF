@@ -4,9 +4,9 @@
 #' supervised classification and regression problems.  First step
 #' ("thresholding step") is dedicated to eliminate irrelevant variables from
 #' the dataset.  Second step ("interpretation step") aims to select all
-#' variables related to the response for interpretation prupose.  Third step
+#' variables related to the response for interpretation purpose.  Third step
 #' ("prediction step") refines the selection by eliminating redundancy in the
-#' set of variables selected by the second step, for prediction prupose.
+#' set of variables selected by the second step, for prediction purpose.
 #' 
 #' \itemize{ \item First step ("thresholding step"): first, \code{nfor.thres}
 #' random forests are computed using the function \code{randomForest} with
@@ -21,7 +21,7 @@
 #' "thresholding step" is performed: only variables with a mean VI larger than
 #' \code{nmin} * \code{min.thres} are kept.
 #' 
-#' \item Second step ("intepretation step"): the variables selected by the
+#' \item Second step ("interpretation step"): the variables selected by the
 #' first step are considered. \code{nfor.interp} embedded random forests models
 #' are grown, starting with the random forest build with only the most
 #' important variable and ending with all variables selected in the first step.
@@ -51,7 +51,7 @@
 #' in the model, is not greater than the number of observations,
 #' while it is set to \code{nvm/3} otherwise.}
 #'
-#' VSURF is able to run using mutliple cores in parallel
+#' VSURF is able to run using multiple cores in parallel
 #' (see \code{parallel}, \code{clusterType} and \code{ncores} arguments).
 #' 
 #' @param data a data frame containing the variables in the model.
@@ -70,7 +70,7 @@
 #' the three steps).
 #' @param nmin Number of times the "minimum value" is multiplied to set
 #' threshold value.
-#' @param nfor.interp Number of forests grown for "intepretation step" (second
+#' @param nfor.interp Number of forests grown for "interpretation step" (second
 #' of the three steps).
 #' @param nsd Number of times the standard deviation of the minimum value of
 #' \code{err.interp} is multiplied.
@@ -104,7 +104,7 @@
 #' \item{nums.varselect}{A vector of the 3 numbers of variables selected
 #' resp. by "thresholding step", "interpretation step" and "prediction step".}
 #' 
-#' \item{imp.varselect.thres}{A vector of importances of the
+#' \item{imp.varselect.thres}{A vector of importance of the
 #' \code{varselect.thres} variables.}
 #' 
 #' \item{min.thres}{The minimum predicted value of a pruned CART tree
@@ -117,7 +117,7 @@
 #' of variables importance means.}
 #' 
 #' \item{imp.sd.dec}{A vector of standard deviations of all variables
-#' importances. The order is given by \code{imp.mean.dec.ind}.}
+#' importance. The order is given by \code{imp.mean.dec.ind}.}
 #' 
 #' \item{mean.perf}{Mean OOB error rate, obtained by a random forests
 #' build on all variables.}

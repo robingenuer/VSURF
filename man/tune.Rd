@@ -2,8 +2,8 @@
 % Please edit documentation in R/tune.R
 \name{tune}
 \alias{tune}
-\alias{tune.VSURF_interp}
 \alias{tune.VSURF_thres}
+\alias{tune.VSURF_interp}
 \title{Tuning of the thresholding and interpretation steps of VSURF}
 \usage{
 tune(x, ...)
@@ -17,13 +17,13 @@ tune(x, ...)
 is the result of the \code{\link{VSURF_thres}} or \code{\link{VSURF_interp}}
 function.}
 
+\item{\dots}{Not used.}
+
 \item{nmin}{Number of times the "minimum value" is multiplied to set
 threshold value. See details below.}
 
 \item{nsd}{Number of times the standard deviation of the minimum value of
 \code{err.interp} is multiplied. See details below.}
-
-\item{\dots}{Not used.}
 }
 \value{
 An object with the same structure than the original output (from
@@ -65,9 +65,6 @@ iris.interp.tuned
 }
 
 }
-\author{
-Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
-}
 \references{
 Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2010),
 \emph{Variable selection using random forests}, Pattern Recognition Letters
@@ -81,4 +78,6 @@ The R Journal 7(2):19-33
 \code{\link{VSURF}}, \code{\link{VSURF_thres}},
 \code{\link{VSURF_interp}}
 }
-
+\author{
+Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
+}

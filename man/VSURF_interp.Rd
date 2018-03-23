@@ -88,7 +88,7 @@ was used).}
 }
 \description{
 Interpretation step aims to select all variables related to the response for
-interpretation prupose. This is the second step of the \code{\link{VSURF}}
+interpretation purpose. This is the second step of the \code{\link{VSURF}}
 function. It is designed to be executed after the thresholding step
 \code{\link{VSURF_thres}}.
 }
@@ -125,9 +125,6 @@ toys.interp <- VSURF_interp(toys$x, toys$y, vars = toys.thres$varselect.thres)
 toys.interp}
 
 }
-\author{
-Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
-}
 \references{
 Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2010),
 \emph{Variable selection using random forests}, Pattern Recognition Letters
@@ -140,4 +137,6 @@ The R Journal 7(2):19-33
 \seealso{
 \code{\link{VSURF}}, \code{\link{tune}}
 }
-
+\author{
+Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
+}

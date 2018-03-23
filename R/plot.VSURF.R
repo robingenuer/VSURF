@@ -19,7 +19,7 @@
 #' only one variable as predictor, to the one with all variables kept after the
 #' "thresholding step"). The vertical red line indicates the retained model.
 #' 
-#' The bottom right graph corresponds to the "predicton step" (and only this
+#' The bottom right graph corresponds to the "prediction step" (and only this
 #' graph is plotted by the \code{plot.VSURF_pred} function). It plots the mean
 #' OOB error rate of embedded random forests models (the difference, here,
 #' being that variables are added to the model in a step-wise manner). The

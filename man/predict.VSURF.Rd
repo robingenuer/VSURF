@@ -52,9 +52,6 @@ toys.vsurf <- VSURF(toys$x[toys.learn, ], toys$y[toys.learn])
 toys.predictions <- predict(toys.vsurf, newdata = toys$x[-toys.learn, ])}
 
 }
-\author{
-Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
-}
 \references{
 Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2010),
 \emph{Variable selection using random forests}, Pattern Recognition Letters
@@ -67,4 +64,6 @@ The R Journal 7(2):19-33
 \seealso{
 \code{\link{VSURF}}
 }
-
+\author{
+Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
+}

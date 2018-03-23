@@ -1,8 +1,8 @@
 #' Prediction step of VSURF
 #' 
-#' Prediction step refines the selection of intepretation step
+#' Prediction step refines the selection of interpretation step
 #' \code{\link{VSURF_interp}} by eliminating redundancy in the set of variables
-#' selected, for prediction prupose. This is the third step of the
+#' selected, for prediction purpose. This is the third step of the
 #' \code{\link{VSURF}} function.
 #' 
 #' \code{nfor.pred} embedded random forests models are grown, starting with the

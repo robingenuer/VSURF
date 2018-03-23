@@ -68,9 +68,9 @@ step".}
 was used).}
 }
 \description{
-Prediction step refines the selection of intepretation step
+Prediction step refines the selection of interpretation step
 \code{\link{VSURF_interp}} by eliminating redundancy in the set of variables
-selected, for prediction prupose. This is the third step of the
+selected, for prediction purpose. This is the third step of the
 \code{\link{VSURF}} function.
 }
 \details{
@@ -111,9 +111,6 @@ toys.pred <- VSURF_pred(toys$x, toys$y, err.interp = toys.interp$err.interp,
 toys.pred}
 
 }
-\author{
-Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
-}
 \references{
 Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2010),
 \emph{Variable selection using random forests}, Pattern Recognition Letters
@@ -126,4 +123,6 @@ The R Journal 7(2):19-33
 \seealso{
 \code{\link{VSURF}}
 }
-
+\author{
+Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
+}

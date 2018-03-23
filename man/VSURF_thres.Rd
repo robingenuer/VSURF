@@ -61,7 +61,7 @@ following components:
 \item{varselect.thres}{A vector of indices of selected variables,
 sorted according to their mean VI, in decreasing order.}
 
-\item{imp.varselect.thres}{A vector of importances of the
+\item{imp.varselect.thres}{A vector of importance of the
 \code{varselect.thres} variables.}
 
 \item{min.thres}{The minimum predicted value of a pruned CART tree
@@ -76,7 +76,7 @@ fitted to the curve of the standard deviations of VI.}
 of variables importance means.}
 
 \item{imp.sd.dec}{A vector of standard deviations of all variables
-importances. The order is given by \code{imp.mean.dec.ind}.}
+importance. The order is given by \code{imp.mean.dec.ind}.}
 
 \item{mean.perf}{The mean OOB error rate, obtained by a random forests
 build with all variables.}
@@ -133,9 +133,6 @@ toys.thres <- VSURF_thres(toys$x, toys$y)
 toys.thres}
 
 }
-\author{
-Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
-}
 \references{
 Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2010),
 \emph{Variable selection using random forests}, Pattern Recognition Letters
@@ -148,4 +145,6 @@ The R Journal 7(2):19-33
 \seealso{
 \code{\link{VSURF}}, \code{\link{tune}}
 }
-
+\author{
+Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
+}

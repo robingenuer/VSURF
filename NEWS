@@ -1,6 +1,11 @@
 News about the R package VSURF:
 --------------------------------
 
+Main changes in Version 1.0.4 (2018-03-23)
+* skip all tests because randomForest package is being updated and behavior
+with set.seed() is changing (and hence crashing all tests of VSURF)
+
+
 Main changes in Version 1.0.3 (2016-04-26)
 * fix VSURF_thres bug in order to always return importance for all variables
 (in case of very low sample size, NaN are sometimes produced for importance
