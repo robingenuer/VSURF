@@ -1,23 +1,65 @@
-##' TITLE
+##' Real-wold data on PM10 pollution in Rouen area, France
 ##'
-##' DESCRIPTION
+##' These data are TEOM (Tapered Element Oscillating Microbalance) PM10
+##' concentrations from 2004 to 2006 (1096 days) measured by Air Normand, and
+##' the associated weather data provided by Météo France, the French national
+##' meteorological service, using six different monitoring sites.
+##'
+##' Six different monitoring stations of the Rouen (Haute Normandie, France)
+##' area are considered. The urban station \code{jus}, the traffic station
+##' \code{gui}, the second most polluted in the region, and \code{gcm} which is
+##' located in an industrial area. In Le Havre, are considered the stations
+##' \code{rep} (the most polluted in the region) and \code{hri} located at the
+##' seaside. Lastly, the station \code{ail} near Dieppe, because it is rural and
+##' coastal, and a priori hardly influenced by social and industrial activity.
+##' Grouping by categories: \code{jus} and \code{hri} are background urban
+##' monitoring sites, \code{gui} and \code{rep} are urban sites close to
+##' traffic, \code{gcm} is industrial and \code{ail} is rural.
+##'
+##' @format Each object is a data frame.
+##'
+##'   The description of the 18 variables is the following (note that for
+##'   \code{gcm} station, only the pollutant SO2 is available, and there is no
+##'   pollutant for \code{ail} station):
 ##' 
-##' @format The format is a list of 2 component:
-##' 
-##' $x: A data-frame containing input variables: with 100 obs. of 200
-##' variables ;
-##' 
-##' $y: Output variable: a factor with 2 levels "-1" and "1".
-##' 
-##' @examples
-##' 
-##' ##'
-##' \dontrun{
-##' 
+##' \describe{
+##'   \item{PM10}{Daily mean concentration of PM10, in \eqn{\mu}g/m3}
+##'   \item{NO, NO2, SO2}{Daily mean concentration of NO, NO2 , SO2, in 
+##'   \eqn{\mu}g/m3}
+##'   \item{T.min, T.max, T.moy}{Daily minimum, maximum and mean temperature, in
+##'   °C}
+##'   \item{DV.maxvv, DV.dom}{Daily maximum speed and dominant wind direction,
+##'   in ° (for wind direction, 0° corresponds to north)}
+##'   \item{VV.max, VV.moy}{Daily maximum and mean wind speed, in m/s}
+##'   \item{PL.som}{Daily rainfall, in mm}
+##'   \item{HR.min, HR.max, HR.moy}{Daily minimum, maximum and mean relative
+##'   humidity, in \%}
+##'   \item{PA.moy}{Daily mean air pressure, in hPa}
+##'   \item{GTrouen, GTlehavre}{Daily temperature gradient, in °C}
 ##' }
 ##' 
-##' @source   Weston, J., Elisseff, A., Schoelkopf, B., Tipping, M. (2003),
-##' \emph{Use of the zero norm with linear models and Kernel methods},
-##' J. Machine Learn. Res. 3, 1439-1461
-##'
+##' @source F.-X. Jollois, J.-M. Poggi, B. Portier, \emph{Three non-linear
+##'   statistical methods to analyze PM10 pollution in Rouen area}. CSBIGS 3(1):
+##'   1-17, 2009
+##' 
+##' @docType data
+##' @name PM10
+NULL
+
+##' @rdname PM10
+"ail"
+
+##' @rdname PM10
+"gcm"
+
+##' @rdname PM10
+"gui"
+
+##' @rdname PM10
+"hri"
+
+##' @rdname PM10
 "jus"
+
+##' @rdname PM10
+"rep"
