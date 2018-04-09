@@ -6,14 +6,14 @@ iris.vsurf <- VSURF(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20,
                     nfor.interp = 10, nfor.pred = 10)
 
 test_that("Selected variables for the 3 steps", {
-  skip_on_cran()
+  skip("skip")
   expect_identical(iris.vsurf$varselect.thres, c(4L, 3L, 1L, 2L))
   expect_identical(iris.vsurf$varselect.interp, c(4L, 3L))
   expect_identical(iris.vsurf$varselect.pred, c(4L, 3L))
 })
 
 test_that("Variable importance",{
-  skip_on_cran()
+  skip("skip")
   expect_equal(iris.vsurf$imp.mean.dec,
                c(0.26633637, 0.25610509, 0.09020064, 0.03915156),
                tolerance = 1e-7)
@@ -24,7 +24,7 @@ test_that("Variable importance",{
 })
 
 test_that("OOB erros of nested models", {
-  skip_on_cran()
+  skip("skip")
   expect_equal(iris.vsurf$err.interp,
                c(0.04666667, 0.03600000, 0.05000000, 0.04533333),
                tolerance = 1e-7)
@@ -34,7 +34,7 @@ test_that("OOB erros of nested models", {
 })
 
 test_that("Thresholds for the 3 steps", {
-  skip_on_cran()
+  skip("skip")
   expect_equal(min(iris.vsurf$pred.pruned.tree), 0.007075411,
                tolerance = 1e-7)
   expect_equal(iris.vsurf$sd.min, 0.003442652,

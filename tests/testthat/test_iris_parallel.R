@@ -9,14 +9,14 @@ if (identical(Sys.getenv("NOT_CRAN"), "true")) {
 }
 
 test_that("Selected variables for the 3 steps", {
-  skip_on_cran()
+  skip("skip")
   expect_identical(iris.vsurf$varselect.thres, c(3L, 4L, 1L, 2L))
   expect_identical(iris.vsurf$varselect.interp, c(3L, 4L))
   expect_identical(iris.vsurf$varselect.pred, c(3L, 4L))
 })
 
 test_that("Variable importance",{
-  skip_on_cran()
+  skip("skip")
   expect_equal(iris.vsurf$imp.mean.dec,
                c(0.26685454, 0.26609110, 0.08489910, 0.03596449),
                tolerance = 1e-7)
@@ -27,7 +27,7 @@ test_that("Variable importance",{
 })
 
 test_that("OOB erros of nested models", {
-  skip_on_cran()
+  skip("skip")
   expect_equal(iris.vsurf$err.interp,
                c(0.07266667, 0.03666667, 0.04600000, 0.04733333),
                tolerance = 1e-7)
@@ -37,7 +37,7 @@ test_that("OOB erros of nested models", {
 })
 
 test_that("Thresholds for the 3 steps", {
-  skip_on_cran()
+  skip("skip")
   expect_equal(min(iris.vsurf$pred.pruned.tree), 0.006985874,
                tolerance = 1e-7)
   expect_equal(iris.vsurf$sd.min, 0.004714045, tolerance = 1e-7)

@@ -1,8 +1,8 @@
-##' Real-wold data on PM10 pollution in Rouen area, France
+##' Real-world data on PM10 pollution in Rouen area, France
 ##'
 ##' These data are TEOM (Tapered Element Oscillating Microbalance) PM10
 ##' concentrations from 2004 to 2006 (1096 days) measured by Air Normand, and
-##' the associated weather data provided by Météo France, the French national
+##' the associated weather data provided by Meteo France, the French national
 ##' meteorological service, using six different monitoring sites.
 ##'
 ##' Six different monitoring stations of the Rouen (Haute Normandie, France)
@@ -23,19 +23,19 @@
 ##'   pollutant for \code{ail} station):
 ##' 
 ##' \describe{
-##'   \item{PM10}{Daily mean concentration of PM10, in \eqn{\mu}g/m3}
+##'   \item{PM10}{Daily mean concentration of PM10, in \eqn{\mu g/m^3}}
 ##'   \item{NO, NO2, SO2}{Daily mean concentration of NO, NO2 , SO2, in 
-##'   \eqn{\mu}g/m3}
+##'   \eqn{\mu g/m^3}}
 ##'   \item{T.min, T.max, T.moy}{Daily minimum, maximum and mean temperature, in
-##'   °C}
+##'   degree Celsius}
 ##'   \item{DV.maxvv, DV.dom}{Daily maximum speed and dominant wind direction,
-##'   in ° (for wind direction, 0° corresponds to north)}
+##'   in degree (for wind direction, 0 degree corresponds to north)}
 ##'   \item{VV.max, VV.moy}{Daily maximum and mean wind speed, in m/s}
 ##'   \item{PL.som}{Daily rainfall, in mm}
 ##'   \item{HR.min, HR.max, HR.moy}{Daily minimum, maximum and mean relative
 ##'   humidity, in \%}
 ##'   \item{PA.moy}{Daily mean air pressure, in hPa}
-##'   \item{GTrouen, GTlehavre}{Daily temperature gradient, in °C}
+##'   \item{GTrouen, GTlehavre}{Daily temperature gradient, in degree Celsius}
 ##' }
 ##' 
 ##' @source F.-X. Jollois, J.-M. Poggi, B. Portier, \emph{Three non-linear
