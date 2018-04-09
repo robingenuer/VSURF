@@ -3,7 +3,7 @@
 VSURF
 =====
 
-[![Travis-CI Build Status](https://travis-ci.org/robingenuer/VSURF.svg?branch=master)](https://travis-ci.org/robingenuer/VSURF) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/robingenuer/VSURF?branch=master&svg=true)](https://ci.appveyor.com/project/robingenuer/VSURF)
+[![Travis-CI Build Status](https://travis-ci.org/robingenuer/VSURF.svg?branch=master)](https://travis-ci.org/robingenuer/VSURF) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/robingenuer/VSURF?branch=master&svg=true)](https://ci.appveyor.com/project/robingenuer/VSURF) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/VSURF)](https://cran.r-project.org/package=VSURF) [![CRAN Downloads month](https://cranlogs.r-pkg.org/badges/VSURF?color=blue)](https://www.r-pkg.org/pkg/VSURF) [![CRAN Downloads overall](https://cranlogs.r-pkg.org/badges/grand-total/VSURF?color=blue)](https://www.r-pkg.org/pkg/VSURF)
 
 Variable Selection Using Random Forests
 
@@ -12,16 +12,16 @@ R package, implementing a three steps variable selection procedure based on rand
 Install
 -------
 
-To install the latest released version available on CRAN, use :
+To install the latest released version available on CRAN, use:
 
 ``` r
 install.packages("VSURF")
 ```
 
-To try the current development version from github, use :
+To try the current development version from github, use:
 
 ``` r
+if (!requireNamespace("devtools", quietly = TRUE)) {
+    install.packages("devtools")}
 devtools::install_github("robingenuer/VSURF")
-# This needs the devtools package to be installed :
-# install.packages("devtools")
 ```

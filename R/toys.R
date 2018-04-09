@@ -6,7 +6,7 @@
 ##' It is an equiprobable two class problem, Y belongs to \{-1,1\}, with six
 ##' true  variables, the others being some noise.
 ##' The simulation model is defined through the conditional distribution
-##' of the X_i for Y=y:
+##' of the \eqn{X_i} for Y=y:
 ##' 
 ##' \itemize{
 ##'  \item with probability 0.7, X^j ~ N(yj,1) for j=1,2,3 and
