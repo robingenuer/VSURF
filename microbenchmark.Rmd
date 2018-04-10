@@ -1,0 +1,86 @@
+---
+title: "Comparison of RF implementations with microbenchmark"
+author: "Robin Genuer"
+date: "10 avril 2018"
+output: html_document
+---
+
+```{r}
+library(microbenchmark)
+```
+
+# `spam` data
+
+## Raw data
+
+```{r}
+data("spam", package = "kernlab")
+p <- ncol(spam) - 1
+Xspam <- spam[, -ncol(spam)]
+Yspam <- spam$type
+dim(Xspam)
+str(Yspam)
+```
+
+```{r, cache=TRUE}
+mbSpam <- microbenchmark(
+  randomForest::randomForest(type ~ ., spam, ntree = 500,
+                             mtry = floor(sqrt(p))),
+  randomForest::randomForest(Xspam, Yspam,
+                             ntree = 500, mtry = floor(sqrt(p))),
+  ranger::ranger(type ~ ., spam, num.trees = 500, mtry = floor(sqrt(p)),
+                 num.threads = 1),
+  Rborist::Rborist(Xspam, Yspam,
+                   nTree = 500, predFixed = floor(sqrt(p))),
+  times = 10)
+mbSpam
+boxplot(mbSpam, names = c("RF formula", "RF", "ranger", "Rborist"))
+```
+
+## In dimension 1
+
+```{r}
+spamSmall <- spam[, c("charExclamation", "type")]
+str(spamSmall)
+XspamSmall <- spamSmall["charExclamation"]
+YspamSmall <- spamSmall$type
+```
+
+```{r, cache=TRUE}
+mbSpamSmall <- microbenchmark(
+  randomForest::randomForest(type ~ ., spamSmall, ntree = 500, mtry = 1),
+  randomForest::randomForest(XspamSmall, YspamSmall,
+                             ntree = 500, mtry = 1),
+  ranger::ranger(type ~ ., spamSmall, num.trees = 500, mtry = 1,
+                 num.threads = 1),
+  Rborist::Rborist(XspamSmall, YspamSmall,
+                   nTree = 500, predFixed = 1),
+  times = 10)
+mbSpamSmall
+boxplot(mbSpamSmall, names = c("RF formula", "RF", "ranger", "Rborist"))
+```
+
+# `vac18` data
+
+```{r}
+data("vac18", package = "mixOmics")
+geneExpr <- vac18$genes
+dim(geneExpr)
+stimu <- vac18$stimulation
+VAC18 <- data.frame(geneExpr, stimu)
+```
+
+```{r, cache=TRUE}
+mbVac18 <- microbenchmark::microbenchmark(
+  randomForest::randomForest(stimu ~ ., VAC18, ntree = 500,
+                             mtry = floor(ncol(geneExpr)/3)),
+  randomForest::randomForest(geneExpr, stimu, ntree = 500,
+                             mtry = floor(ncol(geneExpr)/3)),
+  ranger::ranger(stimu ~ ., VAC18, num.trees = 500,
+                 mtry = floor(ncol(geneExpr)/3), num.threads = 1),
+  Rborist::Rborist(geneExpr, stimu, nTree = 500,
+                   predFixed = floor(sqrt(p))),
+  times = 25)
+mbVac18
+boxplot(mbVac18, names = c("RF formula", "RF", "ranger", "Rborist"))
+```

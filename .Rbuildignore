@@ -6,3 +6,8 @@
 ^cran-comments\.md$
 ^tests/testthat/test_iris_parallel.R$
 ^appveyor\.yml$
+^microbenchmark\.R$
+^microbenchmark\.Rmd$
+^microbenchmark\.html$
+^microbenchmark_cache/$
+^microbenchmark_files/$
