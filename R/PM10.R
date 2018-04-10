@@ -19,9 +19,10 @@
 ##' @format Each object is a data frame.
 ##'
 ##'   The description of the 18 variables is the following (note that for
-##'   \code{gcm} station, only the pollutant SO2 is available, and there is no
-##'   pollutant for \code{ail} station):
-##' 
+##'   \code{gcm} station, only the pollutant SO2 is available in addition to
+##'   PM10, and for \code{ail} station, there is no other pollutant in addition
+##'   to PM10):
+##'   
 ##' \describe{
 ##'   \item{PM10}{Daily mean concentration of PM10, in \eqn{\mu g/m^3}}
 ##'   \item{NO, NO2, SO2}{Daily mean concentration of NO, NO2 , SO2, in 
