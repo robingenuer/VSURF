@@ -27,6 +27,7 @@ Imports:
     foreach,
     parallel,
     randomForest,
+    ranger,
     rpart
 Suggests:
     testthat

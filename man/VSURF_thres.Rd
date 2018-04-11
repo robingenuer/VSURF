@@ -10,14 +10,14 @@ VSURF_thres(x, ...)
 
 \method{VSURF_thres}{default}(x, y, ntree = 2000,
   mtry = max(floor(ncol(x)/3), 1), nfor.thres = 50, nmin = 1,
-  parallel = FALSE, clusterType = "PSOCK", ncores = detectCores() - 1,
-  ...)
+  RFimplementation = "randomForest", parallel = FALSE,
+  clusterType = "PSOCK", ncores = parallel::detectCores() - 1, ...)
 
 \method{VSURF_thres}{formula}(formula, data, ..., na.action = na.fail)
 }
 \arguments{
-\item{x, formula}{A data frame or a matrix of predictors, the columns
-represent the variables. Or a formula describing the model to be fitted.}
+\item{x, formula}{A data frame or a matrix of predictors, the columns represent
+the variables. Or a formula describing the model to be fitted.}
 
 \item{...}{others parameters to be passed on to the \code{randomForest}
 function (see ?randomForest for further information).}
@@ -25,16 +25,19 @@ function (see ?randomForest for further information).}
 \item{y}{A response vector (must be a factor for classification problems and
 numeric for regression ones).}
 
-\item{ntree}{Number of trees in each forest grown. Standard
-\code{randomForest} parameter.}
+\item{ntree}{Number of trees in each forests grown. Standard parameter of
+\code{randomForest}.}
 
-\item{mtry}{Number of variables randomly sampled as candidates at each
-split. Standard \code{randomForest} parameter.}
+\item{mtry}{Number of variables randomly sampled as candidates at each split.
+Standard parameter of \code{randomForest}.}
 
 \item{nfor.thres}{Number of forests grown.}
 
 \item{nmin}{Number of times the "minimum value" is multiplied to set
 threshold value. See details below.}
+
+\item{RFimplementation}{Choice of the random forests implementation to use :
+"randomForest" (default) or "ranger".}
 
 \item{parallel}{A logical indicating if you want VSURF to run in parallel on
 multiple cores (default to FALSE).}
@@ -56,68 +59,69 @@ found.  (NOTE: If given, this argument must be named, and as
 }
 \value{
 An object of class \code{VSURF_thres}, which is a list with the
-following components:
+ following components:
 
-\item{varselect.thres}{A vector of indices of selected variables,
-sorted according to their mean VI, in decreasing order.}
+ \item{varselect.thres}{A vector of indices of selected variables, sorted
+ according to their mean VI, in decreasing order.}
 
-\item{imp.varselect.thres}{A vector of importance of the
-\code{varselect.thres} variables.}
+ \item{imp.varselect.thres}{A vector of importance of the
+ \code{varselect.thres} variables.}
 
-\item{min.thres}{The minimum predicted value of a pruned CART tree
-fitted to the curve of the standard deviations of VI.}
+ \item{min.thres}{The minimum predicted value of a pruned CART tree fitted to
+ the curve of the standard deviations of VI.}
 
-\item{num.varselect.thres}{The number of selected variables.}
+ \item{num.varselect.thres}{The number of selected variables.}
 
-\item{imp.mean.dec}{A vector of the variables importance means
-(over \code{nfor.thres} runs), in decreasing order.}
+ \item{imp.mean.dec}{A vector of the variables importance means (over
+ \code{nfor.thres} runs), in decreasing order.}
 
-\item{imp.mean.dec.ind}{The ordering index vector associated to the sorting
-of variables importance means.}
+ \item{imp.mean.dec.ind}{The ordering index vector associated to the sorting
+ of variables importance means.}
 
-\item{imp.sd.dec}{A vector of standard deviations of all variables
-importance. The order is given by \code{imp.mean.dec.ind}.}
+ \item{imp.sd.dec}{A vector of standard deviations of all variables
+ importance. The order is given by \code{imp.mean.dec.ind}.}
 
-\item{mean.perf}{The mean OOB error rate, obtained by a random forests
-build with all variables.}
+ \item{mean.perf}{The mean OOB error rate, obtained by a random forests build
+ with all variables.}
 
-\item{pred.pruned.tree}{The predictions of the CART tree fitted to the
-curve of the standard deviations of VI.}
+ \item{pred.pruned.tree}{The predictions of the CART tree fitted to the curve
+ of the standard deviations of VI.}
 
-\item{nmin}{Value of the parameter in the call.}
+ \item{nmin}{Value of the parameter in the call.}
 
-\item{comput.time}{Computation time.}
+ \item{comput.time}{Computation time.}
 
-\item{ncores}{The number of cores used to run \code{VSURF_thres}
- in parallel (NULL if VSURF_thres did not run in parallel).}
+ \item{RFimplementation}{The RF implementation used to run
+ \code{VSURF_thres}.}
 
-\item{clusterType}{The type of the cluster used to run
-\code{VSURF_thres} in parallel (NULL if VSURF_thres did not run in parallel).}
+ \item{ncores}{The number of cores used to run \code{VSURF_thres} in parallel
+ (NULL if VSURF_thres did not run in parallel).}
 
-\item{call}{The original call to \code{VSURF}.}
+ \item{clusterType}{The type of the cluster used to run \code{VSURF_thres} in
+ parallel (NULL if VSURF_thres did not run in parallel).}
+ 
+ \item{call}{The original call to \code{VSURF}.}
 
-\item{terms}{Terms associated to the formula (only if formula-type call
-was used).}
+ \item{terms}{Terms associated to the formula (only if formula-type call was
+ used).}
 }
 \description{
-Thresholding step is dedicated to roughly eliminate irrelevant variables a
-the dataset. This is the first step of the \code{\link{VSURF}} function. For
-refined variable selection, see VSURF other steps:
-\code{\link{VSURF_interp}} and \code{\link{VSURF_pred}}.
+Thresholding step is dedicated to roughly eliminate irrelevant variables a the
+dataset. This is the first step of the \code{\link{VSURF}} function. For
+refined variable selection, see VSURF other steps: \code{\link{VSURF_interp}}
+and \code{\link{VSURF_pred}}.
 }
 \details{
 First, \code{nfor.thres} random forests are computed using the function
-\code{randomForest} with arguments \code{importance=TRUE}, and our choice
-of default values for 
-\code{ntree} and \code{mtry} (which are higher than default in
-\code{\link{randomForest}} to get a more stable variable importance measure).
-Then variables
-are sorted according to their mean variable importance (VI), in decreasing
-order. This order is kept all along the procedure.  Next, a threshold is
-computed: \code{min.thres}, the minimum predicted value of a pruned CART
-tree fitted to the curve of the standard deviations of VI.  Finally, the
-actual thresholding is performed: only variables with a mean VI larger than
-\code{nmin} * \code{min.thres} are kept.
+\code{randomForest} with arguments \code{importance=TRUE}, and our choice of
+default values for \code{ntree} and \code{mtry} (which are higher than default
+in \code{\link{randomForest}} to get a more stable variable importance
+measure). Then variables are sorted according to their mean variable
+importance (VI), in decreasing order. This order is kept all along the
+procedure.  Next, a threshold is computed: \code{min.thres}, the minimum
+predicted value of a pruned CART tree fitted to the curve of the standard
+deviations of VI.  Finally, the actual thresholding is performed: only
+variables with a mean VI larger than \code{nmin} * \code{min.thres} are kept.
 }
 \examples{
 
@@ -135,12 +139,12 @@ toys.thres}
 }
 \references{
 Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2010),
-\emph{Variable selection using random forests}, Pattern Recognition Letters
-31(14), 2225-2236
+ \emph{Variable selection using random forests}, Pattern Recognition Letters
+ 31(14), 2225-2236
 
 Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2015),
-\emph{VSURF: An R Package for Variable Selection Using Random Forests},
-The R Journal 7(2):19-33
+ \emph{VSURF: An R Package for Variable Selection Using Random Forests}, The
+ R Journal 7(2):19-33
 }
 \seealso{
 \code{\link{VSURF}}, \code{\link{tune}}

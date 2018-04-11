@@ -1,114 +1,99 @@
-#' Interpretation step of VSURF
-#' 
-#' Interpretation step aims to select all variables related to the response for
-#' interpretation purpose. This is the second step of the \code{\link{VSURF}}
-#' function. It is designed to be executed after the thresholding step
-#' \code{\link{VSURF_thres}}.
-#' 
-#' \code{nfor.interp} embedded random forests models are grown, starting with
-#' the random forest build with only the most important variable and ending
-#' with all variables.  Then, \code{err.min} the minimum mean out-of-bag (OOB)
-#' error rate of these models and its associated standard deviation
-#' \code{sd.min} are computed.  Finally, the smallest model (and hence its
-#' corresponding variables) having a mean OOB error less than \code{err.min} +
-#' \code{nsd} * \code{sd.min} is selected.
-#' 
-#' Note that,
-#' the \code{mtry} parameter of \code{randomForest} is set to its default value
-#' (see \code{\link{randomForest}}) if \code{nvm}, the number of variables
-#' in the model, is not greater than the number of observations,
-#' while it is set to \code{nvm/3} otherwise. This is to ensure quality of OOB
-#' error estimations along embedded RF models.
-#' 
-#' @param data a data frame containing the variables in the model.
-#' @param na.action A function to specify the action to be taken if NAs are
-#' found.  (NOTE: If given, this argument must be named, and as
-#' \code{randomForest} it is only used with the formula-type call.)
-#' @param x,formula A data frame or a matrix of predictors, the columns
-#' represent the variables. Or a formula describing the model to be fitted.
-#' @param y A response vector (must be a factor for classification problems and
-#' numeric for regression ones).
-#' @param ntree Number of trees in each forests grown. Standard parameter of
-#' \code{randomForest}.
-#' @param vars A vector of variable indices. Typically, indices of variables
-#' selected by thresholding step (see value \code{varselect.thres} of
-#' \code{\link{VSURF_thres}} function).
-#' @param nfor.interp Number of forests grown.
-#' @param nsd Number of times the standard deviation of the minimum value of
-#' \code{err.interp} is multiplied. See details below.
-#' @param parallel A logical indicating if you want VSURF to run in parallel on
-#' multiple cores (default to FALSE).
-#' @param ncores Number of cores to use. Default is set to the number of cores
-#' detected by R minus 1.
-#' @param clusterType Type of the multiple cores cluster used to run VSURF in
-#' parallel. Must be chosen among "PSOCK" (default: SOCKET cluster available
-#' locally on all OS), "FORK" (local too, only available for Linux and Mac OS)
-#' and "MPI" (can be used on a remote cluster, which needs \code{snow} and
-#' \code{Rmpi} packages installed).
-#' @param ...  others parameters to be passed on to the \code{randomForest}
-#' function (see ?randomForest for further information).
-#' 
-#' @return An object of class \code{VSURF_interp}, which is a list with the
-#' following components:
-#' 
-#' \item{varselect.interp}{A vector of indices of selected variables.}
-#' 
-#' \item{err.interp}{A vector of the mean OOB error rates of the embedded
-#' random forests models.}
-#' 
-#' \item{sd.min}{The standard deviation of OOB error rates associated to
-#' the random forests model attaining the minimum mean OOB error rate.}
-#' 
-#' \item{num.varselect.interp}{The number of selected variables.}
-#' 
-#' \item{varselect.thres}{A vector of indexes of variables selected after
-#' "thresholding step", sorted according to their mean VI, in decreasing order.}
-#' 
-#' \item{nsd}{Value of the parameter in the call.}
-#' 
-#' \item{comput.time}{Computation time.}
+#'Interpretation step of VSURF
 #'
-#'\item{ncores}{The number of cores used to run \code{VSURF_interp}
+#'Interpretation step aims to select all variables related to the response for
+#'interpretation purpose. This is the second step of the \code{\link{VSURF}}
+#'function. It is designed to be executed after the thresholding step
+#'\code{\link{VSURF_thres}}.
+#'
+#'\code{nfor.interp} embedded random forests models are grown, starting with the
+#'random forest build with only the most important variable and ending with all
+#'variables.  Then, \code{err.min} the minimum mean out-of-bag (OOB) error rate
+#'of these models and its associated standard deviation \code{sd.min} are
+#'computed.  Finally, the smallest model (and hence its corresponding variables)
+#'having a mean OOB error less than \code{err.min} + \code{nsd} * \code{sd.min}
+#'is selected.
+#'
+#'Note that, the \code{mtry} parameter of \code{randomForest} is set to its
+#'default value (see \code{\link{randomForest}}) if \code{nvm}, the number of
+#'variables in the model, is not greater than the number of observations, while
+#'it is set to \code{nvm/3} otherwise. This is to ensure quality of OOB error
+#'estimations along embedded RF models.
+#'
+#'@param x,formula A data frame or a matrix of predictors, the columns represent
+#'  the variables. Or a formula describing the model to be fitted.
+#'@param vars A vector of variable indices. Typically, indices of variables
+#'  selected by thresholding step (see value \code{varselect.thres} of
+#'  \code{\link{VSURF_thres}} function).
+#'@param nfor.interp Number of forests grown.
+#'@inheritParams VSURF
+#'
+#'@return An object of class \code{VSURF_interp}, which is a list with the
+#'  following components:
+#'
+#'  \item{varselect.interp}{A vector of indices of selected variables.}
+#'
+#'  \item{err.interp}{A vector of the mean OOB error rates of the embedded
+#'  random forests models.}
+#'
+#'  \item{sd.min}{The standard deviation of OOB error rates associated to the
+#'  random forests model attaining the minimum mean OOB error rate.}
+#'
+#'  \item{num.varselect.interp}{The number of selected variables.}
+#'
+#'  \item{varselect.thres}{A vector of indexes of variables selected after
+#'  "thresholding step", sorted according to their mean VI, in decreasing
+#'  order.}
+#'
+#'  \item{nsd}{Value of the parameter in the call.}
+#'
+#'  \item{comput.time}{Computation time.}
+#'
+#'  \item{RFimplementation}{The RF implementation used to run
+#'  \code{VSURF_interp}.}
+#'
+#'  \item{ncores}{The number of cores used to run \code{VSURF_interp} in
+#'  parallel (NULL if VSURF_interp did not run in parallel).}
+#'
+#'  \item{clusterType}{The type of the cluster used to run \code{VSURF_interp}
 #'  in parallel (NULL if VSURF_interp did not run in parallel).}
 #'
-#' \item{clusterType}{The type of the cluster used to run
-#' \code{VSURF_interp} in parallel (NULL if VSURF_interp did not run in parallel).}
+#'  \item{call}{The original call to \code{VSURF}.}
 #'
-#' \item{call}{The original call to \code{VSURF}.}
+#'  \item{terms}{Terms associated to the formula (only if formula-type call was
+#'  used).}
 #'
-#' \item{terms}{Terms associated to the formula (only if formula-type call
-#' was used).}
-#' 
-#' @author Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
-#' @seealso \code{\link{VSURF}}, \code{\link{tune}}
-#' @references Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2010),
-#' \emph{Variable selection using random forests}, Pattern Recognition Letters
-#' 31(14), 2225-2236
-#' @references Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2015),
-#' \emph{VSURF: An R Package for Variable Selection Using Random Forests},
-#' The R Journal 7(2):19-33
-#' 
+#'@author Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
+#'@seealso \code{\link{VSURF}}, \code{\link{tune}}
+#'@references Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2010),
+#'  \emph{Variable selection using random forests}, Pattern Recognition Letters
+#'  31(14), 2225-2236
+#'@references Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2015),
+#'  \emph{VSURF: An R Package for Variable Selection Using Random Forests}, The
+#'  R Journal 7(2):19-33
+#'
 #' @examples
-#' 
+#'
 #' data(iris)
 #' iris.thres <- VSURF_thres(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20)
-#' iris.interp <- VSURF_interp(iris[,1:4], iris[,5], vars = iris.thres$varselect.thres,
-#'                             nfor.interp = 10)
+#' iris.interp <- VSURF_interp(iris[,1:4], iris[,5],
+#'   vars = iris.thres$varselect.thres, nfor.interp = 10)
 #' iris.interp
-#' 
+#'
 #' \dontrun{
 #' # A more interesting example with toys data (see \code{\link{toys}})
 #' # (a few minutes to execute)
 #' data(toys)
 #' toys.thres <- VSURF_thres(toys$x, toys$y)
-#' toys.interp <- VSURF_interp(toys$x, toys$y, vars = toys.thres$varselect.thres)
+#' toys.interp <- VSURF_interp(toys$x, toys$y,
+#'   vars = toys.thres$varselect.thres)
 #' toys.interp}
 #'
-#' @importFrom randomForest randomForest
-#' @importFrom doParallel registerDoParallel
-#' @importFrom foreach foreach %dopar%
-#' @importFrom parallel makeCluster stopCluster mclapply detectCores
-#' @export
+#'@importFrom randomForest randomForest
+#'@importFrom doParallel registerDoParallel
+#'@importFrom foreach foreach %dopar%
+#'@importFrom parallel makeCluster stopCluster mclapply detectCores
+#'@importFrom ranger ranger
+#'@export
 VSURF_interp <- function (x, ...) {
   UseMethod("VSURF_interp")
 }
@@ -116,7 +101,8 @@ VSURF_interp <- function (x, ...) {
 #' @rdname VSURF_interp
 #' @export
 VSURF_interp.default <- function(
-  x, y, ntree = 2000, vars, nfor.interp = 25, nsd = 1, parallel = FALSE,
+  x, y, ntree = 2000, vars, nfor.interp = 25, nsd = 1, 
+  RFimplementation = "randomForest", parallel = FALSE,
   ncores = detectCores()-1, clusterType = "PSOCK",  ...) {
   
   # vars: selected variables indices after thresholding step
@@ -152,90 +138,141 @@ VSURF_interp.default <- function(
   err.interp <- rep(NA, nvars)
   sd.interp <- rep(NA, nvars)
  
-  rf.interp.classif <- function(i, ...) {
-    rf <- rep(NA, nfor.interp)
-    u <- vars[1:i]
-    w <- x[,u, drop=FALSE]
-
-    if (i <= n) {
-      for (j in 1:nfor.interp) {
-        rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
+  if (RFimplementation == "randomForest") {
+    rf.interp.classif <- function(i, ...) {
+      rf <- rep(NA, nfor.interp)
+      u <- vars[1:i]
+      w <- x[, u, drop=FALSE]
+      
+      if (i <= n) {
+        for (j in 1:nfor.interp) {
+          rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
+        }
+      } else {
+        for (j in 1:nfor.interp) {
+          rf[j] <- tail(randomForest::randomForest(x=w, y=y, mtry=i/3, ...)$err.rate[,1], n=1)
+        }
       }
+      
+      out <- c(mean(rf), sd(rf))
     }
     
-    else {
+    rf.interp.reg <- function(i, ...) {
+      rf <- rep(NA, nfor.interp)
+      u <- vars[1:i]
+      w <- x[,u, drop=FALSE]
+      
       for (j in 1:nfor.interp) {
-        rf[j] <- tail(randomForest::randomForest(x=w, y=y, mtry=i/3, ...)$err.rate[,1], n=1)
+        rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$mse, n=1)
       }
+      
+      out <- c(mean(rf), sd(rf))
     }
-    
-    out <- c(mean(rf), sd(rf))
   }
-  
-  rf.interp.reg <- function(i, ...) {
-    rf <- rep(NA, nfor.interp)
-    u <- vars[1:i]
-    w <- x[,u, drop=FALSE]
-    
-    for (j in 1:nfor.interp) {
-      rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$mse, n=1)
+  if (RFimplementation == "ranger") {
+    rf.interp.ranger <- function(i, ...) {
+      rf <- rep(NA, nfor.interp)
+      u <- vars[1:i]
+      w <- x[, u, drop=FALSE]
+      
+      dat <- cbind(w, "y" = y)
+      
+      if (i <= n) {
+        for (j in 1:nfor.interp) {
+          rf[j] <- ranger::ranger(dependent.variable.name="y", data=dat,
+                                  num.trees = ntree, ...)$prediction.error
+        }
+      } else {
+        for (j in 1:nfor.interp) {
+          rf[j] <- ranger::ranger(dependent.variable.name="y", data=dat,
+                                  num.trees = ntree,
+                                  mtry=i/3, ...)$prediction.error
+        }
+      }
+      
+      return(c(mean(rf), sd(rf)))
     }
-    
-    out <- c(mean(rf), sd(rf))
   }
   
   if (!parallel) {
-    if (type=="classif") {
-      for (i in 1:nvars){
-        res <- rf.interp.classif(i, ...)
-        err.interp[i] <- res[1]
-        sd.interp[i] <- res[2]
-      }
-    }
-    if (type=="reg") {
-      for (i in 1:nvars){
-        res <- rf.interp.reg(i, ...)
-        err.interp[i] <- res[1]
-        sd.interp[i] <- res[2]
-      }
-    }
-  }  
-  
-  else {    
-    ncores <- min(nvars, ncores)
-    
-    if (clusterType=="FORK") {
+    if (RFimplementation == "randomForest") {
       if (type=="classif") {
-        res <- parallel::mclapply(X=1:nvars, FUN=rf.interp.classif, ..., mc.cores=ncores,
-                                  mc.preschedule=FALSE)
+        for (i in 1:nvars){
+          res <- rf.interp.classif(i, ...)
+          err.interp[i] <- res[1]
+          sd.interp[i] <- res[2]
+        }
       }
       if (type=="reg") {
-        res <- parallel::mclapply(X=1:nvars, FUN=rf.interp.reg, ..., mc.cores=ncores,
-                                  mc.preschedule=FALSE)
+        for (i in 1:nvars){
+          res <- rf.interp.reg(i, ...)
+          err.interp[i] <- res[1]
+          sd.interp[i] <- res[2]
+        }
       }
     }
-    
-    else { 
-      clust <- parallel::makeCluster(spec=ncores, type=clusterType)
-      doParallel::registerDoParallel(clust)
-      # i <- NULL #to avoid check NOTE...
+    if (RFimplementation == "ranger") {
+      for (i in 1:nvars){
+        res <- rf.interp.ranger(i, num.threads = 1, ...)
+        err.interp[i] <- res[1]
+        sd.interp[i] <- res[2]
+      }
+    }
+  } else {
+    if (clusterType == "ranger") {
+      for (i in 1:nvars){
+        res <- rf.interp.ranger(i, num.threads = ncores, ...)
+        err.interp[i] <- res[1]
+        sd.interp[i] <- res[2]
+      }
+    } else {
+      ncores <- min(nvars, ncores)
       
-      if (type=="classif") {
-        res <- foreach::foreach(i=1:nvars, .packages="randomForest") %dopar% {
-          out <- rf.interp.classif(i, ...)
+      if (clusterType=="FORK") {
+        if (RFimplementation == "randomForest") {
+          if (type=="classif") {
+            res <- parallel::mclapply(X=1:nvars, FUN=rf.interp.classif, ...,
+                                      mc.cores=ncores, mc.preschedule=FALSE)
+          }
+          if (type=="reg") {
+            res <- parallel::mclapply(X=1:nvars, FUN=rf.interp.reg, ...,
+                                      mc.cores=ncores, mc.preschedule=FALSE)
+          }
         }
+        if (RFimplementation == "ranger") {
+          res <- parallel::mclapply(X=1:nvars, FUN=rf.interp.ranger,
+                                    num.threads = 1, ...,
+                                    mc.cores=ncores, mc.preschedule=FALSE)
+        }
+      } else {
+        clust <- parallel::makeCluster(spec=ncores, type=clusterType)
+        doParallel::registerDoParallel(clust)
+        # i <- NULL #to avoid check NOTE...
+        
+        if (RFimplementation == "randomForest") {
+          if (type=="classif") {
+            res <- foreach::foreach(i=1:nvars, .packages="randomForest") %dopar% {
+              out <- rf.interp.classif(i, ...)
+            }
+          }
+          if (type=="reg") {
+            res <- foreach::foreach(i=1:nvars, .packages="randomForest") %dopar% {
+              out <- rf.interp.reg(i, ...)
+            }
+          }
+        }
+        if (RFimplementation == "ranger") {
+          res <- foreach::foreach(i=1:nvars, .packages="ranger") %dopar% {
+            out <- rf.interp.ranger(i, num.threads = 1, ...)
+          }
+        }
+        parallel::stopCluster(clust)
       }
-      if (type=="reg") {
-        res <- foreach::foreach(i=1:nvars, .packages="randomForest") %dopar% {
-          out <- rf.interp.reg(i, ...)
-        }
-      }     
-      parallel::stopCluster(clust)
-    }
-    
-    for (i in 1:nvars) {
-      err.interp[i] <- res[[i]][1]
-      sd.interp[i] <- res[[i]][2]
+      
+      for (i in 1:nvars) {
+        err.interp[i] <- res[[i]][1]
+        sd.interp[i] <- res[[i]][2]
+      }
     }
   }
   
@@ -257,6 +294,7 @@ VSURF_interp.default <- function(
                  'varselect.thres' = vars,
                  'nsd' = nsd,
                  'comput.time'=comput.time,
+                 'RFimplementation'=RFimplementation,
                  'ncores'=ncores,
                  'clusterType'=clusterType,
                  'call'=cl)

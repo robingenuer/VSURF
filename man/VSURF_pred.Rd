@@ -9,7 +9,7 @@
 VSURF_pred(x, ...)
 
 \method{VSURF_pred}{default}(x, y, ntree = 2000, err.interp, varselect.interp,
-  nfor.pred = 25, nmj = 1, ...)
+  nfor.pred = 25, nmj = 1, RFimplementation = "randomForest", ...)
 
 \method{VSURF_pred}{formula}(formula, data, ..., na.action = na.fail)
 }
@@ -17,8 +17,8 @@ VSURF_pred(x, ...)
 \item{x, formula}{A data frame or a matrix of predictors, the columns
 represent the variables. Or a formula describing the model to be fitted.}
 
-\item{...}{others parameters to be passed on to the \code{\link{VSURF}}
-function.}
+\item{...}{others parameters to be passed on to the \code{randomForest}
+function (see ?randomForest for further information).}
 
 \item{y}{A response vector (must be a factor for classification problems and
 numeric for regression ones).}
@@ -26,9 +26,9 @@ numeric for regression ones).}
 \item{ntree}{Number of trees in each forests grown. Standard parameter of
 \code{randomForest}.}
 
-\item{err.interp}{A vector of the mean OOB error rates of the embedded
-random forests models build during interpretation step (value
-\code{err.interp} of function \code{\link{VSURF_interp}}).}
+\item{err.interp}{A vector of the mean OOB error rates of the embedded random
+forests models build during interpretation step (value \code{err.interp} of
+function \code{\link{VSURF_interp}}).}
 
 \item{varselect.interp}{A vector of indices of variables selected after
 interpretation step.}
@@ -36,6 +36,9 @@ interpretation step.}
 \item{nfor.pred}{Number of forests grown.}
 
 \item{nmj}{Number of times the mean jump is multiplied. See details below.}
+
+\item{RFimplementation}{Choice of the random forests implementation to use :
+"randomForest" (default) or "ranger".}
 
 \item{data}{a data frame containing the variables in the model.}
 
@@ -45,27 +48,30 @@ found.  (NOTE: If given, this argument must be named, and as
 }
 \value{
 An object of class \code{VSURF_pred}, which is a list with the
-following components:
+  following components:
 
-\item{varselect.pred}{A vector of indices of variables selected after
-"prediction step".}
+  \item{varselect.pred}{A vector of indices of variables selected after
+  "prediction step".}
 
-\item{err.pred}{A vector of the mean OOB error rates of the random
-forests models build during the "prediction step".}
+  \item{err.pred}{A vector of the mean OOB error rates of the random forests
+  models build during the "prediction step".}
 
-\item{mean.jump}{The mean jump value computed during the "prediction
-step".}
+  \item{mean.jump}{The mean jump value computed during the "prediction
+  step".}
 
-\item{num.varselect.pred}{The number of selected variables.}
+  \item{num.varselect.pred}{The number of selected variables.}
 
-\item{nmj}{Value of the parameter in the call.}
+  \item{nmj}{Value of the parameter in the call.}
 
-\item{comput.time}{Computation time.}
+  \item{comput.time}{Computation time.}
 
-\item{call}{The original call to \code{VSURF}.}
+  \item{RFimplementation}{The RF implementation used to run
+  \code{VSURF_pred}.}
 
-\item{terms}{Terms associated to the formula (only if formula-type call
-was used).}
+  \item{call}{The original call to \code{VSURF}.}
+
+  \item{terms}{Terms associated to the formula (only if formula-type call was
+  used).}
 }
 \description{
 Prediction step refines the selection of interpretation step
@@ -76,28 +82,28 @@ selected, for prediction purpose. This is the third step of the
 \details{
 \code{nfor.pred} embedded random forests models are grown, starting with the
 random forest build with only the most important variable. Variables are
-added to the model in a stepwise manner. The mean jump value
-\code{mean.jump} is calculated using variables that have been left out by
-interpretation step, and is set as the mean absolute difference between mean
-OOB errors of one model and its first following model. Hence a variable is
-included in the model if the mean OOB error decrease is larger than
-\code{nmj} * \code{mean.jump}.
+added to the model in a stepwise manner. The mean jump value \code{mean.jump}
+is calculated using variables that have been left out by interpretation step,
+and is set as the mean absolute difference between mean OOB errors of one
+model and its first following model. Hence a variable is included in the
+model if the mean OOB error decrease is larger than \code{nmj} *
+\code{mean.jump}.
 
-Note that,
-the \code{mtry} parameter of \code{randomForest} is set to its default value
-(see \code{\link{randomForest}}) if \code{nvm}, the number of variables
-in the model, is not greater than the number of observations,
-while it is set to \code{nvm/3} otherwise. This is to ensure quality of OOB
-error estimations along embedded RF models.
+Note that, the \code{mtry} parameter of \code{randomForest} is set to its
+default value (see \code{\link{randomForest}}) if \code{nvm}, the number of
+variables in the model, is not greater than the number of observations, while
+it is set to \code{nvm/3} otherwise. This is to ensure quality of OOB error
+estimations along embedded RF models.
 }
 \examples{
 
 data(iris)
 iris.thres <- VSURF_thres(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20)
-iris.interp <- VSURF_interp(iris[,1:4], iris[,5], vars = iris.thres$varselect.thres,
-                            nfor.interp = 10)
-iris.pred <- VSURF_pred(iris[,1:4], iris[,5], err.interp = iris.interp$err.interp,
-                        varselect.interp = iris.interp$varselect.interp, nfor.pred = 10)
+iris.interp <- VSURF_interp(iris[,1:4], iris[,5],
+  vars = iris.thres$varselect.thres, nfor.interp = 10)
+iris.pred <- VSURF_pred(iris[,1:4], iris[,5],
+  err.interp = iris.interp$err.interp,
+  varselect.interp = iris.interp$varselect.interp, nfor.pred = 10)
 iris.pred
 
 \dontrun{
@@ -105,20 +111,21 @@ iris.pred
 # (a few minutes to execute)
 data(toys)
 toys.thres <- VSURF_thres(toys$x, toys$y)
-toys.interp <- VSURF_interp(toys$x, toys$y, vars = toys.thres$varselect.thres)
+toys.interp <- VSURF_interp(toys$x, toys$y,
+  vars = toys.thres$varselect.thres)
 toys.pred <- VSURF_pred(toys$x, toys$y, err.interp = toys.interp$err.interp,
-                        varselect.interp = toys.interp$varselect.interp)
+  varselect.interp = toys.interp$varselect.interp)
 toys.pred}
 
 }
 \references{
 Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2010),
-\emph{Variable selection using random forests}, Pattern Recognition Letters
-31(14), 2225-2236
+  \emph{Variable selection using random forests}, Pattern Recognition Letters
+  31(14), 2225-2236
 
 Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2015),
-\emph{VSURF: An R Package for Variable Selection Using Random Forests},
-The R Journal 7(2):19-33
+  \emph{VSURF: An R Package for Variable Selection Using Random Forests}, The
+  R Journal 7(2):19-33
 }
 \seealso{
 \code{\link{VSURF}}

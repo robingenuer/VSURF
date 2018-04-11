@@ -10,8 +10,9 @@ VSURF(x, ...)
 
 \method{VSURF}{default}(x, y, ntree = 2000, mtry = max(floor(ncol(x)/3), 1),
   nfor.thres = 50, nmin = 1, nfor.interp = 25, nsd = 1,
-  nfor.pred = 25, nmj = 1, parallel = FALSE, ncores = detectCores() - 1,
-  clusterType = "PSOCK", ...)
+  nfor.pred = 25, nmj = 1, RFimplementation = "randomForest",
+  parallel = FALSE, ncores = detectCores() - 1, clusterType = "PSOCK",
+  ...)
 
 \method{VSURF}{formula}(formula, data, ..., na.action = na.fail)
 }
@@ -28,25 +29,28 @@ numeric for regression ones).}
 \item{ntree}{Number of trees in each forests grown. Standard parameter of
 \code{randomForest}.}
 
-\item{mtry}{Number of variables randomly sampled as candidates at each
-split.  Standard parameter of \code{randomForest}.}
+\item{mtry}{Number of variables randomly sampled as candidates at each split.
+Standard parameter of \code{randomForest}.}
 
 \item{nfor.thres}{Number of forests grown for "thresholding step" (first of
 the three steps).}
 
 \item{nmin}{Number of times the "minimum value" is multiplied to set
-threshold value.}
+threshold value. See details below.}
 
 \item{nfor.interp}{Number of forests grown for "interpretation step" (second
 of the three steps).}
 
 \item{nsd}{Number of times the standard deviation of the minimum value of
-\code{err.interp} is multiplied.}
+\code{err.interp} is multiplied. See details below.}
 
 \item{nfor.pred}{Number of forests grown for "prediction step" (last of the
 three steps).}
 
-\item{nmj}{Number of times the mean jump is multiplied.}
+\item{nmj}{Number of times the mean jump is multiplied. See details below.}
+
+\item{RFimplementation}{Choice of the random forests implementation to use :
+"randomForest" (default) or "ranger".}
 
 \item{parallel}{A logical indicating if you want VSURF to run in parallel on
 multiple cores (default to FALSE).}
@@ -68,114 +72,115 @@ found.  (NOTE: If given, this argument must be named, and as
 }
 \value{
 An object of class \code{VSURF}, which is a list with the following
-components:
+ components:
 
-\item{varselect.thres}{A vector of indexes of variables selected after
-"thresholding step", sorted according to their mean VI, in decreasing order.}
+ \item{varselect.thres}{A vector of indexes of variables selected after
+ "thresholding step", sorted according to their mean VI, in decreasing
+ order.}
 
-\item{varselect.interp}{A vector of indexes of variables selected after
-"interpretation step".}
+ \item{varselect.interp}{A vector of indexes of variables selected after
+ "interpretation step".}
 
-\item{varselect.pred}{A vector of indexes of variables selected after
-"prediction step".}
+ \item{varselect.pred}{A vector of indexes of variables selected after
+ "prediction step".}
 
-\item{nums.varselect}{A vector of the 3 numbers of variables selected
-resp. by "thresholding step", "interpretation step" and "prediction step".}
+ \item{nums.varselect}{A vector of the 3 numbers of variables selected resp.
+ by "thresholding step", "interpretation step" and "prediction step".}
 
-\item{imp.varselect.thres}{A vector of importance of the
-\code{varselect.thres} variables.}
+ \item{imp.varselect.thres}{A vector of importance of the
+ \code{varselect.thres} variables.}
 
-\item{min.thres}{The minimum predicted value of a pruned CART tree
-fitted to the curve of the standard deviations of VI.}
+ \item{min.thres}{The minimum predicted value of a pruned CART tree fitted to
+ the curve of the standard deviations of VI.}
 
-\item{imp.mean.dec}{A vector of the variables importance means
-(over \code{nfor.thres} runs), in decreasing order.}
+ \item{imp.mean.dec}{A vector of the variables importance means (over
+ \code{nfor.thres} runs), in decreasing order.}
 
-\item{imp.mean.dec.ind}{The ordering index vector associated to the sorting
-of variables importance means.}
+ \item{imp.mean.dec.ind}{The ordering index vector associated to the sorting
+ of variables importance means.}
 
-\item{imp.sd.dec}{A vector of standard deviations of all variables
-importance. The order is given by \code{imp.mean.dec.ind}.}
+ \item{imp.sd.dec}{A vector of standard deviations of all variables
+ importance. The order is given by \code{imp.mean.dec.ind}.}
 
-\item{mean.perf}{Mean OOB error rate, obtained by a random forests
-build on all variables.}
+ \item{mean.perf}{Mean OOB error rate, obtained by a random forests build on
+ all variables.}
 
-\item{pred.pruned.tree}{Predictions of the CART tree fitted to the
-curve of the standard deviations of VI.}
+ \item{pred.pruned.tree}{Predictions of the CART tree fitted to the curve of
+ the standard deviations of VI.}
 
-\item{err.interp}{A vector of the mean OOB error rates of the embedded
-random forests models build during the "interpretation step".}
+ \item{err.interp}{A vector of the mean OOB error rates of the embedded
+ random forests models build during the "interpretation step".}
 
-\item{sd.min}{The standard deviation of OOB error rates associated to
-the random forests model attaining the minimum mean OOB error rate during
-the "interpretation step".}
+ \item{sd.min}{The standard deviation of OOB error rates associated to the
+ random forests model attaining the minimum mean OOB error rate during the
+ "interpretation step".}
 
-\item{err.pred}{A vector of the mean OOB error rates of the random
-forests models build during the "prediction step".}
+ \item{err.pred}{A vector of the mean OOB error rates of the random forests
+ models build during the "prediction step".}
 
-\item{mean.jump}{The mean jump value computed during the "prediction
-step".}
+ \item{mean.jump}{The mean jump value computed during the "prediction step".}
 
-\item{nmin,nsd,nmj}{Corresponding parameters values.}
+ \item{nmin,nsd,nmj}{Corresponding parameters values.}
 
-\item{overall.time}{Overall computation time.}
+ \item{overall.time}{Overall computation time.}
 
-\item{comput.times}{A list of the 3 computation times respectively
-associated with the 3 steps: "thresholding", "interpretation" and
-"prediction".}
+ \item{comput.times}{A list of the 3 computation times respectively
+ associated with the 3 steps: "thresholding", "interpretation" and
+ "prediction".}
 
-\item{ncores}{The number of cores used to run \code{VSURF}
- in parallel (NULL if VSURF did not run in parallel).}
+ \item{RFimplementation}{The RF implementation used to run \code{VSURF}.}
 
-\item{clusterType}{The type of the cluster used to run
-\code{VSURF} in parallel (NULL if VSURF did not run in parallel).}
+ \item{ncores}{The number of cores used to run \code{VSURF} in parallel (NULL
+ if VSURF did not run in parallel).}
+ 
+ \item{clusterType}{The type of the cluster used to run \code{VSURF} in
+ parallel (NULL if VSURF did not run in parallel).}
 
-\item{call}{The original call to \code{VSURF}.}
+ \item{call}{The original call to \code{VSURF}.}
 
-\item{terms}{Terms associated to the formula (only if formula-type call
-was used).}
+ \item{terms}{Terms associated to the formula (only if formula-type call was
+ used).}
 
-\item{na.action}{Method used to deal with missing values (only if formula-type call
-was used).}
+ \item{na.action}{Method used to deal with missing values (only if
+ formula-type call was used).}
 }
 \description{
 Three steps variable selection procedure based on random forests for
-supervised classification and regression problems.  First step
-("thresholding step") is dedicated to eliminate irrelevant variables from
-the dataset.  Second step ("interpretation step") aims to select all
-variables related to the response for interpretation purpose.  Third step
-("prediction step") refines the selection by eliminating redundancy in the
-set of variables selected by the second step, for prediction purpose.
+supervised classification and regression problems.  First step ("thresholding
+step") is dedicated to eliminate irrelevant variables from the dataset.
+Second step ("interpretation step") aims to select all variables related to
+the response for interpretation purpose.  Third step ("prediction step")
+refines the selection by eliminating redundancy in the set of variables
+selected by the second step, for prediction purpose.
 }
 \details{
 \itemize{ \item First step ("thresholding step"): first, \code{nfor.thres}
 random forests are computed using the function \code{randomForest} with
-arguments \code{importance=TRUE}, and our choice of default values for 
+arguments \code{importance=TRUE}, and our choice of default values for
 \code{ntree} and \code{mtry} (which are higher than default in
 \code{\link{randomForest}} to get a more stable variable importance measure).
 Then variables are sorted according to their mean variable importance (VI),
-in decreasing order.  This order is kept all along the procedure.
-Next, a threshold is computed:
-\code{min.thres}, the minimum predicted value of a pruned CART tree fitted
-to the curve of the standard deviations of VI.  Finally, the actual
-"thresholding step" is performed: only variables with a mean VI larger than
-\code{nmin} * \code{min.thres} are kept.
+in decreasing order.  This order is kept all along the procedure. Next, a
+threshold is computed: \code{min.thres}, the minimum predicted value of a
+pruned CART tree fitted to the curve of the standard deviations of VI.
+Finally, the actual "thresholding step" is performed: only variables with a
+mean VI larger than \code{nmin} * \code{min.thres} are kept.
 
 \item Second step ("interpretation step"): the variables selected by the
 first step are considered. \code{nfor.interp} embedded random forests models
-are grown, starting with the random forest build with only the most
-important variable and ending with all variables selected in the first step.
-Then, \code{err.min} the minimum mean out-of-bag (OOB) error of these models
-and its associated standard deviation \code{sd.min} are computed.  Finally,
-the smallest model (and hence its corresponding variables) having a mean OOB
+are grown, starting with the random forest build with only the most important
+variable and ending with all variables selected in the first step. Then,
+\code{err.min} the minimum mean out-of-bag (OOB) error of these models and
+its associated standard deviation \code{sd.min} are computed.  Finally, the
+smallest model (and hence its corresponding variables) having a mean OOB
 error less than \code{err.min} + \code{nsd} * \code{sd.min} is selected.
 
-Note that for this step (and the next one),
-the \code{mtry} parameter of \code{randomForest} is set to its default value
-(see \code{\link{randomForest}}) if \code{nvm}, the number of variables
-in the model, is not greater than the number of observations,
-while it is set to \code{nvm/3} otherwise. This is to ensure quality of OOB
-error estimations along embedded RF models.
+Note that for this step (and the next one), the \code{mtry} parameter of
+\code{randomForest} is set to its default value (see
+\code{\link{randomForest}}) if \code{nvm}, the number of variables in the
+model, is not greater than the number of observations, while it is set to
+\code{nvm/3} otherwise. This is to ensure quality of OOB error estimations
+along embedded RF models.
 
 \item Third step ("prediction step"): the starting point is the same than in
 the second step. However, now the variables are added to the model in a
@@ -185,14 +190,13 @@ absolute difference between mean OOB errors of one model and its first
 following model.  Hence a variable is included in the model if the mean OOB
 error decrease is larger than \code{nmj} * \code{mean.jump}.
 
-As for interpretation step,
-the \code{mtry} parameter of \code{randomForest} is set to its default value
-if \code{nvm}, the number of variables
-in the model, is not greater than the number of observations,
-while it is set to \code{nvm/3} otherwise.}
+As for interpretation step, the \code{mtry} parameter of \code{randomForest}
+is set to its default value if \code{nvm}, the number of variables in the
+model, is not greater than the number of observations, while it is set to
+\code{nvm/3} otherwise.}
 
-VSURF is able to run using multiple cores in parallel
-(see \code{parallel}, \code{clusterType} and \code{ncores} arguments).
+VSURF is able to run using multiple cores in parallel (see \code{parallel},
+\code{clusterType} and \code{ncores} arguments).
 }
 \examples{
 
@@ -216,17 +220,17 @@ toys.vsurf.parallel <- VSURF(toys$x, toys$y, parallel = TRUE, ncores = 2)
 }
 \references{
 Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2010),
-\emph{Variable selection using random forests}, Pattern Recognition Letters
-31(14), 2225-2236
+  \emph{Variable selection using random forests}, Pattern Recognition Letters
+  31(14), 2225-2236
 
 Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2015),
-\emph{VSURF: An R Package for Variable Selection Using Random Forests},
-The R Journal 7(2):19-33
+  \emph{VSURF: An R Package for Variable Selection Using Random Forests}, The
+  R Journal 7(2):19-33
 }
 \seealso{
 \code{\link{plot.VSURF}}, \code{\link{summary.VSURF}},
-\code{\link{VSURF_thres}}, \code{\link{VSURF_interp}},
-\code{\link{VSURF_pred}}, \code{\link{tune}}
+  \code{\link{VSURF_thres}}, \code{\link{VSURF_interp}},
+  \code{\link{VSURF_pred}}, \code{\link{tune}}
 }
 \author{
 Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot
