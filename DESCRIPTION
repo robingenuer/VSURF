@@ -1,7 +1,7 @@
 Package: VSURF
 Type: Package
 Title: Variable Selection Using Random Forests
-Version: 1.0.4
+Version: 1.0.4.9000
 Date: 2018-04-09
 Depends: R (>= 3.2.2)
 Authors@R: c(person("Robin", "Genuer", email = "Robin.Genuer@u-bordeaux.fr", role = c("aut", "cre")),
@@ -16,7 +16,7 @@ Description: Three steps variable selection procedure based on random forests.
     variables related to the response for interpretation purpose. Third step
     refines the selection by eliminating redundancy in the set of variables
     selected by the second step, for prediction purpose.
-    Genuer, R. and Poggi, J.M. and Tuleau-Malot, C. (2015)
+    Genuer, R. Poggi, J.-M. and Tuleau-Malot, C. (2015)
     <https://journal.r-project.org/archive/2015-2/genuer-poggi-tuleaumalot.pdf>.
 License: GPL (>= 2)
 LazyData: true

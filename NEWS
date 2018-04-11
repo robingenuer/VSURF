@@ -1,9 +1,13 @@
 News about the R package VSURF:
 --------------------------------
 
+Main changes in Version
+* 
+
+
 Main changes in Version 1.0.4 (2018-04-09)
-* skip all tests because randomForest package is being updated and behavior
-with set.seed() is changing (and hence crashing all tests of VSURF)
+* update all tests because randomForest package has been updated and behavior
+with set.seed() has changed (and hence crashing all tests of VSURF)
 * add PM10 data into the package
 
 
