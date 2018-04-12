@@ -9,6 +9,7 @@ output:
 
 ```{r}
 library(microbenchmark)
+ncores <- 3
 ```
 
 # `spam` data
@@ -32,11 +33,15 @@ mbSpam <- microbenchmark(
                              ntree = 500, mtry = floor(sqrt(p))),
   ranger::ranger(type ~ ., spam, num.trees = 500, mtry = floor(sqrt(p)),
                  num.threads = 1),
+  ranger::ranger(type ~ ., spam, num.trees = 500, mtry = floor(sqrt(p)),
+                 num.threads = ncores),
   Rborist::Rborist(Xspam, Yspam,
                    nTree = 500, predFixed = floor(sqrt(p))),
   times = 10)
 mbSpam
-boxplot(mbSpam, names = c("RF formula", "RF", "ranger", "Rborist"))
+boxplot(mbSpam, names = c("RF formula", "RF",
+                          "ranger", "rangerPara",
+                          "Rborist"))
 ```
 
 ## In dimension 1
@@ -55,11 +60,15 @@ mbSpamSmall <- microbenchmark(
                              ntree = 500, mtry = 1),
   ranger::ranger(type ~ ., spamSmall, num.trees = 500, mtry = 1,
                  num.threads = 1),
+  ranger::ranger(type ~ ., spamSmall, num.trees = 500, mtry = 1,
+                 num.threads = ncores),
   Rborist::Rborist(XspamSmall, YspamSmall,
                    nTree = 500, predFixed = 1),
   times = 10)
 mbSpamSmall
-boxplot(mbSpamSmall, names = c("RF formula", "RF", "ranger", "Rborist"))
+boxplot(mbSpamSmall, names = c("RF formula", "RF",
+                               "ranger", "rangerPara",
+                               "Rborist"))
 ```
 
 # `vac18` data
@@ -80,9 +89,13 @@ mbVac18 <- microbenchmark::microbenchmark(
                              mtry = floor(ncol(geneExpr)/3)),
   ranger::ranger(stimu ~ ., VAC18, num.trees = 500,
                  mtry = floor(ncol(geneExpr)/3), num.threads = 1),
+  ranger::ranger(stimu ~ ., VAC18, num.trees = 500,
+                 mtry = floor(ncol(geneExpr)/3), num.threads = ncores),
   Rborist::Rborist(geneExpr, stimu, nTree = 500,
                    predFixed = floor(sqrt(p))),
   times = 25)
 mbVac18
-boxplot(mbVac18, names = c("RF formula", "RF", "ranger", "Rborist"))
+boxplot(mbVac18, names = c("RF formula", "RF",
+                           "ranger", "rangerPara",
+                           "Rborist"))
 ```

@@ -168,9 +168,12 @@ did not eliminate variables")
     }
     if (RFimplementation == "ranger") {
       dat <- cbind(w, "y" = y)
+      for (j in 1:nfor.pred) {
       rf[j] <- ranger::ranger(dependent.variable.name="y", data=dat,
                               num.trees=ntree,
                               num.threads = 1, ...)$prediction.error
+      }
+      err.pred <- mean(rf)
     }
     t <- err.pred
     

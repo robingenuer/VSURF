@@ -1,0 +1,180 @@
+---
+title: "Comparison of RF implementations within VSURF"
+author: "Robin Genuer"
+date: "12 avril 2018"
+output: 
+  html_document: 
+    number_sections: yes
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+
+```{r, cache=FALSE}
+library(VSURF)
+```
+
+# `toys` data
+
+```{r, cache=FALSE}
+data(toys)
+```
+
+## Sequential with `randomForest`
+
+```{r}
+toysRFseq <- VSURF(toys$x, toys$y)
+summary(toysRFseq)
+```
+
+## Sequential with `ranger`
+
+```{r}
+toysRangerSeq <- VSURF(toys$x, toys$y, RFimplementation = "ranger")
+summary(toysRangerSeq)
+```
+ 
+## Parallel with `randomForest`
+
+```{r, cache=FALSE}
+ncores <- 3
+```
+
+### Socket
+
+```{r}
+toysRFpara <- VSURF(toys$x, toys$y, parallel = TRUE, ncores = ncores)
+summary(toysRFpara)
+```
+
+### Fork
+
+```{r}
+toysRFfork <- VSURF(toys$x, toys$y, parallel = TRUE, clusterType = "FORK",
+                        ncores = ncores)
+summary(toysRFfork)
+```
+
+## Parallel with `ranger`
+
+### Socket
+
+```{r}
+toysRangerPara <- VSURF(toys$x, toys$y, RFimplementation = "ranger",
+                        parallel = TRUE, ncores = ncores)
+summary(toysRangerPara)
+```
+
+### Fork
+
+```{r}
+toysRangerFork <- VSURF(toys$x, toys$y, RFimplementation = "ranger",
+                        parallel = TRUE, clusterType = "FORK", ncores = ncores)
+summary(toysRangerFork)
+```
+
+### Internal
+
+```{r}
+toysRangerParaInter <- VSURF(toys$x, toys$y, RFimplementation = "ranger",
+                        parallel = TRUE, clusterType = "ranger",
+                        ncores = ncores)
+summary(toysRangerParaInter)
+```
+
+
+# `spam` data
+
+```{r, cache=FALSE}
+data("spam", package = "kernlab")
+set.seed(9146301)
+levels(spam$type) <- c("ok", "spam")
+yTable <- table(spam$type)
+indApp <- c(sample(1:yTable[2], yTable[2]/2),
+            sample((yTable[2] + 1):nrow(spam), yTable[1]/2))
+spamApp <- spam[indApp, ]
+spamTest <- spam[-indApp, ]
+```
+
+
+## Parallel with `randomForest`
+
+### Fork
+
+```{r vsurfSpamLoad, cache=FALSE}
+load("~/Dropbox/livre_RF/PUR/long_code_output/vsurfSpam.Rdata")
+```
+
+```{r vsurfSpamCode, cache=FALSE, eval=FALSE}
+set.seed(923321, kind = "L'Ecuyer-CMRG")
+vsurfSpam <- VSURF(type~., spamApp, parallel = TRUE, ncores = 3,
+                   clusterType = "FORK")
+```
+
+```{r vsurfSpamRes, cache=FALSE}
+summary(vsurfSpam)
+```
+
+## Parallel with `ranger`
+
+### Fork
+
+```{r}
+spamRangerFork <- VSURF(type~., spamApp, RFimplementation = "ranger",
+                   parallel = TRUE, ncores = ncores,
+                   clusterType = "FORK")
+```
+
+```{r}
+summary(spamRangerFork)
+```
+
+
+### Internal
+
+```{r}
+spamRangerInter <- VSURF(spamApp[, -58], spamApp[, 58],
+                         RFimplementation = "ranger", parallel = TRUE,
+                         ncores = ncores, clusterType = "ranger")
+summary(spamRangerInter)
+```
+
+
+# `vac18` data
+
+```{r introVac18Load, cache=FALSE}
+data("vac18", package = "mixOmics")
+geneExpr <- vac18$genes
+stimu <- vac18$stimulation
+```
+
+## Parallel with `randomForest`
+
+```{r}
+vacRFfork <- VSURF(x = geneExpr, y = stimu, parallel = TRUE, ncores = ncores,
+                  clusterType = "FORK")
+summary(vacRFfork)
+```
+
+## Parallel with `ranger`
+
+### Fork
+
+```{r}
+vacRangerFork <- VSURF(x = geneExpr, y = stimu, parallel = TRUE,
+                       ncores = ncores, RFimplementation = "ranger",
+                       clusterType = "FORK")
+summary(vacRangerFork)
+```
+
+
+### Internal
+
+```{r}
+vacRangerInter <- VSURF(x = geneExpr, y = stimu, parallel = TRUE,
+                       ncores = ncores, RFimplementation = "ranger",
+                       clusterType = "ranger")
+summary(vacRangerInter)
+```
