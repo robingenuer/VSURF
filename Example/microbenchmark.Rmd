@@ -99,3 +99,20 @@ boxplot(mbVac18, names = c("RF formula", "RF",
                            "ranger", "rangerPara",
                            "Rborist"))
 ```
+
+## With variable importance computation
+
+```{r, cache=TRUE}
+mbVac18Imp <- microbenchmark::microbenchmark(
+  randomForest::randomForest(stimu ~ ., VAC18, ntree = 500, importance = TRUE,
+                             mtry = floor(ncol(geneExpr)/3)),
+  randomForest::randomForest(geneExpr, stimu, ntree = 500, importance = TRUE,
+                             mtry = floor(ncol(geneExpr)/3)),
+  ranger::ranger(stimu ~ ., VAC18, num.trees = 500, importance = "permutation",
+                 mtry = floor(ncol(geneExpr)/3), num.threads = 1),
+  ranger::ranger(stimu ~ ., VAC18, num.trees = 500, importance = "permutation",
+                 mtry = floor(ncol(geneExpr)/3), num.threads = ncores),
+  times = 25)
+mbVac18Imp
+boxplot(mbVac18Imp, names = c("RF formula", "RF", "ranger", "rangerPara"))
+```
