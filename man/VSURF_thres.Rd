@@ -36,17 +36,19 @@ Standard parameter of \code{randomForest}.}
 \item{nmin}{Number of times the "minimum value" is multiplied to set
 threshold value. See details below.}
 
-\item{RFimplementation}{Choice of the random forests implementation to use :
-"randomForest" (default) or "ranger".}
-
 \item{parallel}{A logical indicating if you want VSURF to run in parallel on
 multiple cores (default to FALSE).}
 
 \item{clusterType}{Type of the multiple cores cluster used to run VSURF in
 parallel. Must be chosen among "PSOCK" (default: SOCKET cluster available
-locally on all OS), "FORK" (local too, only available for Linux and Mac OS)
-and "MPI" (can be used on a remote cluster, which needs \code{snow} and
-\code{Rmpi} packages installed).}
+locally on all OS), "FORK" (local too, only available for Linux and Mac
+OS), "MPI" (can be used on a remote cluster, which needs \code{snow} and
+\code{Rmpi} packages installed), "ranger" and "Rborist" for internal
+parallelizations of those packages (not that if "Rborist" is
+chosen, "SOCKET" will still be used for the first step
+\code{VSURF_thres}). If a vector of length 2 is given, each
+coordinate is passed to each intermediate function: \code{VSURF_thres},
+\code{VSURF_interp}, in this order.}
 
 \item{ncores}{Number of cores to use. Default is set to the number of cores
 detected by R minus 1.}

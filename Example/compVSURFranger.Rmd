@@ -104,7 +104,7 @@ spamTest <- spam[-indApp, ]
 ### Fork
 
 ```{r vsurfSpamLoad, cache=FALSE}
-load("~/Dropbox/livre_RF/PUR/long_code_output/vsurfSpam.Rdata")
+load("~/Seafile/sourcesArticles/livre_RF_PUR_2019/PUR/long_code_output/vsurfSpam.Rdata")
 ```
 
 ```{r vsurfSpamCode, cache=FALSE, eval=FALSE}

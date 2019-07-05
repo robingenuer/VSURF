@@ -8,9 +8,10 @@
 \usage{
 VSURF_interp(x, ...)
 
-\method{VSURF_interp}{default}(x, y, ntree = 2000, vars, nfor.interp = 25,
-  nsd = 1, RFimplementation = "randomForest", parallel = FALSE,
-  ncores = detectCores() - 1, clusterType = "PSOCK", ...)
+\method{VSURF_interp}{default}(x, y, ntree = 2000, vars,
+  nfor.interp = 25, nsd = 1, RFimplementation = "randomForest",
+  parallel = FALSE, ncores = detectCores() - 1,
+  clusterType = "PSOCK", ...)
 
 \method{VSURF_interp}{formula}(formula, data, ..., na.action = na.fail)
 }
@@ -36,9 +37,6 @@ selected by thresholding step (see value \code{varselect.thres} of
 \item{nsd}{Number of times the standard deviation of the minimum value of
 \code{err.interp} is multiplied. See details below.}
 
-\item{RFimplementation}{Choice of the random forests implementation to use :
-"randomForest" (default) or "ranger".}
-
 \item{parallel}{A logical indicating if you want VSURF to run in parallel on
 multiple cores (default to FALSE).}
 
@@ -47,9 +45,14 @@ detected by R minus 1.}
 
 \item{clusterType}{Type of the multiple cores cluster used to run VSURF in
 parallel. Must be chosen among "PSOCK" (default: SOCKET cluster available
-locally on all OS), "FORK" (local too, only available for Linux and Mac OS)
-and "MPI" (can be used on a remote cluster, which needs \code{snow} and
-\code{Rmpi} packages installed).}
+locally on all OS), "FORK" (local too, only available for Linux and Mac
+OS), "MPI" (can be used on a remote cluster, which needs \code{snow} and
+\code{Rmpi} packages installed), "ranger" and "Rborist" for internal
+parallelizations of those packages (not that if "Rborist" is
+chosen, "SOCKET" will still be used for the first step
+\code{VSURF_thres}). If a vector of length 2 is given, each
+coordinate is passed to each intermediate function: \code{VSURF_thres},
+\code{VSURF_interp}, in this order.}
 
 \item{data}{a data frame containing the variables in the model.}
 

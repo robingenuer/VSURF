@@ -8,8 +8,9 @@
 \usage{
 VSURF_pred(x, ...)
 
-\method{VSURF_pred}{default}(x, y, ntree = 2000, err.interp, varselect.interp,
-  nfor.pred = 25, nmj = 1, RFimplementation = "randomForest", ...)
+\method{VSURF_pred}{default}(x, y, ntree = 2000, err.interp,
+  varselect.interp, nfor.pred = 25, nmj = 1,
+  RFimplementation = "randomForest", ...)
 
 \method{VSURF_pred}{formula}(formula, data, ..., na.action = na.fail)
 }
@@ -36,9 +37,6 @@ interpretation step.}
 \item{nfor.pred}{Number of forests grown.}
 
 \item{nmj}{Number of times the mean jump is multiplied. See details below.}
-
-\item{RFimplementation}{Choice of the random forests implementation to use :
-"randomForest" (default) or "ranger".}
 
 \item{data}{a data frame containing the variables in the model.}
 

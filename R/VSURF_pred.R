@@ -175,6 +175,13 @@ did not eliminate variables")
       }
       err.pred <- mean(rf)
     }
+    if (RFimplementation == "Rborist") {
+      for (j in 1:nfor.pred) {
+        rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree, minInfo = 0,
+                                nThread = 1, ...)$validation$oobError
+      }
+      err.pred <- mean(rf)
+    }
     t <- err.pred
     
     if (l>1) {
@@ -219,6 +226,23 @@ did not eliminate variables")
               rf[j] <- ranger::ranger(dependent.variable.name="y", data=dat,
                                       mtry=i/3, num.trees=ntree,
                                       num.threads = 1, ...)$prediction.error
+            }
+          }
+          z <- mean(rf)
+        }
+        if (RFimplementation == "Rborist") {
+          if (i <= n) {
+            for (j in 1:nfor.pred) {
+              rf[j] <- Rborist::Rborist(x = x, y = y, nTree = ntree,
+                                        minInfo = 0, nThread = 1,
+                                        ...)$validation$oobError
+            }
+          } else {
+            for (j in 1:nfor.pred) {
+              rf[j] <- Rborist::Rborist(x = x, y = y, nTree = ntree,
+                                        minInfo = 0, nThread = 1,
+                                        predFixed = i/3,
+                                        ...)$validation$oobError
             }
           }
           z <- mean(rf)

@@ -93,6 +93,7 @@
 #'@importFrom foreach foreach %dopar%
 #'@importFrom parallel makeCluster stopCluster mclapply detectCores
 #'@importFrom ranger ranger
+#'@importFrom Rborist Rborist
 #'@export
 VSURF_interp <- function (x, ...) {
   UseMethod("VSURF_interp")
@@ -137,7 +138,7 @@ VSURF_interp.default <- function(
   n <- nrow(x)
   err.interp <- rep(NA, nvars)
   sd.interp <- rep(NA, nvars)
- 
+  
   if (RFimplementation == "randomForest") {
     rf.interp.classif <- function(i, ...) {
       rf <- rep(NA, nfor.interp)
@@ -194,6 +195,31 @@ VSURF_interp.default <- function(
     }
   }
   
+  if (RFimplementation == "Rborist") {
+    rf.interp.Rborist <- function(i, ...) {
+      rf <- rep(NA, nfor.interp)
+      u <- vars[1:i]
+      w <- x[, u, drop=FALSE]
+      
+      dat <- cbind(w, "y" = y)
+      
+      if (i <= n) {
+        for (j in 1:nfor.interp) {
+          rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree, minInfo = 0,
+                                    ...)$validation$oobError
+        }
+      } else {
+        for (j in 1:nfor.interp) {
+          rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree, minInfo = 0,
+                                    predFixed = i/3, ...)$validation$oobError
+        }
+      }
+      
+      return(c(mean(rf), sd(rf)))
+      
+    }
+  }
+  
   if (!parallel) {
     if (RFimplementation == "randomForest") {
       if (type=="classif") {
@@ -218,6 +244,13 @@ VSURF_interp.default <- function(
         sd.interp[i] <- res[2]
       }
     }
+    if (RFimplementation == "Rborist") {
+      for (i in 1:nvars){
+        res <- rf.interp.Rborist(i, nThread = 1, ...)
+        err.interp[i] <- res[1]
+        sd.interp[i] <- res[2]
+      }
+    }
   } else {
     if (clusterType == "ranger") {
       for (i in 1:nvars){
@@ -226,52 +259,70 @@ VSURF_interp.default <- function(
         sd.interp[i] <- res[2]
       }
     } else {
-      ncores <- min(nvars, ncores)
-      
-      if (clusterType=="FORK") {
-        if (RFimplementation == "randomForest") {
-          if (type=="classif") {
-            res <- parallel::mclapply(X=1:nvars, FUN=rf.interp.classif, ...,
-                                      mc.cores=ncores, mc.preschedule=FALSE)
-          }
-          if (type=="reg") {
-            res <- parallel::mclapply(X=1:nvars, FUN=rf.interp.reg, ...,
-                                      mc.cores=ncores, mc.preschedule=FALSE)
-          }
-        }
-        if (RFimplementation == "ranger") {
-          res <- parallel::mclapply(X=1:nvars, FUN=rf.interp.ranger,
-                                    num.threads = 1, ...,
-                                    mc.cores=ncores, mc.preschedule=FALSE)
+      if (clusterType == "Rborist") {
+        for (i in 1:nvars){
+          res <- rf.interp.Rborist(i, nThread = ncores, ...)
+          err.interp[i] <- res[1]
+          sd.interp[i] <- res[2]
         }
       } else {
-        clust <- parallel::makeCluster(spec=ncores, type=clusterType)
-        doParallel::registerDoParallel(clust)
-        # i <- NULL #to avoid check NOTE...
+        ncores <- min(nvars, ncores)
         
-        if (RFimplementation == "randomForest") {
-          if (type=="classif") {
-            res <- foreach::foreach(i=1:nvars, .packages="randomForest") %dopar% {
-              out <- rf.interp.classif(i, ...)
+        if (clusterType=="FORK") {
+          if (RFimplementation == "randomForest") {
+            if (type=="classif") {
+              res <- parallel::mclapply(X=1:nvars, FUN=rf.interp.classif, ...,
+                                        mc.cores=ncores, mc.preschedule=FALSE)
+            }
+            if (type=="reg") {
+              res <- parallel::mclapply(X=1:nvars, FUN=rf.interp.reg, ...,
+                                        mc.cores=ncores, mc.preschedule=FALSE)
             }
           }
-          if (type=="reg") {
-            res <- foreach::foreach(i=1:nvars, .packages="randomForest") %dopar% {
-              out <- rf.interp.reg(i, ...)
+          if (RFimplementation == "ranger") {
+            res <- parallel::mclapply(X=1:nvars, FUN=rf.interp.ranger,
+                                      num.threads = 1, ...,
+                                      mc.cores=ncores, mc.preschedule=FALSE)
+          }
+          if (RFimplementation == "Rborist") {
+            res <- parallel::mclapply(X=1:nvars, FUN=rf.interp.Rborist,
+                                      nThread = 1, ...,
+                                      mc.cores=ncores, mc.preschedule=FALSE)
+          }
+        } else {
+          clust <- parallel::makeCluster(spec=ncores, type=clusterType)
+          doParallel::registerDoParallel(clust)
+          # i <- NULL #to avoid check NOTE...
+          
+          if (RFimplementation == "randomForest") {
+            if (type=="classif") {
+              res <- foreach::foreach(i=1:nvars, .packages="randomForest") %dopar% {
+                out <- rf.interp.classif(i, ...)
+              }
+            }
+            if (type=="reg") {
+              res <- foreach::foreach(i=1:nvars, .packages="randomForest") %dopar% {
+                out <- rf.interp.reg(i, ...)
+              }
             }
           }
-        }
-        if (RFimplementation == "ranger") {
-          res <- foreach::foreach(i=1:nvars, .packages="ranger") %dopar% {
-            out <- rf.interp.ranger(i, num.threads = 1, ...)
+          if (RFimplementation == "ranger") {
+            res <- foreach::foreach(i=1:nvars, .packages="ranger") %dopar% {
+              out <- rf.interp.ranger(i, num.threads = 1, ...)
+            }
           }
+          if (RFimplementation == "Rborist") {
+            res <- foreach::foreach(i=1:nvars, .packages="Rborist") %dopar% {
+              out <- rf.interp.Rborist(i, nThread = 1, ...)
+            }
+          }
+          parallel::stopCluster(clust)
         }
-        parallel::stopCluster(clust)
-      }
-      
-      for (i in 1:nvars) {
-        err.interp[i] <- res[[i]][1]
-        sd.interp[i] <- res[[i]][2]
+        
+        for (i in 1:nvars) {
+          err.interp[i] <- res[[i]][1]
+          sd.interp[i] <- res[[i]][2]
+        }
       }
     }
   }
@@ -305,9 +356,9 @@ VSURF_interp.default <- function(
 #' @rdname VSURF_interp
 #' @export
 VSURF_interp.formula <- function(formula, data, ..., na.action = na.fail) {
-### formula interface for VSURF_interp.
-### code gratefully stolen from svm.formula (package e1071).
-###
+  ### formula interface for VSURF_interp.
+  ### code gratefully stolen from svm.formula (package e1071).
+  ###
   if (!inherits(formula, "formula"))
     stop("method is only for formula objects")
   m <- match.call(expand.dots = FALSE)
@@ -343,9 +394,9 @@ VSURF_interp.formula <- function(formula, data, ..., na.action = na.fail) {
     ret$na.action <- attr(y, "na.action")
   }
   class(ret) <- c("VSURF_interp.formula", class(ret))
-    warning(
-        "VSURF with a formula-type call outputs selected variables
+  warning(
+    "VSURF with a formula-type call outputs selected variables
   which are indices of the input matrix based on the formula:
   you may reorder these to get indices of the original data")
-    return(ret)
+  return(ret)
 }

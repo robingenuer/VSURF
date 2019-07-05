@@ -8,11 +8,11 @@
 \usage{
 VSURF(x, ...)
 
-\method{VSURF}{default}(x, y, ntree = 2000, mtry = max(floor(ncol(x)/3), 1),
-  nfor.thres = 50, nmin = 1, nfor.interp = 25, nsd = 1,
-  nfor.pred = 25, nmj = 1, RFimplementation = "randomForest",
-  parallel = FALSE, ncores = detectCores() - 1, clusterType = "PSOCK",
-  ...)
+\method{VSURF}{default}(x, y, ntree = 2000,
+  mtry = max(floor(ncol(x)/3), 1), nfor.thres = 50, nmin = 1,
+  nfor.interp = 25, nsd = 1, nfor.pred = 25, nmj = 1,
+  RFimplem = "randomForest", parallel = FALSE, ncores = detectCores()
+  - 1, clusterType = "PSOCK", ...)
 
 \method{VSURF}{formula}(formula, data, ..., na.action = na.fail)
 }
@@ -49,8 +49,12 @@ three steps).}
 
 \item{nmj}{Number of times the mean jump is multiplied. See details below.}
 
-\item{RFimplementation}{Choice of the random forests implementation to use :
-"randomForest" (default) or "ranger".}
+\item{RFimplem}{Choice of the random forests implementation to use :
+"randomForest" (default), "ranger" or "Rborist" (not that if "Rborist" is
+chosen, "randoForest" will still be used for the first step
+\code{VSURF_thres}). If a vector of length 3 is given, each coordinate is
+passed to each intermediate function: \code{VSURF_thres},
+\code{VSURF_interp}, \code{VSURF_pred}, in this order.}
 
 \item{parallel}{A logical indicating if you want VSURF to run in parallel on
 multiple cores (default to FALSE).}
@@ -60,9 +64,14 @@ detected by R minus 1.}
 
 \item{clusterType}{Type of the multiple cores cluster used to run VSURF in
 parallel. Must be chosen among "PSOCK" (default: SOCKET cluster available
-locally on all OS), "FORK" (local too, only available for Linux and Mac OS)
-and "MPI" (can be used on a remote cluster, which needs \code{snow} and
-\code{Rmpi} packages installed).}
+locally on all OS), "FORK" (local too, only available for Linux and Mac
+OS), "MPI" (can be used on a remote cluster, which needs \code{snow} and
+\code{Rmpi} packages installed), "ranger" and "Rborist" for internal
+parallelizations of those packages (not that if "Rborist" is
+chosen, "SOCKET" will still be used for the first step
+\code{VSURF_thres}). If a vector of length 2 is given, each
+coordinate is passed to each intermediate function: \code{VSURF_thres},
+\code{VSURF_interp}, in this order.}
 
 \item{data}{a data frame containing the variables in the model.}
 
@@ -128,7 +137,9 @@ An object of class \code{VSURF}, which is a list with the following
  associated with the 3 steps: "thresholding", "interpretation" and
  "prediction".}
 
- \item{RFimplementation}{The RF implementation used to run \code{VSURF}.}
+ \item{RFimplem}{The RF implementation used to run \code{VSURF},
+ among "randomForest" (default), "ranger" and "Rborist" or a vector of length
+ 3 with those.}
 
  \item{ncores}{The number of cores used to run \code{VSURF} in parallel (NULL
  if VSURF did not run in parallel).}

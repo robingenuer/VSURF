@@ -1,121 +1,41 @@
 ---
 title: "Comparison of RF implementations with microbenchmark"
 author: "Robin Genuer"
-date: "10 avril 2018"
+date: "4 july 2019"
 output: 
   html_document: 
     number_sections: yes
+    toc: yes
+    toc_float: yes
 ---
 
 ```{r}
 library(microbenchmark)
-ncores <- 3
+library(ggplot2)
 ```
 
-# `spam` data
-
-## Raw data
+```{r, echo=FALSE}
+resFiles <- list.files("outputs/")
+for (fileName in resFiles) {
+  load(paste0("outputs/", fileName))
+}
+```
 
 ```{r}
-data("spam", package = "kernlab")
-nvarSpam <- ncol(spam) - 1
-Xspam <- spam[, -ncol(spam)]
-Yspam <- spam$type
-dim(Xspam)
-str(Yspam)
-mtrySpam <- floor(sqrt(nvarSpam))
+mbplot <- function(res) {
+  resDF <- as.data.frame(res)
+  ggres <- ggplot(resDF, aes(expr, time)) + theme_bw() + ylab("time (log scale)") +
+    theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
+    geom_boxplot(aes(fill = expr)) + scale_y_continuous(trans = "log10") +
+    scale_fill_manual(values = viridis::viridis(nlevels(resDF$expr)))
+  print(ggres)
+}
 ```
 
-```{r, cache=TRUE}
-mbSpam <- microbenchmark(
-  randomForest::randomForest(type ~ ., spam, ntree = 500, mtry = mtrySpam),
-  randomForest::randomForest(Xspam, Yspam, ntree = 500, mtry = mtrySpam),
-  ranger::ranger(type ~ ., spam, num.trees = 500, mtry = mtrySpam,
-                 num.threads = 1),
-  ranger::ranger(type ~ ., spam, num.trees = 500, mtry = mtrySpam,
-                 num.threads = ncores),
-  Rborist::Rborist(Xspam, Yspam,
-                   nTree = 500, predFixed = mtrySpam),
-  times = 10)
-mbSpam
-boxplot(mbSpam, names = c("RF formula", "RF",
-                          "ranger", "rangerPara",
-                          "Rborist"))
-```
 
-## In dimension 1
+# `toys` data: high-dimensional case
 
-```{r}
-spamSmall <- spam[, c("charExclamation", "type")]
-str(spamSmall)
-XspamSmall <- spamSmall["charExclamation"]
-YspamSmall <- spamSmall$type
-```
-
-```{r, cache=TRUE}
-mbSpamSmall <- microbenchmark(
-  randomForest::randomForest(type ~ ., spamSmall, ntree = 500, mtry = 1),
-  randomForest::randomForest(XspamSmall, YspamSmall,
-                             ntree = 500, mtry = 1),
-  ranger::ranger(type ~ ., spamSmall, num.trees = 500, mtry = 1,
-                 num.threads = 1),
-  ranger::ranger(type ~ ., spamSmall, num.trees = 500, mtry = 1,
-                 num.threads = ncores),
-  Rborist::Rborist(XspamSmall, YspamSmall,
-                   nTree = 500, predFixed = 1),
-  times = 10)
-mbSpamSmall
-boxplot(mbSpamSmall, names = c("RF formula", "RF",
-                               "ranger", "rangerPara",
-                               "Rborist"))
-```
-
-# `vac18` data
-
-```{r}
-data("vac18", package = "mixOmics")
-geneExpr <- vac18$genes
-dim(geneExpr)
-stimu <- vac18$stimulation
-str(stimu)
-VAC18 <- data.frame(geneExpr, stimu)
-mtryVac18 <- floor(ncol(geneExpr)/3)
-```
-
-```{r, cache=TRUE}
-mbVac18 <- microbenchmark::microbenchmark(
-  randomForest::randomForest(stimu ~ ., VAC18, ntree = 500, mtry = mtryVac18),
-  randomForest::randomForest(geneExpr, stimu, ntree = 500, mtry = mtryVac18),
-  ranger::ranger(stimu ~ ., VAC18, num.trees = 500, mtry = mtryVac18,
-                 num.threads = 1),
-  ranger::ranger(stimu ~ ., VAC18, num.trees = 500, mtry = mtryVac18,
-                 num.threads = ncores),
-  Rborist::Rborist(geneExpr, stimu, nTree = 500, predFixed = mtryVac18),
-  times = 25)
-mbVac18
-boxplot(mbVac18, names = c("RF formula", "RF",
-                           "ranger", "rangerPara",
-                           "Rborist"))
-```
-
-## With variable importance computation
-
-```{r, cache=TRUE}
-mbVac18Imp <- microbenchmark::microbenchmark(
-  randomForest::randomForest(stimu ~ ., VAC18, ntree = 500, importance = TRUE,
-                             mtry = mtryVac18),
-  randomForest::randomForest(geneExpr, stimu, ntree = 500, importance = TRUE,
-                             mtry = mtryVac18),
-  ranger::ranger(stimu ~ ., VAC18, num.trees = 500, importance = "permutation",
-                 mtry = mtryVac18, num.threads = 1),
-  ranger::ranger(stimu ~ ., VAC18, num.trees = 500, importance = "permutation",
-                 mtry = mtryVac18, num.threads = ncores),
-  times = 25)
-mbVac18Imp
-boxplot(mbVac18Imp, names = c("RF formula", "RF", "ranger", "rangerPara"))
-```
-
-# `toys` data in dimension 200
+## $n=100$, $p=200$
 
 ```{r}
 data(toys, package = "VSURF")
@@ -125,41 +45,42 @@ toysData <- data.frame(toys$x, y = toys$y)
 mtryToys <- floor(ncol(toys$x)/3)
 ```
 
-```{r, cache=TRUE}
-mbVac18 <- microbenchmark::microbenchmark(
-  randomForest::randomForest(y ~ ., toysData, ntree = 500, mtry = mtryToys),
-  randomForest::randomForest(toys$x, toys$y, ntree = 500, mtry = mtryToys),
-  ranger::ranger(y ~ ., toysData, num.trees = 500, mtry = mtryToys,
-                 num.threads = 1),
-  ranger::ranger(y ~ ., toysData, num.trees = 500, mtry = mtryToys,
-                 num.threads = ncores),
-  Rborist::Rborist(toys$x, toys$y, nTree = 500, predFixed = mtryToys),
+```{r, eval=FALSE}
+mbToys <- microbenchmark::microbenchmark(
+  randomForest::randomForest(y ~ ., toysData, mtry = mtryToys),
+  randomForest::randomForest(toys$x, toys$y, mtry = mtryToys),
+  ranger::ranger(y ~ ., toysData, mtry = mtryToys, num.threads = 1),
+  Rborist::Rborist(toys$x, toys$y, predFixed = mtryToys, minInfo = 0, nThread = 1),
   times = 25)
-mbVac18
-boxplot(mbVac18, names = c("RF formula", "RF",
-                           "ranger", "rangerPara",
-                           "Rborist"))
+levels(mbToys$expr) <- c("RF formula", "RF", "ranger", "Rborist")
 ```
 
-## With variable importance computation
-
-```{r, cache=TRUE}
-mbVac18 <- microbenchmark::microbenchmark(
-  randomForest::randomForest(y ~ ., toysData, ntree = 500, importance = TRUE,
-                             mtry = mtryToys),
-  randomForest::randomForest(toys$x, toys$y, ntree = 500, importance = TRUE,
-                             mtry = mtryToys),
-  ranger::ranger(y ~ ., toysData, num.trees = 500, importance = "permutation",
-                 mtry = mtryToys, num.threads = 1),
-  ranger::ranger(y ~ ., toysData, num.trees = 500, importance = "permutation",
-                 mtry = mtryToys, num.threads = ncores),
-  times = 25)
-mbVac18
-boxplot(mbVac18, names = c("RF formula", "RF",
-                           "ranger", "rangerPara"))
+```{r}
+mbToys
+save(mbToys, file = "outputs/mbToys.Rdata")
+mbplot(mbToys)
 ```
 
-# `toys` data in dimension 2 000
+
+### With variable importance computation
+
+```{r, eval=FALSE}
+mbToys <- microbenchmark::microbenchmark(
+  randomForest::randomForest(y ~ ., toysData, mtry = mtryToys, importance = TRUE),
+  randomForest::randomForest(toys$x, toys$y, mtry = mtryToys, importance = TRUE),
+  ranger::ranger(y ~ ., toysData, mtry = mtryToys, num.threads = 1, importance = "permutation"),
+  times = 25)
+levels(mbToys$expr) <- c("RF formula", "RF", "ranger")
+```
+
+```{r}
+mbToysImp
+save(mbToysImp, file = "outputs/mbToysImp.Rdata")
+mbplot(mbToysImp)
+```
+
+
+## $n=100$, $p=2 000$
 
 ```{r, echo=FALSE}
 addVarNoise <- function(x, nbVarNoise){
@@ -220,38 +141,442 @@ bigToysData <- data.frame(bigToys, y = toys$y)
 mtryBigToys <- floor(ncol(bigToys)/10)
 ```
 
-```{r, cache=TRUE}
-mbVac18 <- microbenchmark::microbenchmark(
-  randomForest::randomForest(y ~ ., bigToysData, ntree = 500,
-                             mtry = mtryBigToys),
-  randomForest::randomForest(bigToys, toys$y, ntree = 500,
-                             mtry = mtryBigToys),
-  ranger::ranger(y ~ ., bigToysData, num.trees = 500,
-                 mtry = mtryBigToys, num.threads = 1),
-  ranger::ranger(y ~ ., bigToysData, num.trees = 500,
-                 mtry = mtryBigToys, num.threads = ncores),
+```{r, eval=FALSE}
+mbbigToys <- microbenchmark::microbenchmark(
+  randomForest::randomForest(y ~ ., bigToysData, mtry = mtryBigToys),
+  randomForest::randomForest(bigToys, toys$y, mtry = mtryBigToys),
+  ranger::ranger(y ~ ., bigToysData, mtry = mtryBigToys, num.threads = 1),
+  Rborist::Rborist(bigToys, toys$y, predFixed = mtryBigToys, minInfo = 0, nThread = 1),
   times = 25)
+levels(mbToys$expr) <- c("RF formula", "RF", "ranger", "Rborist")
+```
+
+```{r}
+mbbigToys
+save(mbbigToys, file = "outputs/mbbigToys.Rdata")
+mbplot(mbbigToys)
+```
+
+
+### With variable importance computation
+
+```{r, eval=FALSE}
+mbbigToysImp <- microbenchmark::microbenchmark(
+  randomForest::randomForest(y ~ ., bigToysData, mtry = mtryBigToys, importance = TRUE),
+  randomForest::randomForest(bigToys, toys$y, mtry = mtryBigToys, importance = TRUE),
+  ranger::ranger(y ~ ., bigToysData, mtry = mtryBigToys, num.threads = 1, importance = "permutation"),
+  times = 25)
+levels(mbbigToysImp$expr) <- c("RF formula", "RF", "ranger")
+```
+
+```{r}
+mbbigToysImp
+save(mbbigToysImp, file = "outputs/mbbigToysImp.Rdata")
+mbplot(mbbigToysImp)
+```
+
+
+## $n=100$, $p=5 000$
+
+```{r}
+BIGToys <- ajoutVarCor2grp(toys$x, j = 3, k = 6, d = 300)
+BIGToys <- addVarNoise(BIGToys, 5000 - ncol(BIGToys))
+dim(BIGToys)
+BIGToysData <- data.frame(BIGToys, y = toys$y)
+mtryBIGToys <- floor(ncol(BIGToys)/10)
+```
+
+```{r, eval=FALSE}
+mbBIGToys <- microbenchmark::microbenchmark(
+  randomForest::randomForest(BIGToys, toys$y, mtry = mtryBIGToys),
+  ranger::ranger(y ~ ., BIGToysData, mtry = mtryBIGToys, num.threads = 1),
+  times = 25)
+levels(mbBIGToys$expr) <- c("RF", "ranger")
+```
+
+```{r}
+mbBIGToys
+save(mbBIGToys, file = "outputs/mbBIGToys.Rdata")
+mbplot(mbBIGToys)
+```
+
+
+### With variable importance computation
+
+```{r, eval=FALSE}
+mbBIGToys <- microbenchmark::microbenchmark(
+  randomForest::randomForest(BIGToys, toys$y, mtry = mtryBIGToys, importance = TRUE),
+  ranger::ranger(y ~ ., BIGToysData, mtry = mtryBIGToys, num.threads = 1, importance = "permutation"),
+  times = 25)
+levels(mbBIGToys$expr) <- c("RF", "ranger")
+```
+
+```{r}
+mbBIGToysImp
+save(mbBIGToysImp, file = "outputs/mbBIGToysImp.Rdata")
+mbplot(mbBIGToysImp)
+```
+
+
+## $n=100$, $p=10 000$
+
+```{r}
+BIGToys2 <- ajoutVarCor2grp(toys$x, j = 3, k = 6, d = 300)
+BIGToys2 <- addVarNoise(BIGToys2, 10000 - ncol(BIGToys2))
+dim(BIGToys2)
+BIGToys2Data <- data.frame(BIGToys2, y = toys$y)
+mtryBIGToys2 <- floor(ncol(BIGToys2)/10)
+
+```
+
+```{r, eval=FALSE}
+mbBIGToys2 <- microbenchmark::microbenchmark(
+  randomForest::randomForest(BIGToys, toys$y, mtry = mtryBIGToys),
+  ranger::ranger(y ~ ., BIGToysData, mtry = mtryBIGToys, num.threads = 1),
+  times = 25)
+levels(mbBIGToys2$expr) <- c("RF", "ranger")
+```
+
+```{r}
+mbBIGToys2
+save(mbBIGToys2, file = "outputs/mbBIGToys2.Rdata")
+mbplot(mbBIGToys2)
+```
+
+
+### With variable importance computation
+
+```{r, eval=FALSE}
+mbBIGToys2Imp <- microbenchmark::microbenchmark(
+  randomForest::randomForest(BIGToys, toys$y, mtry = mtryBIGToys, importance = TRUE),
+  ranger::ranger(y ~ ., BIGToysData, mtry = mtryBIGToys, num.threads = 1, importance = "permutation"),
+  times = 25)
+levels(mbBIGToys2Imp$expr) <- c("RF", "ranger")
+```
+
+```{r}
+mbBIGToys2Imp
+save(mbBIGToys2Imp, file = "outputs/mbBIGToys2Imp.Rdata")
+mbplot(mbBIGToys2Imp)
+```
+
+
+
+
+# `vac18` data $n=42$, $p=1000$
+
+```{r}
+data("vac18", package = "mixOmics")
+geneExpr <- vac18$genes
+dim(geneExpr)
+stimu <- vac18$stimulation
+str(stimu)
+VAC18 <- data.frame(geneExpr, stimu)
+mtryVac18 <- floor(ncol(geneExpr)/3)
+```
+
+```{r, eval=FALSE}
+mbVac18 <- microbenchmark::microbenchmark(
+  randomForest::randomForest(stimu ~ ., VAC18, mtry = mtryVac18),
+  randomForest::randomForest(geneExpr, stimu, mtry = mtryVac18),
+  ranger::ranger(stimu ~ ., VAC18, mtry = mtryVac18, num.threads = 1),
+  Rborist::Rborist(geneExpr, stimu, predFixed = mtryVac18, minInfo = 0, nThread = 1),
+  times = 25)
+levels(mbVac18$expr) <- c("RF formula", "RF", "ranger", "Rborist")
+```
+
+```{r}
 mbVac18
-boxplot(mbVac18, names = c("RF formula", "RF",
-                           "ranger", "rangerPara"))
+save(mbVac18, file = "outputs/mbVac18.Rdata")
+mbplot(mbVac18)
 ```
 
 ## With variable importance computation
 
-```{r, cache=TRUE}
-mbVac18 <- microbenchmark::microbenchmark(
-  randomForest::randomForest(y ~ ., bigToysData, ntree = 500, importance = TRUE,
-                             mtry = mtryBigToys),
-  randomForest::randomForest(bigToys, toys$y, ntree = 500, importance = TRUE,
-                             mtry = mtryBigToys),
-  ranger::ranger(y ~ ., bigToysData, num.trees = 500,
-                 importance = "permutation", mtry = mtryBigToys,
-                 num.threads = 1),
-  ranger::ranger(y ~ ., bigToysData, num.trees = 500,
-                 importance = "permutation", mtry = mtryBigToys,
-                 num.threads = ncores),
+```{r, eval=FALSE}
+mbVac18Imp <- microbenchmark::microbenchmark(
+  randomForest::randomForest(stimu ~ ., VAC18, mtry = mtryVac18, importance = TRUE),
+  randomForest::randomForest(geneExpr, stimu, mtry = mtryVac18, importance = TRUE),
+  ranger::ranger(stimu ~ ., VAC18, mtry = mtryVac18, num.threads = 1, importance = "permutation"),
   times = 25)
-mbVac18
-boxplot(mbVac18, names = c("RF formula", "RF",
-                           "ranger", "rangerPara"))
+levels(mbVac18Imp$expr) <- c("RF formula", "RF", "ranger")
+```
+
+```{r}
+mbVac18Imp
+save(mbVac18Imp, file = "outputs/mbVac18Imp.Rdata")
+mbplot(mbVac18Imp)
+```
+
+
+# `spam` data
+
+## $n=4601$, $p=57$
+
+```{r}
+data("spam", package = "kernlab")
+nvarSpam <- ncol(spam) - 1
+Xspam <- spam[, -ncol(spam)]
+Yspam <- spam$type
+dim(Xspam)
+str(Yspam)
+mtrySpam <- floor(sqrt(nvarSpam))
+```
+
+```{r, eval=FALSE}
+mbSpam <- microbenchmark(
+  randomForest::randomForest(type ~ ., spam, mtry = mtrySpam),
+  ranger::ranger(type ~ ., spam, mtry = mtrySpam, num.threads = 1),
+  Rborist::Rborist(Xspam, Yspam, predFixed = mtrySpam, minInfo = 0, nThread = 1),
+  times = 25)
+levels(mbSpam$expr) <- c("RF", "ranger", "Rborist")
+```
+
+```{r}
+mbSpam
+save(mbSpam, file = "outputs/mbSpam.Rdata")
+mbplot(mbSpam)
+```
+
+### With variable importance computation
+
+```{r, eval=FALSE}
+mbSpamImp <- microbenchmark(
+  randomForest::randomForest(type ~ ., spam, mtry = mtrySpam, importance = TRUE),
+  ranger::ranger(type ~ ., spam, mtry = mtrySpam, num.threads = 1, importance = "permutation"),
+  times = 25)
+levels(mbSpamImp$expr) <- c("RF", "ranger")
+```
+
+```{r}
+mbSpamImp
+save(mbSpamImp, file = "outputs/mbSpamImp.Rdata")
+mbplot(mbSpamImp)
+```
+
+## $n=4601$, $p=1$
+
+```{r}
+spamSmall <- spam[, c("charExclamation", "type")]
+str(spamSmall)
+XspamSmall <- spamSmall["charExclamation"]
+YspamSmall <- spamSmall$type
+```
+
+```{r, eval=FALSE}
+mbSpamSmall <- microbenchmark(
+  randomForest::randomForest(type ~ ., spamSmall, mtry = 1),
+  ranger::ranger(type ~ ., spamSmall, mtry = 1, num.threads = 1),
+  Rborist::Rborist(XspamSmall, YspamSmall, predFixed = 1, minInfo = 0, nThread = 1),
+  times = 25)
+levels(mbSpamSmall$expr) <- c("RF", "ranger", "Rborist")
+```
+
+```{r}
+mbSpamSmall
+save(mbSpamSmall, file = "outputs/mbSpamSmall.Rdata")
+mbplot(mbSpamSmall)
+```
+
+### With variable importance computation
+
+```{r, eval=FALSE}
+mbSpamSmallImp <- microbenchmark(
+  randomForest::randomForest(type ~ ., spamSmall, mtry = 1, importance = TRUE),
+  ranger::ranger(type ~ ., spamSmall, mtry = 1, num.threads = 1, importance = "permutation"),
+  times = 25)
+levels(mbSpamSmallImp$expr) <- c("RF", "ranger")
+```
+
+
+```{r}
+mbSpamSmallImp
+save(mbSpamSmallImp, file = "outputs/mbSpamSmallImp.Rdata")
+mbplot(mbSpamSmallImp)
+```
+
+
+
+# `toys` data: big data case
+
+```{r}
+simu_toys <- function(n, p, q = 0.7) {
+  y <- 2 * rbinom(n, 1, 0.5) - 1
+  x <- matrix(NA, n, p)
+  r <- floor(q*n)
+  z <- 1:r
+  for (i in 1:3) {
+    x[z, i] <- y[z] * rnorm(r, i, 1)
+    x[-z, i] <- y[-z] * rnorm(n - r, 0, 1)
+  }
+  for (i in 4:6) {
+    x[z, i] <- y[z] * rnorm(r, 0, 1)
+    x[-z, i] <- y[-z] * rnorm(n - r, i - 3, 1)
+  }
+  x[, 7:p] <- rnorm(n*(p - 6), 0, 20)
+  x <- scale(x)
+  y <- as.factor(y)
+  output <- data.frame('x' = x, 'y' = y)
+}
+```
+
+
+## $n = 1000, p = 10$
+
+```{r}
+library(parallel)
+ncores <- 4
+
+set.seed(768895) 
+allseeds <- round(runif(4, 1e5, 1e6))
+
+alldata <- mclapply(1:ncores, function(ind) {
+  set.seed(allseeds[ind])
+  simu_toys(n = 1000 / ncores, p = 10)
+}, mc.cores=ncores)
+
+TallToys <- do.call("rbind", alldata)
+dim(TallToys)
+# save(TallToys, file = "data/TallToys.Rdata")
+
+mtryTallToys <- floor(sqrt(ncol(TallToys) - 1))
+```
+
+```{r, eval=FALSE}
+mbTallToys <- microbenchmark(
+  randomForest::randomForest(y ~ ., TallToys, mtry = mtryTallToys),
+  ranger::ranger(y ~ ., TallToys, mtry = mtryTallToys, num.threads = 1),
+  Rborist::Rborist(subset(TallToys, select = -y), TallToys$y, predFixed = mtryTallToys, minInfo = 0, nThread = 1),
+  times = 25)
+levels(mbTallToys$expr) <- c("RF", "ranger", "Rborist")
+```
+
+```{r}
+mbTallToys
+save(mbTallToys, file = "outputs/mbTallToys.Rdata")
+mbplot(mbTallToys)
+```
+
+### With variable importance computation
+
+```{r, eval=FALSE}
+mbTallToysImp <- microbenchmark(
+  randomForest::randomForest(y ~ ., TallToys, mtry = mtryTallToys, importance = TRUE),
+  ranger::ranger(y ~ ., TallToys, mtry = mtryTallToys, num.threads = 1, importance = "permutation"),
+  times = 25)
+levels(mbTallToysImp$expr) <- c("RF", "ranger")
+```
+
+```{r}
+mbTallToysImp
+save(mbTallToysImp, file = "outputs/mbTallToysImp.Rdata")
+mbplot(mbTallToysImp)
+```
+
+
+
+## $n = 10000, p = 10$
+
+```{r}
+library(parallel)
+ncores <- 4
+
+set.seed(768895) 
+allseeds <- round(runif(4, 1e5, 1e6))
+
+alldata <- mclapply(1:ncores, function(ind) {
+  set.seed(allseeds[ind])
+  simu_toys(n = 10000 / ncores, p = 10)
+}, mc.cores=ncores)
+
+TALLToys <- do.call("rbind", alldata)
+dim(TALLToys)
+# save(TallToys, file = "data/TallToys.Rdata")
+
+mtryTALLToys <- floor(sqrt(ncol(TALLToys) - 1))
+```
+
+```{r, eval=FALSE}
+mbTALLToys <- microbenchmark(
+  randomForest::randomForest(y ~ ., TALLToys, mtry = mtryTALLToys),
+  ranger::ranger(y ~ ., TALLToys, mtry = mtryTALLToys, num.threads = 1),
+  Rborist::Rborist(subset(TALLToys, select = -y), TALLToys$y, predFixed = mtryTALLToys, minInfo = 0, nThread = 1),
+  times = 25)
+levels(mbTALLToys$expr) <- c("RF", "ranger", "Rborist")
+```
+
+```{r}
+mbTALLToys
+save(mbTALLToys, file = "outputs/mbTALLToys.Rdata")
+mbplot(mbTALLToys)
+```
+
+### With variable importance computation
+
+```{r, eval=FALSE}
+mbTALLToysImp <- microbenchmark(
+  randomForest::randomForest(y ~ ., TALLToys, mtry = mtryTALLToys, importance = TRUE),
+  ranger::ranger(y ~ ., TALLToys, mtry = mtryTALLToys, num.threads = 1, importance = "permutation"),
+  times = 25)
+levels(mbTALLToysImp$expr) <- c("RF", "ranger")
+```
+
+```{r}
+mbTALLToysImp
+save(mbTALLToysImp, file = "outputs/mbTALLToysImp.Rdata")
+mbplot(mbTALLToysImp)
+```
+
+
+
+## $n = 100000, p = 10$
+
+```{r}
+library(parallel)
+ncores <- 4
+
+set.seed(768895) 
+allseeds <- round(runif(4, 1e5, 1e6))
+
+alldata <- mclapply(1:ncores, function(ind) {
+  set.seed(allseeds[ind])
+  simu_toys(n = 100000 / ncores, p = 10)
+}, mc.cores=ncores)
+
+TALL5Toys <- do.call("rbind", alldata)
+dim(TALL5Toys)
+# save(TallToys, file = "data/TallToys.Rdata")
+XTALL5Toys <- subset(TALL5Toys, select = -y)
+mtryTALL5Toys <- floor(sqrt(ncol(XTALL5Toys)))
+```
+
+```{r, eval=FALSE}
+mbTALL5Toys <- microbenchmark(
+  randomForest::randomForest(y ~ ., TALL5Toys, mtry = mtryTALL5Toys),
+  # ranger::ranger(y ~ ., TALL5Toys, mtry = mtryTALL5Toys, num.threads = 1),
+  Rborist::Rborist(XTALL5Toys, TALL5Toys$y, predFixed = mtryTALLToys, minInfo = 0, nThread = 1),
+  times = 10)
+levels(mbTALL5Toys$expr) <- c("RF", "Rborist")
+```
+
+```{r}
+mbTALL5Toys
+save(mbTALL5Toys, file = "outputs/mbTALL5Toys.Rdata")
+mbplot(mbTALL5Toys)
+```
+
+### With variable importance computation
+
+```{r, eval=FALSE}
+mbTALL5ToysImp <- microbenchmark(
+  randomForest::randomForest(y ~ ., TALL5Toys, mtry = mtryTALL5Toys, importance = TRUE),
+  ranger::ranger(y ~ ., TALL5Toys, mtry = mtryTALL5Toys, num.threads = 1, importance = "permutation", verbose = FALSE),
+  times = 10)
+levels(mbTALL5ToysImp$expr) <- c("RF", "ranger")
+```
+
+```{r}
+mbTALL5ToysImp
+save(mbTALL5ToysImp, file = "outputs/mbTALL5ToysImp.Rdata")
+mbplot(mbTALL5ToysImp)
 ```

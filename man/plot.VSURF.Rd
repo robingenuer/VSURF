@@ -7,8 +7,9 @@
 \alias{plot.VSURF_pred}
 \title{Plot of VSURF results}
 \usage{
-\method{plot}{VSURF}(x, step = "all", var.names = FALSE, imp.mean = TRUE,
-  imp.sd = TRUE, nvar.imp.mean = length(x$imp.mean.dec),
+\method{plot}{VSURF}(x, step = "all", var.names = FALSE,
+  imp.mean = TRUE, imp.sd = TRUE,
+  nvar.imp.mean = length(x$imp.mean.dec),
   nvar.imp.sd = length(x$imp.sd.dec),
   nvar.interp = length(x$varselect.thres),
   nvar.pred = length(x$varselect.pred), ...)

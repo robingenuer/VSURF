@@ -75,17 +75,26 @@
 #' @param nfor.pred Number of forests grown for "prediction step" (last of the
 #'   three steps).
 #' @param nmj Number of times the mean jump is multiplied. See details below.
-#' @param RFimplementation Choice of the random forests implementation to use :
-#'   "randomForest" (default) or "ranger".
+#' @param RFimplem Choice of the random forests implementation to use :
+#'   "randomForest" (default), "ranger" or "Rborist" (not that if "Rborist" is
+#'   chosen, "randoForest" will still be used for the first step
+#'   \code{VSURF_thres}). If a vector of length 3 is given, each coordinate is
+#'   passed to each intermediate function: \code{VSURF_thres},
+#'   \code{VSURF_interp}, \code{VSURF_pred}, in this order.
 #' @param parallel A logical indicating if you want VSURF to run in parallel on
 #'   multiple cores (default to FALSE).
 #' @param ncores Number of cores to use. Default is set to the number of cores
 #'   detected by R minus 1.
 #' @param clusterType Type of the multiple cores cluster used to run VSURF in
 #'   parallel. Must be chosen among "PSOCK" (default: SOCKET cluster available
-#'   locally on all OS), "FORK" (local too, only available for Linux and Mac OS)
-#'   and "MPI" (can be used on a remote cluster, which needs \code{snow} and
-#'   \code{Rmpi} packages installed).
+#'   locally on all OS), "FORK" (local too, only available for Linux and Mac
+#'   OS), "MPI" (can be used on a remote cluster, which needs \code{snow} and
+#'   \code{Rmpi} packages installed), "ranger" and "Rborist" for internal
+#'   parallelizations of those packages (not that if "Rborist" is
+#'   chosen, "SOCKET" will still be used for the first step
+#'   \code{VSURF_thres}). If a vector of length 2 is given, each
+#'   coordinate is passed to each intermediate function: \code{VSURF_thres},
+#'   \code{VSURF_interp}, in this order.
 #' @param ...  others parameters to be passed on to the \code{randomForest}
 #'   function (see ?randomForest for further information).
 #' 
@@ -146,7 +155,9 @@
 #'  associated with the 3 steps: "thresholding", "interpretation" and
 #'  "prediction".}
 #'
-#'  \item{RFimplementation}{The RF implementation used to run \code{VSURF}.}
+#'  \item{RFimplem}{The RF implementation used to run \code{VSURF},
+#'  among "randomForest" (default), "ranger" and "Rborist" or a vector of length
+#'  3 with those.}
 #'
 #'  \item{ncores}{The number of cores used to run \code{VSURF} in parallel (NULL
 #'  if VSURF did not run in parallel).}
@@ -202,7 +213,7 @@ VSURF <- function (x, ...) {
 VSURF.default <- function(
   x, y, ntree = 2000, mtry = max(floor(ncol(x)/3), 1),
   nfor.thres = 50, nmin = 1, nfor.interp = 25, nsd = 1, nfor.pred = 25, nmj = 1,
-  RFimplementation = "randomForest", parallel = FALSE,
+  RFimplem = "randomForest", parallel = FALSE,
   ncores = detectCores() - 1, clusterType = "PSOCK", ...) {
 
   start <- Sys.time()
@@ -214,17 +225,21 @@ VSURF.default <- function(
   
   thres <- VSURF_thres(
     x=x, y=y, ntree=ntree, mtry=mtry, nfor.thres=nfor.thres, nmin=nmin,
-    RFimplementation = RFimplementation, parallel=parallel,
-    clusterType=clusterType, ncores=ncores, ...)
+    RFimplem = ifelse(length(RFimplem) == 3, RFimplem[1], RFimplem),
+    parallel=parallel,
+    clusterType = ifelse(length(clusterType) == 2, clusterType[1], clusterType),
+    ncores=ncores, ...)
   
   interp <- VSURF_interp(
     x=x, y=y, ntree=ntree, vars=thres$varselect.thres, nfor.interp=nfor.interp,
-    nsd=nsd, RFimplementation = RFimplementation, parallel=parallel,
-    clusterType=clusterType, ncores=ncores, ...)
+    nsd=nsd, RFimplem = ifelse(length(RFimplem) == 3, RFimplem[2], RFimplem),
+    parallel=parallel,
+    clusterType = ifelse(length(clusterType) == 2, clusterType[2], clusterType),
+    ncores=ncores, ...)
   
   pred <- VSURF_pred(x=x, y=y, ntree=ntree, err.interp=interp$err.interp,
     varselect.interp=interp$varselect.interp, nfor.pred=nfor.pred, nmj=nmj,
-    RFimplementation = RFimplementation, ...)
+    RFimplem = ifelse(length(RFimplem) == 3, RFimplem[3], RFimplem), ...)
   
   cl <- match.call()
   cl[[1]] <- as.name("VSURF")
@@ -253,7 +268,7 @@ VSURF.default <- function(
                  'nmj'=nmj,
                  'overall.time'=overall.time,
                  'comput.times'=list(thres$comput.time, interp$comput.time, pred$comput.time),
-                 'RFimplementation'=RFimplementation,
+                 'RFimplem'=RFimplem,
                  'ncores'=ncores,          
                  'clusterType'=clusterType,
                  'call'=cl)
