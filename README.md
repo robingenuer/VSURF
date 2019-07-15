@@ -21,7 +21,7 @@ install.packages("VSURF")
 To try the current development version from github, use:
 
 ``` r
-if (!requireNamespace("devtools", quietly = TRUE)) {
-    install.packages("devtools")}
-devtools::install_github("robingenuer/VSURF")
+if (!requireNamespace("remotes", quietly = TRUE)) {
+    install.packages("remotes")}
+remotes::install_github("robingenuer/VSURF")
 ```
