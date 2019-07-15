@@ -5,6 +5,8 @@ date: "12 avril 2018"
 output: 
   html_document: 
     number_sections: yes
+    toc: yes
+    toc_float: yes
 ---
 
 ```{r, include=FALSE}
@@ -18,76 +20,88 @@ for (fileName in resFiles) {
 }
 ```
 
-
-```{r, cache=FALSE}
+```{r}
 library(VSURF)
 ```
 
 # `toys` data
 
-```{r, cache=FALSE}
+```{r}
 data(toys)
 ```
 
 ## Sequential with `randomForest`
 
 ```{r, eval=FALSE}
-toysRFseq <- VSURF(toys$x, toys$y)
-summary(toysRFseq)
+set.seed(556264)
+toysRF <- VSURF(toys$x, toys$y)
 ```
+
+```{r}
+summary(toysRF)
+save(toysRF, file = "outputs/toysRF.Rdata")
+```
+
 
 ## Sequential with `ranger`
 
 ```{r, eval=FALSE}
-toysRangerSeq <- VSURF(toys$x, toys$y, RFimplementation = "ranger")
-summary(toysRangerSeq)
+set.seed(475073)
+toysRg <- VSURF(toys$x, toys$y, RFimplem = "ranger")
 ```
- 
+
+```{r}
+summary(toysRg)
+save(toysRg, file = "outputs/toysRg.Rdata")
+```
+
 ## Parallel with `randomForest`
 
-```{r, cache=FALSE}
-ncores <- 32
+```{r}
+ncores <- 24
 ```
 
-### Fork
-
 ```{r, eval=FALSE}
-toysRFfork <- VSURF(toys$x, toys$y, parallel = TRUE, clusterType = "FORK",
-                        ncores = ncores)
-summary(toysRFfork)
+set.seed(364693, kind = "L'Ecuyer-CMRG")
+toysRFPara <- VSURF(toys$x, toys$y, parallel = TRUE, clusterType = "FORK", ncores = ncores)
+```
+
+```{r}
+summary(toysRFPara)
+save(toysRFPara, file = "outputs/toysRFPara.Rdata")
 ```
 
 ## Parallel with `ranger`
 
-### Socket
-
-```{r, eval=FALSE}
-toysRangerPara <- VSURF(toys$x, toys$y, RFimplementation = "ranger",
-                        parallel = TRUE, ncores = ncores)
-summary(toysRangerPara)
-```
-
 ### Fork
 
 ```{r, eval=FALSE}
-toysRangerFork <- VSURF(toys$x, toys$y, RFimplementation = "ranger",
-                        parallel = TRUE, clusterType = "FORK", ncores = ncores)
-summary(toysRangerFork)
+set.seed(850162, kind = "L'Ecuyer-CMRG")
+toysRgPara <- VSURF(toys$x, toys$y, RFimplem = "ranger", parallel = TRUE, clusterType = "FORK", ncores = ncores)
+
+```
+
+```{r}
+summary(toysRgPara)
+save(toysRgPara, file = "outputs/toysRgPara.Rdata")
 ```
 
 ### Internal
 
 ```{r, eval=FALSE}
-toysRangerParaInter <- VSURF(toys$x, toys$y, RFimplementation = "ranger",
-                        parallel = TRUE, clusterType = "ranger",
-                        ncores = ncores)
-summary(toysRangerParaInter)
+set.seed(289817)
+toysRgParaInter <- VSURF(toys$x, toys$y, RFimplem = "ranger", parallel = TRUE, clusterType = "ranger", ncores = ncores)
+```
+
+```{r}
+summary(toysRgParaInter)
+save(toysRgParaInter, file = "outputs/toysRgParaInter.Rdata")
 ```
 
 
 # `spam` data
 
-```{r, cache=FALSE}
+```{r}
 data("spam", package = "kernlab")
 set.seed(9146301)
 levels(spam$type) <- c("ok", "spam")
@@ -101,7 +115,6 @@ spamTest <- spam[-indApp, ]
 ```{r}
 ncores <- 32
 ```
-
 
 ## Threshold step
 
@@ -227,33 +240,10 @@ save(spamRbPredParaRb, file = "outputs/spamRbPredParaRb.Rdata")
 spamRbPredParaRb$comput.time
 ```
 
-## Parallel with `ranger`
-
-### Fork
-
-```{r, eval=FALSE}
-spamRangerFork <- VSURF(type~., spamApp, RFimplementation = "ranger",
-                   parallel = TRUE, ncores = ncores,
-                   clusterType = "FORK")
-```
-
-```{r, eval=FALSE}
-summary(spamRangerFork)
-```
-
-### Internal
-
-```{r, eval=FALSE}
-spamRangerInter <- VSURF(spamApp[, -58], spamApp[, 58],
-                         RFimplementation = "ranger", parallel = TRUE,
-                         ncores = ncores, clusterType = "ranger")
-summary(spamRangerInter)
-```
-
 
 # `vac18` data
 
-```{r introVac18Load, cache=FALSE}
+```{r introVac18Load}
 data("vac18", package = "mixOmics")
 geneExpr <- vac18$genes
 stimu <- vac18$stimulation
@@ -264,41 +254,39 @@ ncores <- 3
 
 ```{r, eval=FALSE}
 vacRF <- VSURF(x = geneExpr, y = stimu, parallel = TRUE, ncores = ncores, clusterType = "FORK")
-save(vacRF, file = "outputs/vacRF.Rdata")
 ```
 
 ```{r}
 summary(vacRF)
+save(vacRF, file = "outputs/vacRF.Rdata")
 ```
 
 
 ## Parallel with `ranger`
 
-### Fork
-
 ```{r, eval=FALSE}
 vacRgThres <- VSURF_thres(x = geneExpr, y = stimu, parallel = TRUE, ncores = ncores, RFimplem = "ranger", clusterType = "FORK")
-save(vacRgThres, file = "outputs/vacRgThres.Rdata")
 ```
 
 ```{r}
 vacRgThres$comput.time
+save(vacRgThres, file = "outputs/vacRgThres.Rdata")
 ```
 
 ```{r, eval=FALSE}
 vacRgInterp <- VSURF_interp(x = geneExpr, y = stimu, parallel = TRUE, ncores = ncores, RFimplem = "ranger", clusterType = "FORK", vars = vacRF$varselect.thres)
-save(vacRgInterp, file = "outputs/vacRgInterp.Rdata")
 ```
 
 ```{r}
 vacRgInterp$comput.time
+save(vacRgInterp, file = "outputs/vacRgInterp.Rdata")
 ```
 
 ```{r, eval=FALSE}
 vacRgPred <- VSURF_pred(x = geneExpr, y = stimu, RFimplem = "ranger", varselect.interp = vacRF$varselect.interp, err.interp = vacRF$err.interp)
-save(vacRgPred, file = "outputs/vacRgPred.Rdata")
 ```
 
 ```{r}
 vacRgPred$comput.time
+save(vacRgPred, file = "outputs/vacRgPred.Rdata")
 ```

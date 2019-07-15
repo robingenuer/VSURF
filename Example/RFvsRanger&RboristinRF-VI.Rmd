@@ -9,7 +9,7 @@ output:
     toc_float: yes
 ---
 
-```{r}
+```{r, message=FALSE}
 library(microbenchmark)
 library(ggplot2)
 ```
@@ -26,9 +26,7 @@ mbplot <- function(res) {
   resDF <- as.data.frame(res)
   ggres <- ggplot(resDF, aes(expr, time)) + theme_bw() + ylab("time (log scale)") +
     theme(panel.grid.minor = element_blank(), panel.grid.major = element_blank()) +
-    geom_boxplot(aes(fill = expr)) + scale_y_continuous(trans = "log10") +
-    scale_fill_manual(values = viridis::viridis(nlevels(resDF$expr)))
-  print(ggres)
+    geom_boxplot(aes(fill = expr))# + scale_y_continuous(trans = "log10")
 }
 ```
 
@@ -58,7 +56,8 @@ levels(mbToys$expr) <- c("RF formula", "RF", "ranger", "Rborist")
 ```{r}
 mbToys
 save(mbToys, file = "outputs/mbToys.Rdata")
-mbplot(mbToys)
+# plotToys <- mbplot(mbToys) + scale_fill_manual(values = viridis::viridis(4))
+# plotToys
 ```
 
 
@@ -76,7 +75,19 @@ levels(mbToys$expr) <- c("RF formula", "RF", "ranger")
 ```{r}
 mbToysImp
 save(mbToysImp, file = "outputs/mbToysImp.Rdata")
-mbplot(mbToysImp)
+# plotToysImp <- mbplot(mbToysImp) + scale_fill_manual(values = viridis::viridis(4)[1:3])
+# plotToysImp
+```
+
+
+```{r}
+mbToys$VI <- "no VI"
+mbToysImp$VI <- "VI"
+mbToysBoth <- rbind(mbToys, mbToysImp)
+toysMBplot <- mbplot(mbToysBoth)
+toysMBplot <- toysMBplot + facet_wrap(~VI) +
+    scale_fill_manual(values = viridis::viridis(4))
+toysMBplot
 ```
 
 
@@ -154,7 +165,8 @@ levels(mbToys$expr) <- c("RF formula", "RF", "ranger", "Rborist")
 ```{r}
 mbbigToys
 save(mbbigToys, file = "outputs/mbbigToys.Rdata")
-mbplot(mbbigToys)
+# plotbigToys <- mbplot(mbbigToys) + scale_fill_manual(values = viridis::viridis(4)[2:4])
+# plotbigToys
 ```
 
 
@@ -172,8 +184,20 @@ levels(mbbigToysImp$expr) <- c("RF formula", "RF", "ranger")
 ```{r}
 mbbigToysImp
 save(mbbigToysImp, file = "outputs/mbbigToysImp.Rdata")
-mbplot(mbbigToysImp)
+# plotbigToysImp <- mbplot(mbbigToysImp) + scale_fill_manual(values = viridis::viridis(4)[1:3])
+# plotbigToysImp
 ```
+
+```{r}
+mbbigToys$VI <- "no VI"
+mbbigToysImp$VI <- "VI"
+mbbigToysBoth <- rbind(mbbigToys, mbbigToysImp)
+bigtoysMBplot <- mbplot(mbbigToysBoth)
+bigtoysMBplot <- bigtoysMBplot + facet_wrap(~VI) +
+  scale_fill_manual(values = viridis::viridis(4)[1:3])
+bigtoysMBplot
+```
+
 
 
 ## $n=100$, $p=5 000$
@@ -197,7 +221,8 @@ levels(mbBIGToys$expr) <- c("RF", "ranger")
 ```{r}
 mbBIGToys
 save(mbBIGToys, file = "outputs/mbBIGToys.Rdata")
-mbplot(mbBIGToys)
+# plotBIGToys <- mbplot(mbBIGToys) + scale_fill_manual(values = viridis::viridis(4)[2:3])
+# plotBIGToys
 ```
 
 
@@ -214,8 +239,21 @@ levels(mbBIGToys$expr) <- c("RF", "ranger")
 ```{r}
 mbBIGToysImp
 save(mbBIGToysImp, file = "outputs/mbBIGToysImp.Rdata")
-mbplot(mbBIGToysImp)
+# plotBIGToysImp <- mbplot(mbBIGToysImp) + scale_fill_manual(values = viridis::viridis(4)[2:3])
+# plotBIGToysImp
 ```
+
+
+```{r}
+mbBIGToys$VI <- "no VI"
+mbBIGToysImp$VI <- "VI"
+mbBIGToysBoth <- rbind(mbBIGToys, mbBIGToysImp)
+BIGtoysMBplot <- mbplot(mbBIGToysBoth)
+BIGtoysMBplot <- BIGtoysMBplot + facet_wrap(~VI) +
+  scale_fill_manual(values = viridis::viridis(4)[2:3])
+BIGtoysMBplot
+```
+
 
 
 ## $n=100$, $p=10 000$
@@ -240,7 +278,8 @@ levels(mbBIGToys2$expr) <- c("RF", "ranger")
 ```{r}
 mbBIGToys2
 save(mbBIGToys2, file = "outputs/mbBIGToys2.Rdata")
-mbplot(mbBIGToys2)
+# plotBIGToys2 <- mbplot(mbBIGToys2) + scale_fill_manual(values = viridis::viridis(4)[2:3])
+# plotBIGToys2
 ```
 
 
@@ -257,7 +296,19 @@ levels(mbBIGToys2Imp$expr) <- c("RF", "ranger")
 ```{r}
 mbBIGToys2Imp
 save(mbBIGToys2Imp, file = "outputs/mbBIGToys2Imp.Rdata")
-mbplot(mbBIGToys2Imp)
+# plotBIGToys2Imp <- mbplot(mbBIGToys2Imp) + scale_fill_manual(values = viridis::viridis(4)[2:3])
+# plotBIGToys2Imp
+```
+
+
+```{r}
+mbBIGToys2$VI <- "no VI"
+mbBIGToys2Imp$VI <- "VI"
+mbBIGToys2Both <- rbind(mbBIGToys2, mbBIGToys2Imp)
+BIGToys2MBplot <- mbplot(mbBIGToys2Both)
+BIGToys2MBplot <- BIGToys2MBplot + facet_wrap(~VI) +
+  scale_fill_manual(values = viridis::viridis(4)[2:3])
+BIGToys2MBplot
 ```
 
 
@@ -288,7 +339,8 @@ levels(mbVac18$expr) <- c("RF formula", "RF", "ranger", "Rborist")
 ```{r}
 mbVac18
 save(mbVac18, file = "outputs/mbVac18.Rdata")
-mbplot(mbVac18)
+# plotVac18 <- mbplot(mbVac18) + scale_fill_manual(values = viridis::viridis(4))
+# plotVac18
 ```
 
 ## With variable importance computation
@@ -305,7 +357,19 @@ levels(mbVac18Imp$expr) <- c("RF formula", "RF", "ranger")
 ```{r}
 mbVac18Imp
 save(mbVac18Imp, file = "outputs/mbVac18Imp.Rdata")
-mbplot(mbVac18Imp)
+# plotVac18Imp <- mbplot(mbVac18Imp) + scale_fill_manual(values = viridis::viridis(4)[1:3])
+# plotVac18Imp
+```
+
+
+```{r}
+mbVac18$VI <- "no VI"
+mbVac18Imp$VI <- "VI"
+mbVac18Both <- rbind(mbVac18, mbVac18Imp)
+Vac18MBplot <- mbplot(mbVac18Both)
+Vac18MBplot <- Vac18MBplot + facet_wrap(~VI) +
+  scale_fill_manual(values = viridis::viridis(4))
+Vac18MBplot
 ```
 
 
@@ -335,7 +399,8 @@ levels(mbSpam$expr) <- c("RF", "ranger", "Rborist")
 ```{r}
 mbSpam
 save(mbSpam, file = "outputs/mbSpam.Rdata")
-mbplot(mbSpam)
+# plotSpam <- mbplot(mbSpam) + scale_fill_manual(values = viridis::viridis(4)[2:4])
+# plotSpam
 ```
 
 ### With variable importance computation
@@ -351,8 +416,20 @@ levels(mbSpamImp$expr) <- c("RF", "ranger")
 ```{r}
 mbSpamImp
 save(mbSpamImp, file = "outputs/mbSpamImp.Rdata")
-mbplot(mbSpamImp)
+# plotSpamImp <- mbplot(mbSpamImp) + scale_fill_manual(values = viridis::viridis(4)[2:3])
+# plotSpamImp
 ```
+
+```{r}
+mbSpam$VI <- "no VI"
+mbSpamImp$VI <- "VI"
+mbSpamBoth <- rbind(mbSpam, mbSpamImp)
+SpamMBplot <- mbplot(mbSpamBoth)
+SpamMBplot <- SpamMBplot + facet_wrap(~VI) +
+  scale_fill_manual(values = viridis::viridis(4)[2:4])
+SpamMBplot
+```
+
 
 ## $n=4601$, $p=1$
 
@@ -375,7 +452,8 @@ levels(mbSpamSmall$expr) <- c("RF", "ranger", "Rborist")
 ```{r}
 mbSpamSmall
 save(mbSpamSmall, file = "outputs/mbSpamSmall.Rdata")
-mbplot(mbSpamSmall)
+# plotSpamSmall <- mbplot(mbSpamSmall) + scale_fill_manual(values = viridis::viridis(4)[2:4])
+# plotSpamSmall
 ```
 
 ### With variable importance computation
@@ -392,7 +470,18 @@ levels(mbSpamSmallImp$expr) <- c("RF", "ranger")
 ```{r}
 mbSpamSmallImp
 save(mbSpamSmallImp, file = "outputs/mbSpamSmallImp.Rdata")
-mbplot(mbSpamSmallImp)
+# plotSpamSmallImp <- mbplot(mbSpamSmallImp) + scale_fill_manual(values = viridis::viridis(4)[2:3])
+# plotSpamSmallImp
+```
+
+```{r}
+mbSpamSmall$VI <- "no VI"
+mbSpamSmallImp$VI <- "VI"
+mbSpamSmallBoth <- rbind(mbSpamSmall, mbSpamSmallImp)
+SpamSmallMBplot <- mbplot(mbSpamSmallBoth)
+SpamSmallMBplot <- SpamSmallMBplot + facet_wrap(~VI) +
+  scale_fill_manual(values = viridis::viridis(4)[2:4])
+SpamSmallMBplot
 ```
 
 
@@ -424,8 +513,9 @@ simu_toys <- function(n, p, q = 0.7) {
 ## $n = 1000, p = 10$
 
 ```{r}
+ncores <- 4
 set.seed(768895) 
-allseeds <- round(runif(4, 1e5, 1e6))
+allseeds <- round(runif(ncores, 1e5, 1e6))
 
 alldata <- parallel::mclapply(1:ncores, function(ind) {
   set.seed(allseeds[ind])
@@ -451,7 +541,8 @@ levels(mbTallToys$expr) <- c("RF", "ranger", "Rborist")
 ```{r}
 mbTallToys
 save(mbTallToys, file = "outputs/mbTallToys.Rdata")
-mbplot(mbTallToys)
+# plotTallToys <- mbplot(mbTallToys) + scale_fill_manual(values = viridis::viridis(4)[2:4])
+# plotTallToys
 ```
 
 ### With variable importance computation
@@ -467,9 +558,19 @@ levels(mbTallToysImp$expr) <- c("RF", "ranger")
 ```{r}
 mbTallToysImp
 save(mbTallToysImp, file = "outputs/mbTallToysImp.Rdata")
-mbplot(mbTallToysImp)
+# plotTallToysImp <- mbplot(mbTallToysImp) + scale_fill_manual(values = viridis::viridis(4)[2:3])
+# plotTallToysImp
 ```
 
+```{r}
+mbTallToys$VI <- "no VI"
+mbTallToysImp$VI <- "VI"
+mbTallToysBoth <- rbind(mbTallToys, mbTallToysImp)
+TallToysMBplot <- mbplot(mbTallToysBoth)
+TallToysMBplot <- TallToysMBplot + facet_wrap(~VI) +
+  scale_fill_manual(values = viridis::viridis(4)[2:4])
+TallToysMBplot
+```
 
 
 ## $n = 10000, p = 10$
@@ -502,7 +603,8 @@ levels(mbTALLToys$expr) <- c("RF", "ranger", "Rborist")
 ```{r}
 mbTALLToys
 save(mbTALLToys, file = "outputs/mbTALLToys.Rdata")
-mbplot(mbTALLToys)
+# plotTALLToys <- mbplot(mbTALLToys) + scale_fill_manual(values = viridis::viridis(4)[2:4])
+# plotTALLToys
 ```
 
 ### With variable importance computation
@@ -518,9 +620,71 @@ levels(mbTALLToysImp$expr) <- c("RF", "ranger")
 ```{r}
 mbTALLToysImp
 save(mbTALLToysImp, file = "outputs/mbTALLToysImp.Rdata")
-mbplot(mbTALLToysImp)
+# plotTALLToysImp <- mbplot(mbTALLToysImp) + scale_fill_manual(values = viridis::viridis(4)[2:3])
+# plotTALLToysImp
 ```
 
+
+```{r}
+mbTALLToys$VI <- "no VI"
+mbTALLToysImp$VI <- "VI"
+mbTALLToysBoth <- rbind(mbTALLToys, mbTALLToysImp)
+TALLToysMBplot <- mbplot(mbTALLToysBoth)
+TALLToysMBplot <- TALLToysMBplot + facet_wrap(~VI) +
+  scale_fill_manual(values = viridis::viridis(4)[2:4])
+TALLToysMBplot
+```
+
+
+## $n = 10000, p = 1$
+
+```{r}
+TALLthinToys <- TALLToys
+TALLthinToys$x <- TALLToys$x[, 1]
+```
+
+```{r, eval=FALSE}
+mbTALLthinToys <- microbenchmark(
+  randomForest::randomForest(y ~ ., TALLthinToys, mtry = 1),
+  ranger::ranger(y ~ ., TALLthinToys, mtry = 1, num.threads = 1),
+  # Rborist::Rborist(subset(TALLthinToys, select = -y), TALLthinToys$y, predFixed = 1, minInfo = 0, nThread = 1),
+  times = 25)
+levels(mbTALLthinToys$expr) <- c("RF", "ranger", "Rborist")
+```
+
+```{r}
+mbTALLthinToys
+save(mbTALLthinToys, file = "outputs/mbTALLthinToys.Rdata")
+# plotTALLthinToys <- mbplot(mbTALLthinToys) + scale_fill_manual(values = viridis::viridis(4)[2:3])
+# plotTALLthinToys
+```
+
+### With variable importance computation
+
+```{r, eval=FALSE}
+mbTALLthinToysImp <- microbenchmark(
+  randomForest::randomForest(y ~ ., TALLthinToys, mtry = 1, importance = TRUE),
+  ranger::ranger(y ~ ., TALLthinToys, mtry = 1, num.threads = 1, importance = "permutation"),
+  times = 25)
+levels(mbTALLthinToysImp$expr) <- c("RF", "ranger")
+```
+
+```{r}
+mbTALLthinToysImp
+save(mbTALLthinToysImp, file = "outputs/mbTALLthinToysImp.Rdata")
+# plotTALLthinToysImp <- mbplot(mbTALLthinToysImp) + scale_fill_manual(values = viridis::viridis(4)[2:3])
+# plotTALLthinToysImp
+```
+
+```{r}
+mbTALLthinToys$VI <- "no VI"
+mbTALLthinToysImp$VI <- "VI"
+mbTALLthinToysBoth <- rbind(mbTALLthinToys, mbTALLthinToysImp)
+TALLthinToysMBplot <- mbplot(mbTALLthinToysBoth)
+TALLthinToysMBplot <- TALLthinToysMBplot + facet_wrap(~VI) +
+  scale_fill_manual(values = viridis::viridis(4)[2:4])
+TALLthinToysMBplot
+```
 
 
 ## $n = 100000, p = 10$
@@ -554,10 +718,13 @@ levels(mbTALL5Toys$expr) <- c("RF", "Rborist")
 ```{r}
 mbTALL5Toys
 save(mbTALL5Toys, file = "outputs/mbTALL5Toys.Rdata")
-mbplot(mbTALL5Toys)
+plotTALL5Toys <- mbplot(mbTALL5Toys) + scale_fill_manual(values = viridis::viridis(4)[c(2, 4)])
+plotTALL5Toys
 ```
 
 ### With variable importance computation
+
+**`ranger` ran on 10 cores in this example (too long otherwise).**
 
 ```{r, eval=FALSE}
 mbTALL5ToysImp <- microbenchmark(
@@ -570,45 +737,6 @@ levels(mbTALL5ToysImp$expr) <- c("RF", "ranger")
 ```{r}
 mbTALL5ToysImp
 save(mbTALL5ToysImp, file = "outputs/mbTALL5ToysImp.Rdata")
-mbplot(mbTALL5ToysImp)
-```
-
-
-
-## $n = 10000, p = 1$
-
-```{r}
-TALLthinToys <- TALLToys
-TALLthinToys$x <- TALLToys$x[, 1]
-```
-
-```{r, eval=FALSE}
-mbTALLthinToys <- microbenchmark(
-  randomForest::randomForest(y ~ ., TALLthinToys, mtry = 1),
-  ranger::ranger(y ~ ., TALLthinToys, mtry = 1, num.threads = 1),
-  Rborist::Rborist(subset(TALLthinToys, select = -y), TALLthinToys$y, predFixed = 1, minInfo = 0, nThread = 1),
-  times = 25)
-levels(mbTALLthinToys$expr) <- c("RF", "ranger", "Rborist")
-```
-
-```{r}
-mbTALLthinToys
-save(mbTALLthinToys, file = "outputs/mbTALLthinToys.Rdata")
-mbplot(mbTALLthinToys)
-```
-
-### With variable importance computation
-
-```{r, eval=FALSE}
-mbTALLthinToysImp <- microbenchmark(
-  randomForest::randomForest(y ~ ., TALLthinToys, mtry = 1, importance = TRUE),
-  ranger::ranger(y ~ ., TALLthinToys, mtry = 1, num.threads = 1, importance = "permutation"),
-  times = 25)
-levels(mbTALLthinToysImp$expr) <- c("RF", "ranger")
-```
-
-```{r}
-mbTALLthinToysImp
-save(mbTALLthinToysImp, file = "outputs/mbTALLthinToysImp.Rdata")
-mbplot(mbTALLthinToysImp)
+plotTALL5ToysImp <- mbplot(mbTALL5ToysImp) + scale_fill_manual(values = viridis::viridis(4)[2:3])
+plotTALL5ToysImp
 ```
