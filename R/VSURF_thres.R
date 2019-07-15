@@ -54,7 +54,7 @@
 #'
 #'  \item{comput.time}{Computation time.}
 #'
-#'  \item{RFimplementation}{The RF implementation used to run
+#'  \item{RFimplem}{The RF implementation used to run
 #'  \code{VSURF_thres}.}
 #'
 #'  \item{ncores}{The number of cores used to run \code{VSURF_thres} in parallel
@@ -108,7 +108,7 @@ VSURF_thres <- function (x, ...) {
 #' @export
 VSURF_thres.default <- function(
   x, y, ntree = 2000, mtry = max(floor(ncol(x) / 3), 1), nfor.thres = 50,
-  nmin = 1, RFimplementation = "randomForest", parallel = FALSE,
+  nmin = 1, RFimplem = "randomForest", parallel = FALSE,
   clusterType = "PSOCK", ncores = parallel::detectCores() - 1, ...) {
   
   # x: input
@@ -158,7 +158,9 @@ VSURF_thres.default <- function(
   # filling of matrix m by running nfor.thres forests and keeping VI
   # filling of perf with the nfor.thres forests OOB errors
   
-  if (RFimplementation == "randomForest") {
+  if (RFimplem == "Rborist") RFimplem <- "randomForest"
+  
+  if (RFimplem == "randomForest") {
     rf.classif <- function(i, ...) {
       rf <- randomForest::randomForest(x=x, y=y, ntree=ntree, mtry=mtry,
                                        importance=TRUE, ...)
@@ -175,7 +177,7 @@ VSURF_thres.default <- function(
       return(list(m=m, perf=perf))
     }
   }
-  if (RFimplementation == "ranger") {
+  if (RFimplem == "ranger") {
     rf.ranger <- function(i, ...) {
       rf <- ranger::ranger(dependent.variable.name = "y", data=dat,
                            num.trees=ntree, mtry=mtry, importance="permutation",
@@ -187,7 +189,7 @@ VSURF_thres.default <- function(
   }
   
   if (!parallel) {
-    if (RFimplementation == "randomForest") {
+    if (RFimplem == "randomForest") {
       if (type=="classif") {
         for (i in 1:nfor.thres){
           rf <- rf.classif(i, ...)
@@ -203,7 +205,7 @@ VSURF_thres.default <- function(
         }
       }
     }
-    if (RFimplementation == "ranger") {
+    if (RFimplem == "ranger") {
       for (i in 1:nfor.thres) {
         rf <- rf.ranger(i, num.threads = 1, ...)
         m[i,] <- rf$m
@@ -219,7 +221,7 @@ VSURF_thres.default <- function(
       }
     } else {
       if (clusterType=="FORK") {
-        if (RFimplementation == "randomForest") {
+        if (RFimplem == "randomForest") {
           if (type=="classif") {
             res <- parallel::mclapply(X=1:nfor.thres, FUN=rf.classif, ...,
                                       mc.cores=ncores)
@@ -229,14 +231,14 @@ VSURF_thres.default <- function(
                                       mc.cores=ncores)
           }
         }
-        if (RFimplementation == "ranger") {
+        if (RFimplem == "ranger") {
           res <- parallel::mclapply(X=1:nfor.thres, FUN=rf.ranger,
                                     num.threads = 1, ..., mc.cores=ncores)
         }
       } else {
         clust <- parallel::makeCluster(spec=ncores, type=clusterType)
         doParallel::registerDoParallel(clust)
-        if (RFimplementation == "randomForest") {
+        if (RFimplem == "randomForest") {
           if (type=="classif") {
             res <- foreach::foreach(i=1:nfor.thres, .packages="randomForest") %dopar% {
               out <- rf.classif(i, ...)
@@ -248,7 +250,7 @@ VSURF_thres.default <- function(
             }
           }
         }
-        if (RFimplementation == "ranger") {
+        if (RFimplem == "ranger") {
           res <- foreach::foreach(i=1:nfor.thres, .packages="ranger") %dopar% {
             out <- rf.ranger(i, num.threads = 1, ...)
           }
@@ -341,7 +343,7 @@ VSURF_thres.default <- function(
                  'pred.pruned.tree'=pred.pruned.tree,
                  'nmin' = nmin,
                  'comput.time'=comput.time,
-                 'RFimplementation'=RFimplementation,
+                 'RFimplem'=RFimplem,
                  'ncores'=ncores,
                  'clusterType'=clusterType,
                  'call'=cl)

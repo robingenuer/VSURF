@@ -10,8 +10,8 @@ VSURF_thres(x, ...)
 
 \method{VSURF_thres}{default}(x, y, ntree = 2000,
   mtry = max(floor(ncol(x)/3), 1), nfor.thres = 50, nmin = 1,
-  RFimplementation = "randomForest", parallel = FALSE,
-  clusterType = "PSOCK", ncores = parallel::detectCores() - 1, ...)
+  RFimplem = "randomForest", parallel = FALSE, clusterType = "PSOCK",
+  ncores = parallel::detectCores() - 1, ...)
 
 \method{VSURF_thres}{formula}(formula, data, ..., na.action = na.fail)
 }
@@ -35,6 +35,13 @@ Standard parameter of \code{randomForest}.}
 
 \item{nmin}{Number of times the "minimum value" is multiplied to set
 threshold value. See details below.}
+
+\item{RFimplem}{Choice of the random forests implementation to use :
+"randomForest" (default), "ranger" or "Rborist" (not that if "Rborist" is
+chosen, "randoForest" will still be used for the first step
+\code{VSURF_thres}). If a vector of length 3 is given, each coordinate is
+passed to each intermediate function: \code{VSURF_thres},
+\code{VSURF_interp}, \code{VSURF_pred}, in this order.}
 
 \item{parallel}{A logical indicating if you want VSURF to run in parallel on
 multiple cores (default to FALSE).}
@@ -93,7 +100,7 @@ An object of class \code{VSURF_thres}, which is a list with the
 
  \item{comput.time}{Computation time.}
 
- \item{RFimplementation}{The RF implementation used to run
+ \item{RFimplem}{The RF implementation used to run
  \code{VSURF_thres}.}
 
  \item{ncores}{The number of cores used to run \code{VSURF_thres} in parallel

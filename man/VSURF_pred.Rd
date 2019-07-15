@@ -10,7 +10,7 @@ VSURF_pred(x, ...)
 
 \method{VSURF_pred}{default}(x, y, ntree = 2000, err.interp,
   varselect.interp, nfor.pred = 25, nmj = 1,
-  RFimplementation = "randomForest", ...)
+  RFimplem = "randomForest", ...)
 
 \method{VSURF_pred}{formula}(formula, data, ..., na.action = na.fail)
 }
@@ -38,6 +38,13 @@ interpretation step.}
 
 \item{nmj}{Number of times the mean jump is multiplied. See details below.}
 
+\item{RFimplem}{Choice of the random forests implementation to use :
+"randomForest" (default), "ranger" or "Rborist" (not that if "Rborist" is
+chosen, "randoForest" will still be used for the first step
+\code{VSURF_thres}). If a vector of length 3 is given, each coordinate is
+passed to each intermediate function: \code{VSURF_thres},
+\code{VSURF_interp}, \code{VSURF_pred}, in this order.}
+
 \item{data}{a data frame containing the variables in the model.}
 
 \item{na.action}{A function to specify the action to be taken if NAs are
@@ -63,7 +70,7 @@ An object of class \code{VSURF_pred}, which is a list with the
 
   \item{comput.time}{Computation time.}
 
-  \item{RFimplementation}{The RF implementation used to run
+  \item{RFimplem}{The RF implementation used to run
   \code{VSURF_pred}.}
 
   \item{call}{The original call to \code{VSURF}.}

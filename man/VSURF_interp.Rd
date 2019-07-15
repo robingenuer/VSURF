@@ -9,7 +9,7 @@
 VSURF_interp(x, ...)
 
 \method{VSURF_interp}{default}(x, y, ntree = 2000, vars,
-  nfor.interp = 25, nsd = 1, RFimplementation = "randomForest",
+  nfor.interp = 25, nsd = 1, RFimplem = "randomForest",
   parallel = FALSE, ncores = detectCores() - 1,
   clusterType = "PSOCK", ...)
 
@@ -36,6 +36,13 @@ selected by thresholding step (see value \code{varselect.thres} of
 
 \item{nsd}{Number of times the standard deviation of the minimum value of
 \code{err.interp} is multiplied. See details below.}
+
+\item{RFimplem}{Choice of the random forests implementation to use :
+"randomForest" (default), "ranger" or "Rborist" (not that if "Rborist" is
+chosen, "randoForest" will still be used for the first step
+\code{VSURF_thres}). If a vector of length 3 is given, each coordinate is
+passed to each intermediate function: \code{VSURF_thres},
+\code{VSURF_interp}, \code{VSURF_pred}, in this order.}
 
 \item{parallel}{A logical indicating if you want VSURF to run in parallel on
 multiple cores (default to FALSE).}
@@ -82,7 +89,7 @@ An object of class \code{VSURF_interp}, which is a list with the
 
  \item{comput.time}{Computation time.}
 
- \item{RFimplementation}{The RF implementation used to run
+ \item{RFimplem}{The RF implementation used to run
  \code{VSURF_interp}.}
 
  \item{ncores}{The number of cores used to run \code{VSURF_interp} in

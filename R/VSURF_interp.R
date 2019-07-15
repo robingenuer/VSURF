@@ -48,7 +48,7 @@
 #'
 #'  \item{comput.time}{Computation time.}
 #'
-#'  \item{RFimplementation}{The RF implementation used to run
+#'  \item{RFimplem}{The RF implementation used to run
 #'  \code{VSURF_interp}.}
 #'
 #'  \item{ncores}{The number of cores used to run \code{VSURF_interp} in
@@ -103,7 +103,7 @@ VSURF_interp <- function (x, ...) {
 #' @export
 VSURF_interp.default <- function(
   x, y, ntree = 2000, vars, nfor.interp = 25, nsd = 1, 
-  RFimplementation = "randomForest", parallel = FALSE,
+  RFimplem = "randomForest", parallel = FALSE,
   ncores = detectCores()-1, clusterType = "PSOCK",  ...) {
   
   # vars: selected variables indices after thresholding step
@@ -139,7 +139,7 @@ VSURF_interp.default <- function(
   err.interp <- rep(NA, nvars)
   sd.interp <- rep(NA, nvars)
   
-  if (RFimplementation == "randomForest") {
+  if (RFimplem == "randomForest") {
     rf.interp.classif <- function(i, ...) {
       rf <- rep(NA, nfor.interp)
       u <- vars[1:i]
@@ -170,7 +170,7 @@ VSURF_interp.default <- function(
       out <- c(mean(rf), sd(rf))
     }
   }
-  if (RFimplementation == "ranger") {
+  if (RFimplem == "ranger") {
     rf.interp.ranger <- function(i, ...) {
       rf <- rep(NA, nfor.interp)
       u <- vars[1:i]
@@ -195,7 +195,7 @@ VSURF_interp.default <- function(
     }
   }
   
-  if (RFimplementation == "Rborist") {
+  if (RFimplem == "Rborist") {
     rf.interp.Rborist <- function(i, ...) {
       rf <- rep(NA, nfor.interp)
       u <- vars[1:i]
@@ -221,7 +221,7 @@ VSURF_interp.default <- function(
   }
   
   if (!parallel) {
-    if (RFimplementation == "randomForest") {
+    if (RFimplem == "randomForest") {
       if (type=="classif") {
         for (i in 1:nvars){
           res <- rf.interp.classif(i, ...)
@@ -237,14 +237,14 @@ VSURF_interp.default <- function(
         }
       }
     }
-    if (RFimplementation == "ranger") {
+    if (RFimplem == "ranger") {
       for (i in 1:nvars){
         res <- rf.interp.ranger(i, num.threads = 1, ...)
         err.interp[i] <- res[1]
         sd.interp[i] <- res[2]
       }
     }
-    if (RFimplementation == "Rborist") {
+    if (RFimplem == "Rborist") {
       for (i in 1:nvars){
         res <- rf.interp.Rborist(i, nThread = 1, ...)
         err.interp[i] <- res[1]
@@ -269,7 +269,7 @@ VSURF_interp.default <- function(
         ncores <- min(nvars, ncores)
         
         if (clusterType=="FORK") {
-          if (RFimplementation == "randomForest") {
+          if (RFimplem == "randomForest") {
             if (type=="classif") {
               res <- parallel::mclapply(X=1:nvars, FUN=rf.interp.classif, ...,
                                         mc.cores=ncores, mc.preschedule=FALSE)
@@ -279,12 +279,12 @@ VSURF_interp.default <- function(
                                         mc.cores=ncores, mc.preschedule=FALSE)
             }
           }
-          if (RFimplementation == "ranger") {
+          if (RFimplem == "ranger") {
             res <- parallel::mclapply(X=1:nvars, FUN=rf.interp.ranger,
                                       num.threads = 1, ...,
                                       mc.cores=ncores, mc.preschedule=FALSE)
           }
-          if (RFimplementation == "Rborist") {
+          if (RFimplem == "Rborist") {
             res <- parallel::mclapply(X=1:nvars, FUN=rf.interp.Rborist,
                                       nThread = 1, ...,
                                       mc.cores=ncores, mc.preschedule=FALSE)
@@ -294,7 +294,7 @@ VSURF_interp.default <- function(
           doParallel::registerDoParallel(clust)
           # i <- NULL #to avoid check NOTE...
           
-          if (RFimplementation == "randomForest") {
+          if (RFimplem == "randomForest") {
             if (type=="classif") {
               res <- foreach::foreach(i=1:nvars, .packages="randomForest") %dopar% {
                 out <- rf.interp.classif(i, ...)
@@ -306,12 +306,12 @@ VSURF_interp.default <- function(
               }
             }
           }
-          if (RFimplementation == "ranger") {
+          if (RFimplem == "ranger") {
             res <- foreach::foreach(i=1:nvars, .packages="ranger") %dopar% {
               out <- rf.interp.ranger(i, num.threads = 1, ...)
             }
           }
-          if (RFimplementation == "Rborist") {
+          if (RFimplem == "Rborist") {
             res <- foreach::foreach(i=1:nvars, .packages="Rborist") %dopar% {
               out <- rf.interp.Rborist(i, nThread = 1, ...)
             }
@@ -345,7 +345,7 @@ VSURF_interp.default <- function(
                  'varselect.thres' = vars,
                  'nsd' = nsd,
                  'comput.time'=comput.time,
-                 'RFimplementation'=RFimplementation,
+                 'RFimplem'=RFimplem,
                  'ncores'=ncores,
                  'clusterType'=clusterType,
                  'call'=cl)

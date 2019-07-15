@@ -48,7 +48,7 @@
 #'
 #'   \item{comput.time}{Computation time.}
 #'
-#'   \item{RFimplementation}{The RF implementation used to run
+#'   \item{RFimplem}{The RF implementation used to run
 #'   \code{VSURF_pred}.}
 #'
 #'   \item{call}{The original call to \code{VSURF}.}
@@ -97,7 +97,7 @@ VSURF_pred <- function (x, ...) {
 #' @export
 VSURF_pred.default <-function(x, y, ntree = 2000, err.interp, varselect.interp,
                               nfor.pred = 25, nmj = 1,
-                              RFimplementation = "randomForest", ...) {
+                              RFimplem = "randomForest", ...) {
   
   # err.interp: interpretation models errors
   # varselect.interp: interpretation variables indices
@@ -150,7 +150,7 @@ did not eliminate variables")
     w <- x[, u, drop=FALSE]
     rf <- rep(NA, nfor.pred)
     
-    if (RFimplementation == "randomForest") {
+    if (RFimplem == "randomForest") {
       if (type=="classif") {
         for (j in 1:nfor.pred) {
           rf[j] <- tail(randomForest::randomForest(x=w, y=y,
@@ -166,19 +166,19 @@ did not eliminate variables")
         err.pred <- mean(rf)
       }
     }
-    if (RFimplementation == "ranger") {
+    if (RFimplem == "ranger") {
       dat <- cbind(w, "y" = y)
       for (j in 1:nfor.pred) {
       rf[j] <- ranger::ranger(dependent.variable.name="y", data=dat,
                               num.trees=ntree,
-                              num.threads = 1, ...)$prediction.error
+                              ...)$prediction.error
       }
       err.pred <- mean(rf)
     }
-    if (RFimplementation == "Rborist") {
+    if (RFimplem == "Rborist") {
       for (j in 1:nfor.pred) {
         rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree, minInfo = 0,
-                                nThread = 1, ...)$validation$oobError
+                                  ...)$validation$oobError
       }
       err.pred <- mean(rf)
     }
@@ -189,7 +189,7 @@ did not eliminate variables")
         u <- c(varselect.pred, varselect.interp[i])
         w <- x[, u, drop=FALSE]
         rf <- rep(NA, nfor.pred)
-        if (RFimplementation == "randomForest") {
+        if (RFimplem == "randomForest") {
           if (type=="classif") {
             if (i <= n) {
               for (j in 1:nfor.pred) {
@@ -213,35 +213,32 @@ did not eliminate variables")
             z <- mean(rf)
           }
         }
-        if (RFimplementation == "ranger") {
+        if (RFimplem == "ranger") {
           dat <- cbind(w, "y" = y)
           if (i <= n) {
             for (j in 1:nfor.pred) {
               rf[j] <- ranger::ranger(dependent.variable.name="y", data=dat,
-                                      num.trees=ntree,
-                                      num.threads = 1, ...)$prediction.error
+                                      num.trees=ntree, ...)$prediction.error
             }
           } else {
             for (j in 1:nfor.pred) {
               rf[j] <- ranger::ranger(dependent.variable.name="y", data=dat,
                                       mtry=i/3, num.trees=ntree,
-                                      num.threads = 1, ...)$prediction.error
+                                      ...)$prediction.error
             }
           }
           z <- mean(rf)
         }
-        if (RFimplementation == "Rborist") {
+        if (RFimplem == "Rborist") {
           if (i <= n) {
             for (j in 1:nfor.pred) {
-              rf[j] <- Rborist::Rborist(x = x, y = y, nTree = ntree,
-                                        minInfo = 0, nThread = 1,
-                                        ...)$validation$oobError
+              rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree,
+                                        minInfo = 0, ...)$validation$oobError
             }
           } else {
             for (j in 1:nfor.pred) {
-              rf[j] <- Rborist::Rborist(x = x, y = y, nTree = ntree,
-                                        minInfo = 0, nThread = 1,
-                                        predFixed = i/3,
+              rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree,
+                                        minInfo = 0, predFixed = i/3,
                                         ...)$validation$oobError
             }
           }
@@ -267,7 +264,7 @@ did not eliminate variables")
                  'num.varselect.pred'=length(varselect.pred),
                  'nmj' = nmj,
                  'comput.time'=comput.time,
-                 'RFimplementation' = RFimplementation,
+                 'RFimplem' = RFimplem,
                  'call'=cl)
   class(output) <- c("VSURF_pred")
   output
