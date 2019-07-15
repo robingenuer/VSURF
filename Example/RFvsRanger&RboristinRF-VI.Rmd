@@ -1,7 +1,7 @@
 ---
 title: "Comparison of RF implementations with microbenchmark"
 author: "Robin Genuer"
-date: "4 july 2019"
+date: "15 july 2019"
 output: 
   html_document: 
     number_sections: yes
@@ -424,20 +424,17 @@ simu_toys <- function(n, p, q = 0.7) {
 ## $n = 1000, p = 10$
 
 ```{r}
-library(parallel)
-ncores <- 4
-
 set.seed(768895) 
 allseeds <- round(runif(4, 1e5, 1e6))
 
-alldata <- mclapply(1:ncores, function(ind) {
+alldata <- parallel::mclapply(1:ncores, function(ind) {
   set.seed(allseeds[ind])
   simu_toys(n = 1000 / ncores, p = 10)
 }, mc.cores=ncores)
 
 TallToys <- do.call("rbind", alldata)
 dim(TallToys)
-# save(TallToys, file = "data/TallToys.Rdata")
+save(TallToys, file = "data/TallToys.Rdata")
 
 mtryTallToys <- floor(sqrt(ncol(TallToys) - 1))
 ```
@@ -478,13 +475,10 @@ mbplot(mbTallToysImp)
 ## $n = 10000, p = 10$
 
 ```{r}
-library(parallel)
-ncores <- 4
-
 set.seed(768895) 
-allseeds <- round(runif(4, 1e5, 1e6))
+allseeds <- round(runif(ncores, 1e5, 1e6))
 
-alldata <- mclapply(1:ncores, function(ind) {
+alldata <- parallel::mclapply(1:ncores, function(ind) {
   set.seed(allseeds[ind])
   simu_toys(n = 10000 / ncores, p = 10)
 }, mc.cores=ncores)
@@ -532,13 +526,11 @@ mbplot(mbTALLToysImp)
 ## $n = 100000, p = 10$
 
 ```{r}
-library(parallel)
-ncores <- 4
+ncores <- 20
+set.seed(768895)
+allseeds <- round(runif(ncores, 1e5, 1e6))
 
-set.seed(768895) 
-allseeds <- round(runif(4, 1e5, 1e6))
-
-alldata <- mclapply(1:ncores, function(ind) {
+alldata <- parallel::mclapply(1:ncores, function(ind) {
   set.seed(allseeds[ind])
   simu_toys(n = 100000 / ncores, p = 10)
 }, mc.cores=ncores)
@@ -586,9 +578,6 @@ mbplot(mbTALL5ToysImp)
 ## $n = 10000, p = 1$
 
 ```{r}
-library(parallel)
-ncores <- 4
-
 TALLthinToys <- TALLToys
 TALLthinToys$x <- TALLToys$x[, 1]
 ```
