@@ -28,8 +28,8 @@ Imports:
     parallel,
     randomForest,
     ranger,
-    Rborist,
     rpart
 Suggests:
-    testthat
+    Rborist,
+    testthat,
 RoxygenNote: 6.1.1
