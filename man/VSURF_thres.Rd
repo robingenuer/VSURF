@@ -11,7 +11,7 @@ VSURF_thres(x, ...)
 \method{VSURF_thres}{default}(x, y, ntree = 2000,
   mtry = max(floor(ncol(x)/3), 1), nfor.thres = 50, nmin = 1,
   RFimplem = "randomForest", parallel = FALSE, clusterType = "PSOCK",
-  ncores = parallel::detectCores() - 1, ...)
+  ncores = parallel::detectCores() - 1, progressBar = TRUE, ...)
 
 \method{VSURF_thres}{formula}(formula, data, ..., na.action = na.fail)
 }
@@ -59,6 +59,9 @@ coordinate is passed to each intermediate function: \code{VSURF_thres},
 
 \item{ncores}{Number of cores to use. Default is set to the number of cores
 detected by R minus 1.}
+
+\item{progressBar}{A logical indicating if progress bars (one per step) must
+be plotted (default to TRUE).}
 
 \item{data}{a data frame containing the variables in the model.}
 

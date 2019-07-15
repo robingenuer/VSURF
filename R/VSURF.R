@@ -95,6 +95,8 @@
 #'   \code{VSURF_thres}). If a vector of length 2 is given, each
 #'   coordinate is passed to each intermediate function: \code{VSURF_thres},
 #'   \code{VSURF_interp}, in this order.
+#' @param progressBar A logical indicating if progress bars (one per step) must
+#' be plotted (default to TRUE).
 #' @param ...  others parameters to be passed on to the \code{randomForest}
 #'   function (see ?randomForest for further information).
 #' 

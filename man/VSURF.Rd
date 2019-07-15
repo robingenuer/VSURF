@@ -78,6 +78,9 @@ coordinate is passed to each intermediate function: \code{VSURF_thres},
 \item{na.action}{A function to specify the action to be taken if NAs are
 found.  (NOTE: If given, this argument must be named, and as
 \code{randomForest} it is only used with the formula-type call.)}
+
+\item{progressBar}{A logical indicating if progress bars (one per step) must
+be plotted (default to TRUE).}
 }
 \value{
 An object of class \code{VSURF}, which is a list with the following

@@ -109,7 +109,8 @@ VSURF_thres <- function (x, ...) {
 VSURF_thres.default <- function(
   x, y, ntree = 2000, mtry = max(floor(ncol(x) / 3), 1), nfor.thres = 50,
   nmin = 1, RFimplem = "randomForest", parallel = FALSE,
-  clusterType = "PSOCK", ncores = parallel::detectCores() - 1, ...) {
+  clusterType = "PSOCK", ncores = parallel::detectCores() - 1,
+  progressBar = TRUE, ...) {
   
   # x: input
   # y: output
@@ -155,6 +156,12 @@ VSURF_thres.default <- function(
   # must be uncommented
   #rfmem=list()
   
+  # initialization of the progress bar
+  if (progressBar == TRUE) {
+  pb <- txtProgressBar(style = 3)
+  nBar <- 1
+  }
+  
   # filling of matrix m by running nfor.thres forests and keeping VI
   # filling of perf with the nfor.thres forests OOB errors
   
@@ -195,6 +202,10 @@ VSURF_thres.default <- function(
           rf <- rf.classif(i, ...)
           m[i,] <- rf$m
           perf[i] <- rf$perf
+          if (progressBar == TRUE) {
+            setTxtProgressBar(pb, nBar/nfor.thres)
+            nBar <- nBar + 1
+          }
         }
       }
       if (type=="reg") {
@@ -202,6 +213,10 @@ VSURF_thres.default <- function(
           rf <- rf.reg(i, ...)
           m[i,] <- rf$m
           perf[i] <- rf$perf
+          if (progressBar == TRUE) {
+            setTxtProgressBar(pb, nBar/nfor.thres)
+            nBar <- nBar + 1
+          }
         }
       }
     }
@@ -210,6 +225,10 @@ VSURF_thres.default <- function(
         rf <- rf.ranger(i, num.threads = 1, ...)
         m[i,] <- rf$m
         perf[i] <- rf$perf
+        if (progressBar == TRUE) {
+          setTxtProgressBar(pb, nBar/nfor.thres)
+          nBar <- nBar + 1
+        }
       }
     }
   } else {
@@ -218,6 +237,10 @@ VSURF_thres.default <- function(
         rf <- rf.ranger(i, num.threads = ncores, ...)
         m[i,] <- rf$m
         perf[i] <- rf$perf
+        if (progressBar == TRUE) {
+          setTxtProgressBar(pb, nBar/nfor.thres)
+          nBar <- nBar + 1
+        }
       }
     } else {
       if (clusterType=="FORK") {

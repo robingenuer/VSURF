@@ -196,7 +196,7 @@ spamRbInterpParaRb$comput.time
 ## Prediction step
 
 ```{r, eval=FALSE}
-spamPred <- VSURF_pred(type~., spamApp, err.interp = spamInterp$err.interp, varselect.interp = spamInterp$varselect.interp, parallel = TRUE, ncores = ncores, clusterType = "FORK")
+spamPred <- VSURF_pred(type~., spamApp, err.interp = spamInterp$err.interp, varselect.interp = spamInterp$varselect.interp)
 save(spamPred, file = "outputs/spamPred.Rdata")
 ```
 
@@ -227,12 +227,12 @@ spamRbPred <- VSURF_pred(type~., spamApp, err.interp = spamInterp$err.interp, va
 save(spamRbPred, file = "outputs/spamRbPred.Rdata")
 ```
 
-```{r, eval=FALSE}
+```{r}
 spamRbPred$comput.time
 ```
 
 ```{r, eval=FALSE}
-spamRbPredParaRb <- VSURF_pred(type~., spamApp, err.interp = spamInterp$err.interp, varselect.interp = spamInterp$varselect.interp, RFimplem = "Rborist", nThread = 5)
+spamRbPredParaRb <- VSURF_pred(type~., spamApp, err.interp = spamInterp$err.interp, varselect.interp = spamInterp$varselect.interp, RFimplem = "Rborist", nThread = ncores)
 save(spamRbPredParaRb, file = "outputs/spamRbPredParaRb.Rdata")
 ```
 
