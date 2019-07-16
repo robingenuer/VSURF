@@ -123,7 +123,6 @@ VSURF_thres.default <- function(
   if (verbose == TRUE) cat(paste("Thresholding step\n"))
   
   if (!parallel) {
-    clusterType <- NULL
     ncores <- NULL
   } else {
     ncores <- min(nfor.thres, ncores)
@@ -162,6 +161,7 @@ VSURF_thres.default <- function(
   # filling of perf with the nfor.thres forests OOB errors
   
   if (RFimplem == "Rborist") RFimplem <- "randomForest"
+  if (clusterType == "Rborist") clusterType <- "PSOCK"
   
   if (RFimplem == "randomForest") {
     rf.classif <- function(i, ...) {
@@ -208,7 +208,7 @@ VSURF_thres.default <- function(
   }
   
   # initialization of the progress bar
-  if (verbose == TRUE & parallel == FALSE) {
+  if (verbose == TRUE & (parallel == FALSE | clusterType == "ranger")) {
     pb <- utils::txtProgressBar(style = 3)
     nBar <- 1
   }
@@ -251,6 +251,7 @@ VSURF_thres.default <- function(
     }
   } else {
     if (clusterType == "ranger") {
+      if (RFimplem != "ranger") stop("RFimplem must be set to 'ranger' to use clusterType 'ranger'")
       for (i in 1:nfor.thres) {
         rf <- rf.ranger(i, num.threads = ncores, ...)
         m[i,] <- rf$m
@@ -370,6 +371,8 @@ VSURF_thres.default <- function(
   
   cl <- match.call()
   cl[[1]] <- as.name("VSURF_thres")
+  
+  if (!parallel) clusterType <- NULL
   
   comput.time <- Sys.time()-start
   

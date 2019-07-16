@@ -117,7 +117,6 @@ VSURF_interp.default <- function(
   if (verbose == TRUE) cat(paste("\nInterpretation step (on", length(vars), "variables)\n"))
   
   if (!parallel) {
-    clusterType <- NULL
     ncores <- NULL
   }  
   
@@ -247,7 +246,7 @@ VSURF_interp.default <- function(
   }
   
   # initialization of the progress bar
-  if (verbose == TRUE & parallel == FALSE) {
+  if (verbose == TRUE & (parallel == FALSE | clusterType %in% c("ranger", "Rborist"))) {
     pb <- utils::txtProgressBar(style = 3)
     nBar <- 1
   }
@@ -301,6 +300,7 @@ VSURF_interp.default <- function(
     }
   } else {
     if (clusterType == "ranger") {
+      if (RFimplem != "ranger") stop("RFimplem must be set to 'ranger' to use clusterType 'ranger'")
       for (i in 1:nvars){
         res <- rf.interp.ranger(i, nfor.interp, num.threads = ncores, ...)
         err.interp[i] <- res[1]
@@ -312,6 +312,7 @@ VSURF_interp.default <- function(
       }
     } else {
       if (clusterType == "Rborist") {
+        if (RFimplem != "Rborist") stop("RFimplem must be set to 'Rborist' to use clusterType 'Rborist'")
         for (i in 1:nvars){
           res <- rf.interp.Rborist(i, nfor.interp, nThread = ncores, ...)
           err.interp[i] <- res[1]
@@ -395,6 +396,8 @@ VSURF_interp.default <- function(
   
   cl <- match.call()
   cl[[1]] <- as.name("VSURF_interp")
+  
+  if (!parallel) clusterType <- NULL
   
   comput.time <- Sys.time()-start
   

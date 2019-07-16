@@ -45,7 +45,9 @@ passed to each intermediate function: \code{VSURF_thres},
 \code{VSURF_interp}, \code{VSURF_pred}, in this order.}
 
 \item{parallel}{A logical indicating if you want VSURF to run in parallel on
-multiple cores (default to FALSE).}
+multiple cores (default to FALSE). If a vector of length 3 is given,
+each coordinate is passed to each intermediate function: \code{VSURF_thres},
+\code{VSURF_interp}, \code{VSURF_pred}, in this order.}
 
 \item{ncores}{Number of cores to use. Default is set to the number of cores
 detected by R minus 1.}
@@ -62,7 +64,8 @@ coordinate is passed to each intermediate function: \code{VSURF_thres},
 \code{VSURF_interp}, in this order.}
 
 \item{verbose}{A logical indicating if information about method's progress
-(included progress bars for each step) must be printed (default to TRUE).}
+(included progress bars for each step) must be printed (default to TRUE).
+Adds a small extra overload.}
 
 \item{data}{a data frame containing the variables in the model.}
 

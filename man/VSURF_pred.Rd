@@ -10,7 +10,8 @@ VSURF_pred(x, ...)
 
 \method{VSURF_pred}{default}(x, y, ntree = 2000, err.interp,
   varselect.interp, nfor.pred = 25, nmj = 1,
-  RFimplem = "randomForest", verbose = TRUE, ...)
+  RFimplem = "randomForest", parallel = FALSE, ncores = detectCores()
+  - 1, verbose = TRUE, ...)
 
 \method{VSURF_pred}{formula}(formula, data, ..., na.action = na.fail)
 }
@@ -45,8 +46,17 @@ chosen, "randoForest" will still be used for the first step
 passed to each intermediate function: \code{VSURF_thres},
 \code{VSURF_interp}, \code{VSURF_pred}, in this order.}
 
+\item{parallel}{A logical indicating if you want VSURF to run in parallel on
+multiple cores (default to FALSE). If a vector of length 3 is given,
+each coordinate is passed to each intermediate function: \code{VSURF_thres},
+\code{VSURF_interp}, \code{VSURF_pred}, in this order.}
+
+\item{ncores}{Number of cores to use. Default is set to the number of cores
+detected by R minus 1.}
+
 \item{verbose}{A logical indicating if information about method's progress
-(included progress bars for each step) must be printed (default to TRUE).}
+(included progress bars for each step) must be printed (default to TRUE).
+Adds a small extra overload.}
 
 \item{data}{a data frame containing the variables in the model.}
 

@@ -82,7 +82,9 @@
 #'   passed to each intermediate function: \code{VSURF_thres},
 #'   \code{VSURF_interp}, \code{VSURF_pred}, in this order.
 #' @param parallel A logical indicating if you want VSURF to run in parallel on
-#'   multiple cores (default to FALSE).
+#'   multiple cores (default to FALSE). If a vector of length 3 is given,
+#'   each coordinate is passed to each intermediate function: \code{VSURF_thres},
+#'   \code{VSURF_interp}, \code{VSURF_pred}, in this order.
 #' @param ncores Number of cores to use. Default is set to the number of cores
 #'   detected by R minus 1.
 #' @param clusterType Type of the multiple cores cluster used to run VSURF in
@@ -97,6 +99,7 @@
 #'   \code{VSURF_interp}, in this order.
 #' @param verbose A logical indicating if information about method's progress
 #' (included progress bars for each step) must be printed (default to TRUE).
+#' Adds a small extra overload.
 #' @param ...  others parameters to be passed on to the \code{randomForest}
 #'   function (see ?randomForest for further information).
 #' 
@@ -215,39 +218,39 @@ VSURF <- function (x, ...) {
 VSURF.default <- function(
   x, y, ntree = 2000, mtry = max(floor(ncol(x)/3), 1),
   nfor.thres = 50, nmin = 1, nfor.interp = 25, nsd = 1, nfor.pred = 25, nmj = 1,
-  RFimplem = "randomForest", parallel = FALSE,
-  ncores = detectCores() - 1, clusterType = "PSOCK", verbose = TRUE, ...) {
+  RFimplem = "randomForest", parallel = FALSE, ncores = detectCores() - 1,
+  clusterType = "PSOCK", verbose = TRUE, ...) {
 
   start <- Sys.time()
-  
-  if (!parallel) {
-    clusterType <- NULL
-    ncores <- NULL
-  }
   
   thres <- VSURF_thres(
     x=x, y=y, ntree=ntree, mtry=mtry, nfor.thres=nfor.thres, nmin=nmin,
     RFimplem = ifelse(length(RFimplem) == 3, RFimplem[1], RFimplem),
-    parallel=parallel,
-    clusterType = ifelse(length(clusterType) == 2, clusterType[1], clusterType),
+    parallel = ifelse(length(parallel) == 3, parallel[1], parallel),
+    clusterType = ifelse(length(clusterType) > 1, clusterType[1], clusterType),
     ncores=ncores, verbose = verbose, ...)
   
   interp <- VSURF_interp(
     x=x, y=y, ntree=ntree, vars=thres$varselect.thres, nfor.interp=nfor.interp,
     nsd=nsd, RFimplem = ifelse(length(RFimplem) == 3, RFimplem[2], RFimplem),
-    parallel=parallel,
-    clusterType = ifelse(length(clusterType) == 2, clusterType[2], clusterType),
+    parallel = ifelse(length(parallel) == 3, parallel[2], parallel),
+    clusterType = ifelse(length(clusterType) > 1, clusterType[2], clusterType),
     ncores=ncores, verbose = verbose, ...)
   
   pred <- VSURF_pred(x=x, y=y, ntree=ntree, err.interp=interp$err.interp,
     varselect.interp=interp$varselect.interp, nfor.pred=nfor.pred, nmj=nmj,
     RFimplem = ifelse(length(RFimplem) == 3, RFimplem[3], RFimplem),
-    verbose = verbose,...)
+    parallel = ifelse(length(parallel) == 3, parallel[3], parallel),
+    ncores = ncores, verbose = verbose, ...)
   
   cl <- match.call()
   cl[[1]] <- as.name("VSURF")
   
-  overall.time <- Sys.time()-start
+  if (identical(parallel, FALSE) | identical(parallel, rep(FALSE, 3))) {
+    clusterType <- NULL
+    ncores <- NULL
+  }
+  overall.time <- Sys.time() - start
   
   output <- list('varselect.thres'=thres$varselect.thres,
                  'varselect.interp'=interp$varselect.interp,
