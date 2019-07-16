@@ -26,10 +26,10 @@ Imports:
     doParallel,
     foreach,
     parallel,
+    Rborist,
     randomForest,
     ranger,
     rpart
 Suggests:
-    Rborist,
     testthat,
 RoxygenNote: 6.1.1

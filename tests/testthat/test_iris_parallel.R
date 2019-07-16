@@ -5,7 +5,8 @@ if (identical(Sys.getenv("NOT_CRAN"), "true")) {
   data(iris)
   iris.vsurf <- VSURF(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20,
                       nfor.interp = 10, nfor.pred = 10,
-                      parallel = TRUE, ncores = 2, clusterType = "FORK")
+                      parallel = TRUE, ncores = 2, clusterType = "FORK",
+                      verbose = FALSE)
 }
 
 test_that("Selected variables for the 3 steps", {

@@ -10,7 +10,7 @@ VSURF_pred(x, ...)
 
 \method{VSURF_pred}{default}(x, y, ntree = 2000, err.interp,
   varselect.interp, nfor.pred = 25, nmj = 1,
-  RFimplem = "randomForest", ...)
+  RFimplem = "randomForest", verbose = TRUE, ...)
 
 \method{VSURF_pred}{formula}(formula, data, ..., na.action = na.fail)
 }
@@ -44,6 +44,9 @@ chosen, "randoForest" will still be used for the first step
 \code{VSURF_thres}). If a vector of length 3 is given, each coordinate is
 passed to each intermediate function: \code{VSURF_thres},
 \code{VSURF_interp}, \code{VSURF_pred}, in this order.}
+
+\item{verbose}{A logical indicating if information about method's progress
+(included progress bars for each step) must be printed (default to TRUE).}
 
 \item{data}{a data frame containing the variables in the model.}
 

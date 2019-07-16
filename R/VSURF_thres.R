@@ -110,7 +110,7 @@ VSURF_thres.default <- function(
   x, y, ntree = 2000, mtry = max(floor(ncol(x) / 3), 1), nfor.thres = 50,
   nmin = 1, RFimplem = "randomForest", parallel = FALSE,
   clusterType = "PSOCK", ncores = parallel::detectCores() - 1,
-  progressBar = TRUE, ...) {
+  verbose = TRUE,...) {
   
   # x: input
   # y: output
@@ -119,6 +119,8 @@ VSURF_thres.default <- function(
   # this value can be increased, e.g. to 3 or 5)
   
   start <- Sys.time()
+  
+  if (verbose == TRUE) cat(paste("Thresholding step\n"))
   
   if (!parallel) {
     clusterType <- NULL
@@ -156,12 +158,6 @@ VSURF_thres.default <- function(
   # must be uncommented
   #rfmem=list()
   
-  # initialization of the progress bar
-  if (progressBar == TRUE) {
-  pb <- txtProgressBar(style = 3)
-  nBar <- 1
-  }
-  
   # filling of matrix m by running nfor.thres forests and keeping VI
   # filling of perf with the nfor.thres forests OOB errors
   
@@ -195,6 +191,28 @@ VSURF_thres.default <- function(
     }
   }
   
+  if (verbose == TRUE) {
+    if (RFimplem == "randomForest") {
+      if (type=="classif") {
+        timeOneRF <- system.time(rf.classif(1, ...))
+      }
+      if (type=="reg") {
+        timeOneRF <- system.time(rf.reg(1, ...))
+      }
+    }
+    if (RFimplem == "ranger") {
+      timeOneRF <- system.time(rf.ranger(i, num.threads = 1, ...))
+    }
+    cat(paste("Estimated computational time (on one core):",
+              round(nfor.thres * timeOneRF[3], 1), "sec.\n"))
+  }
+  
+  # initialization of the progress bar
+  if (verbose == TRUE & parallel == FALSE) {
+    pb <- utils::txtProgressBar(style = 3)
+    nBar <- 1
+  }
+  
   if (!parallel) {
     if (RFimplem == "randomForest") {
       if (type=="classif") {
@@ -202,8 +220,8 @@ VSURF_thres.default <- function(
           rf <- rf.classif(i, ...)
           m[i,] <- rf$m
           perf[i] <- rf$perf
-          if (progressBar == TRUE) {
-            setTxtProgressBar(pb, nBar/nfor.thres)
+          if (verbose == TRUE) {
+            utils::setTxtProgressBar(pb, nBar/nfor.thres)
             nBar <- nBar + 1
           }
         }
@@ -213,8 +231,8 @@ VSURF_thres.default <- function(
           rf <- rf.reg(i, ...)
           m[i,] <- rf$m
           perf[i] <- rf$perf
-          if (progressBar == TRUE) {
-            setTxtProgressBar(pb, nBar/nfor.thres)
+          if (verbose == TRUE) {
+            utils::setTxtProgressBar(pb, nBar/nfor.thres)
             nBar <- nBar + 1
           }
         }
@@ -225,8 +243,8 @@ VSURF_thres.default <- function(
         rf <- rf.ranger(i, num.threads = 1, ...)
         m[i,] <- rf$m
         perf[i] <- rf$perf
-        if (progressBar == TRUE) {
-          setTxtProgressBar(pb, nBar/nfor.thres)
+        if (verbose == TRUE) {
+          utils::setTxtProgressBar(pb, nBar/nfor.thres)
           nBar <- nBar + 1
         }
       }
@@ -237,8 +255,8 @@ VSURF_thres.default <- function(
         rf <- rf.ranger(i, num.threads = ncores, ...)
         m[i,] <- rf$m
         perf[i] <- rf$perf
-        if (progressBar == TRUE) {
-          setTxtProgressBar(pb, nBar/nfor.thres)
+        if (verbose == TRUE) {
+          utils::setTxtProgressBar(pb, nBar/nfor.thres)
           nBar <- nBar + 1
         }
       }

@@ -11,7 +11,7 @@ VSURF_interp(x, ...)
 \method{VSURF_interp}{default}(x, y, ntree = 2000, vars,
   nfor.interp = 25, nsd = 1, RFimplem = "randomForest",
   parallel = FALSE, ncores = detectCores() - 1,
-  clusterType = "PSOCK", ...)
+  clusterType = "PSOCK", verbose = TRUE, ...)
 
 \method{VSURF_interp}{formula}(formula, data, ..., na.action = na.fail)
 }
@@ -60,6 +60,9 @@ chosen, "SOCKET" will still be used for the first step
 \code{VSURF_thres}). If a vector of length 2 is given, each
 coordinate is passed to each intermediate function: \code{VSURF_thres},
 \code{VSURF_interp}, in this order.}
+
+\item{verbose}{A logical indicating if information about method's progress
+(included progress bars for each step) must be printed (default to TRUE).}
 
 \item{data}{a data frame containing the variables in the model.}
 

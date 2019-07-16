@@ -95,8 +95,8 @@
 #'   \code{VSURF_thres}). If a vector of length 2 is given, each
 #'   coordinate is passed to each intermediate function: \code{VSURF_thres},
 #'   \code{VSURF_interp}, in this order.
-#' @param progressBar A logical indicating if progress bars (one per step) must
-#' be plotted (default to TRUE).
+#' @param verbose A logical indicating if information about method's progress
+#' (included progress bars for each step) must be printed (default to TRUE).
 #' @param ...  others parameters to be passed on to the \code{randomForest}
 #'   function (see ?randomForest for further information).
 #' 
@@ -216,7 +216,7 @@ VSURF.default <- function(
   x, y, ntree = 2000, mtry = max(floor(ncol(x)/3), 1),
   nfor.thres = 50, nmin = 1, nfor.interp = 25, nsd = 1, nfor.pred = 25, nmj = 1,
   RFimplem = "randomForest", parallel = FALSE,
-  ncores = detectCores() - 1, clusterType = "PSOCK", ...) {
+  ncores = detectCores() - 1, clusterType = "PSOCK", verbose = TRUE, ...) {
 
   start <- Sys.time()
   
@@ -230,18 +230,19 @@ VSURF.default <- function(
     RFimplem = ifelse(length(RFimplem) == 3, RFimplem[1], RFimplem),
     parallel=parallel,
     clusterType = ifelse(length(clusterType) == 2, clusterType[1], clusterType),
-    ncores=ncores, ...)
+    ncores=ncores, verbose = verbose, ...)
   
   interp <- VSURF_interp(
     x=x, y=y, ntree=ntree, vars=thres$varselect.thres, nfor.interp=nfor.interp,
     nsd=nsd, RFimplem = ifelse(length(RFimplem) == 3, RFimplem[2], RFimplem),
     parallel=parallel,
     clusterType = ifelse(length(clusterType) == 2, clusterType[2], clusterType),
-    ncores=ncores, ...)
+    ncores=ncores, verbose = verbose, ...)
   
   pred <- VSURF_pred(x=x, y=y, ntree=ntree, err.interp=interp$err.interp,
     varselect.interp=interp$varselect.interp, nfor.pred=nfor.pred, nmj=nmj,
-    RFimplem = ifelse(length(RFimplem) == 3, RFimplem[3], RFimplem), ...)
+    RFimplem = ifelse(length(RFimplem) == 3, RFimplem[3], RFimplem),
+    verbose = verbose,...)
   
   cl <- match.call()
   cl[[1]] <- as.name("VSURF")

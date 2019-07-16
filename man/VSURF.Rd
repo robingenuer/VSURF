@@ -12,7 +12,7 @@ VSURF(x, ...)
   mtry = max(floor(ncol(x)/3), 1), nfor.thres = 50, nmin = 1,
   nfor.interp = 25, nsd = 1, nfor.pred = 25, nmj = 1,
   RFimplem = "randomForest", parallel = FALSE, ncores = detectCores()
-  - 1, clusterType = "PSOCK", ...)
+  - 1, clusterType = "PSOCK", verbose = TRUE, ...)
 
 \method{VSURF}{formula}(formula, data, ..., na.action = na.fail)
 }
@@ -73,14 +73,14 @@ chosen, "SOCKET" will still be used for the first step
 coordinate is passed to each intermediate function: \code{VSURF_thres},
 \code{VSURF_interp}, in this order.}
 
+\item{verbose}{A logical indicating if information about method's progress
+(included progress bars for each step) must be printed (default to TRUE).}
+
 \item{data}{a data frame containing the variables in the model.}
 
 \item{na.action}{A function to specify the action to be taken if NAs are
 found.  (NOTE: If given, this argument must be named, and as
 \code{randomForest} it is only used with the formula-type call.)}
-
-\item{progressBar}{A logical indicating if progress bars (one per step) must
-be plotted (default to TRUE).}
 }
 \value{
 An object of class \code{VSURF}, which is a list with the following

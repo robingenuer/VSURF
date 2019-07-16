@@ -96,8 +96,7 @@ VSURF_pred <- function (x, ...) {
 #' @rdname VSURF_pred
 #' @export
 VSURF_pred.default <-function(x, y, ntree = 2000, err.interp, varselect.interp,
-                              nfor.pred = 25, nmj = 1,
-                              RFimplem = "randomForest", ...) {
+  nfor.pred = 25, nmj = 1, RFimplem = "randomForest", verbose = TRUE, ...) {
   
   # err.interp: interpretation models errors
   # varselect.interp: interpretation variables indices
@@ -105,6 +104,9 @@ VSURF_pred.default <-function(x, y, ntree = 2000, err.interp, varselect.interp,
   # reduction of at least nmj * mean jump value
   
   start <- Sys.time()
+  
+  if (verbose == TRUE) cat(paste("\nPrediction step (on", length(varselect.interp),
+  "variables)\n"))
   
   # determinination the problem type: classification or regression
   # (code gratefully stolen from randomForest.default function of
@@ -122,6 +124,32 @@ VSURF_pred.default <-function(x, y, ntree = 2000, err.interp, varselect.interp,
   }
   else {
     type <- "reg"
+  }
+  
+  if (verbose == TRUE) {
+    if (RFimplem == "randomForest") {
+      timeOneRFAllVar <- system.time(
+        randomForest::randomForest(x = x[, varselect.interp, drop=FALSE], y = y, ...))
+    }
+    if (RFimplem == "ranger") {
+      timeOneRFAllVar <- system.time(
+        ranger(dependent.variable.name="y",
+               data = cbind(x[, varselect.interp, drop=FALSE], "y" = y),
+               num.trees = ntree, num.threads = 1, ...))
+    }
+    if (RFimplem == "Rborist") {
+      timeOneRFAllVar <- system.time(
+        Rborist(x = x[, varselect.interp, drop=FALSE], y = y, minInfo = 0,
+                nTree = ntree, nThread = 1, ...))
+    }
+    cat(paste("Maximum estimated computational time (on one core):",
+              round(length(varselect.interp) * nfor.pred * timeOneRFAllVar[3], 1), "sec.\n"))
+  }
+  
+  # initialization of the progress bar
+  if (verbose == TRUE) {
+    pb <- utils::txtProgressBar(style = 3)
+    nBar <- 1
   }
   
   k <- length(err.interp)
@@ -183,6 +211,11 @@ did not eliminate variables")
       err.pred <- mean(rf)
     }
     t <- err.pred
+    
+    if (verbose == TRUE) {
+      utils::setTxtProgressBar(pb, nBar/l)
+      nBar <- nBar + 1
+    }
     
     if (l>1) {
       for (i in 2:l){
@@ -248,6 +281,10 @@ did not eliminate variables")
           varselect.pred <- c(varselect.pred, varselect.interp[i])
           err.pred <- c(err.pred, z)
           t <- z
+        }
+        if (verbose == TRUE) {
+          utils::setTxtProgressBar(pb, nBar/l)
+          nBar <- nBar + 1
         }
       }
     }
