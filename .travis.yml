@@ -1,3 +1,9 @@
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+
+language: R
+sudo: false
+cache: packages
+
 #!/bin/bash
 
 ## Travis can let us run R 3.4.0 (from CRAN and the PPAs) but this R version
@@ -15,10 +21,3 @@ if [[ "${CI}" == "true" ]]; then
         sed -i 's|CXX_STD = CXX14||' src/Makevars
     fi
 fi
-
-# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
-
-language: R
-sudo: false
-cache: packages
-
