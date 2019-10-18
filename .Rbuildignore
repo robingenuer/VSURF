@@ -11,3 +11,5 @@
 ^microbenchmark\.html$
 ^microbenchmark_cache/$
 ^microbenchmark_files/$
+^CRAN-RELEASE$
+^revdep$

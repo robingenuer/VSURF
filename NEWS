@@ -1,8 +1,16 @@
 News about the R package VSURF:
 --------------------------------
 
-Main changes in Version
-* 
+Main changes in Version 1.1.0 (2019-07-17)
+* add RFimplem parameter which allows to choose between randomForest,
+ranger and Rborist to compute random forests predictors. This can
+be a vector of length 3 to chosse a different implementation for
+each step of VSURF()
+* update of the parallel and clusterType parameters to also give the
+possibility to choose which step to perform in parallel with a
+clusterType per step
+* add progress bars and information of the progress of the algorithm,
+and also an estimated computational time for each step
 
 
 Main changes in Version 1.0.4 (2018-04-09)
