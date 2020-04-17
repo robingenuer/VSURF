@@ -10,7 +10,8 @@
 \alias{jus}
 \alias{rep}
 \title{Real-world data on PM10 pollution in Rouen area, France}
-\format{Each object is a data frame.
+\format{
+Each object is a data frame.
 
   The description of the 18 variables is the following (note that for
   \code{gcm} station, only the pollutant SO2 is available in addition to
@@ -31,7 +32,20 @@
   humidity, in \%}
   \item{PA.moy}{Daily mean air pressure, in hPa}
   \item{GTrouen, GTlehavre}{Daily temperature gradient, in degree Celsius}
-}}
+}
+
+An object of class \code{data.frame} with 1096 rows and 15 columns.
+
+An object of class \code{data.frame} with 1096 rows and 16 columns.
+
+An object of class \code{data.frame} with 1096 rows and 18 columns.
+
+An object of class \code{data.frame} with 1096 rows and 18 columns.
+
+An object of class \code{data.frame} with 1096 rows and 18 columns.
+
+An object of class \code{data.frame} with 1096 rows and 18 columns.
+}
 \source{
 F.-X. Jollois, J.-M. Poggi, B. Portier, \emph{Three non-linear
   statistical methods to analyze PM10 pollution in Rouen area}. CSBIGS 3(1):

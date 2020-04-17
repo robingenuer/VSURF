@@ -44,7 +44,7 @@ iris.vsurf <- VSURF(iris[iris.learn, 1:4], iris[iris.learn, 5], ntree = 100, nfo
                     nfor.interp = 10, nfor.pred = 10)
 iris.predictions <- predict(iris.vsurf, newdata = iris[-iris.learn, 1:4])
 
-# A more interesting example with toys data (see \\code{\\link{toys}})
+# A more interesting example with toys data (see \code{\link{toys}})
 # (a few minutes to execute)
 data(toys)
 toys.learn <- 1:(nrow(toys$x) / 2)

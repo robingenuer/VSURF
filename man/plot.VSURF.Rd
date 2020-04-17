@@ -7,22 +7,32 @@
 \alias{plot.VSURF_pred}
 \title{Plot of VSURF results}
 \usage{
-\method{plot}{VSURF}(x, step = "all", var.names = FALSE,
-  imp.mean = TRUE, imp.sd = TRUE,
+\method{plot}{VSURF}(
+  x,
+  step = "all",
+  var.names = FALSE,
+  imp.mean = TRUE,
+  imp.sd = TRUE,
   nvar.imp.mean = length(x$imp.mean.dec),
   nvar.imp.sd = length(x$imp.sd.dec),
   nvar.interp = length(x$varselect.thres),
-  nvar.pred = length(x$varselect.pred), ...)
+  nvar.pred = length(x$varselect.pred),
+  ...
+)
 
-\method{plot}{VSURF_thres}(x, var.names = FALSE, imp.mean = TRUE,
-  imp.sd = TRUE, nvar.imp.mean = length(x$imp.mean.dec),
-  nvar.imp.sd = length(x$imp.sd.dec), ...)
+\method{plot}{VSURF_thres}(
+  x,
+  var.names = FALSE,
+  imp.mean = TRUE,
+  imp.sd = TRUE,
+  nvar.imp.mean = length(x$imp.mean.dec),
+  nvar.imp.sd = length(x$imp.sd.dec),
+  ...
+)
 
-\method{plot}{VSURF_interp}(x, var.names = FALSE,
-  nvar.interp = length(x$varselect.thres), ...)
+\method{plot}{VSURF_interp}(x, var.names = FALSE, nvar.interp = length(x$varselect.thres), ...)
 
-\method{plot}{VSURF_pred}(x, var.names = FALSE,
-  nvar.pred = length(x$varselect.pred), ...)
+\method{plot}{VSURF_pred}(x, var.names = FALSE, nvar.pred = length(x$varselect.pred), ...)
 }
 \arguments{
 \item{x}{An object of class \code{VSURF}, \code{VSURF_thres},
@@ -89,7 +99,7 @@ plot(iris.vsurf)
 plot(iris.vsurf, var.names=TRUE)
 plot(iris.vsurf, step="thres")
 
-# A more interesting example with toys data (see \\code{\\link{toys}})
+# A more interesting example with toys data (see \code{\link{toys}})
 # (a few minutes to execute) and intermediate functions
 data(toys)
 toys.vsurf <- VSURF(toys$x, toys$y)

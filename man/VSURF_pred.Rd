@@ -8,10 +8,20 @@
 \usage{
 VSURF_pred(x, ...)
 
-\method{VSURF_pred}{default}(x, y, ntree = 2000, err.interp,
-  varselect.interp, nfor.pred = 25, nmj = 1,
-  RFimplem = "randomForest", parallel = FALSE, ncores = detectCores()
-  - 1, verbose = TRUE, ...)
+\method{VSURF_pred}{default}(
+  x,
+  y,
+  ntree = 2000,
+  err.interp,
+  varselect.interp,
+  nfor.pred = 25,
+  nmj = 1,
+  RFimplem = "randomForest",
+  parallel = FALSE,
+  ncores = detectCores() - 1,
+  verbose = TRUE,
+  ...
+)
 
 \method{VSURF_pred}{formula}(formula, data, ..., na.action = na.fail)
 }
@@ -125,7 +135,7 @@ iris.pred <- VSURF_pred(iris[,1:4], iris[,5],
 iris.pred
 
 \dontrun{
-# A more interesting example with toys data (see \\code{\\link{toys}})
+# A more interesting example with toys data (see \code{\link{toys}})
 # (a few minutes to execute)
 data(toys)
 toys.thres <- VSURF_thres(toys$x, toys$y)

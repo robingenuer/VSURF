@@ -8,10 +8,20 @@
 \usage{
 VSURF_interp(x, ...)
 
-\method{VSURF_interp}{default}(x, y, ntree = 2000, vars,
-  nfor.interp = 25, nsd = 1, RFimplem = "randomForest",
-  parallel = FALSE, ncores = detectCores() - 1,
-  clusterType = "PSOCK", verbose = TRUE, ...)
+\method{VSURF_interp}{default}(
+  x,
+  y,
+  ntree = 2000,
+  vars,
+  nfor.interp = 25,
+  nsd = 1,
+  RFimplem = "randomForest",
+  parallel = FALSE,
+  ncores = detectCores() - 1,
+  clusterType = "PSOCK",
+  verbose = TRUE,
+  ...
+)
 
 \method{VSURF_interp}{formula}(formula, data, ..., na.action = na.fail)
 }
@@ -139,7 +149,7 @@ iris.interp <- VSURF_interp(iris[,1:4], iris[,5],
 iris.interp
 
 \dontrun{
-# A more interesting example with toys data (see \\code{\\link{toys}})
+# A more interesting example with toys data (see \code{\link{toys}})
 # (a few minutes to execute)
 data(toys)
 toys.thres <- VSURF_thres(toys$x, toys$y)

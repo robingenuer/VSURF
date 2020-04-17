@@ -8,11 +8,24 @@
 \usage{
 VSURF(x, ...)
 
-\method{VSURF}{default}(x, y, ntree = 2000,
-  mtry = max(floor(ncol(x)/3), 1), nfor.thres = 50, nmin = 1,
-  nfor.interp = 25, nsd = 1, nfor.pred = 25, nmj = 1,
-  RFimplem = "randomForest", parallel = FALSE, ncores = detectCores()
-  - 1, clusterType = "PSOCK", verbose = TRUE, ...)
+\method{VSURF}{default}(
+  x,
+  y,
+  ntree = 2000,
+  mtry = max(floor(ncol(x)/3), 1),
+  nfor.thres = 50,
+  nmin = 1,
+  nfor.interp = 25,
+  nsd = 1,
+  nfor.pred = 25,
+  nmj = 1,
+  RFimplem = "randomForest",
+  parallel = FALSE,
+  ncores = detectCores() - 1,
+  clusterType = "PSOCK",
+  verbose = TRUE,
+  ...
+)
 
 \method{VSURF}{formula}(formula, data, ..., na.action = na.fail)
 }
@@ -223,7 +236,7 @@ iris.vsurf <- VSURF(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20,
 iris.vsurf
 
 \dontrun{
-# A more interesting example with toys data (see \\code{\\link{toys}})
+# A more interesting example with toys data (see \code{\link{toys}})
 # (a few minutes to execute)
 data(toys)
 toys.vsurf <- VSURF(toys$x, toys$y)

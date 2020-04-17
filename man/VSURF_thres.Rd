@@ -8,10 +8,20 @@
 \usage{
 VSURF_thres(x, ...)
 
-\method{VSURF_thres}{default}(x, y, ntree = 2000,
-  mtry = max(floor(ncol(x)/3), 1), nfor.thres = 50, nmin = 1,
-  RFimplem = "randomForest", parallel = FALSE, clusterType = "PSOCK",
-  ncores = parallel::detectCores() - 1, verbose = TRUE, ...)
+\method{VSURF_thres}{default}(
+  x,
+  y,
+  ntree = 2000,
+  mtry = max(floor(ncol(x)/3), 1),
+  nfor.thres = 50,
+  nmin = 1,
+  RFimplem = "randomForest",
+  parallel = FALSE,
+  clusterType = "PSOCK",
+  ncores = parallel::detectCores() - 1,
+  verbose = TRUE,
+  ...
+)
 
 \method{VSURF_thres}{formula}(formula, data, ..., na.action = na.fail)
 }
@@ -145,7 +155,7 @@ iris.thres <- VSURF_thres(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20)
 iris.thres
 
 \dontrun{
-# A more interesting example with toys data (see \\code{\\link{toys}})
+# A more interesting example with toys data (see \code{\link{toys}})
 # (a few minutes to execute)
 data(toys)
 toys.thres <- VSURF_thres(toys$x, toys$y)
