@@ -26,7 +26,6 @@ Imports:
     doParallel,
     foreach,
     parallel,
-    Rborist,
     randomForest,
     ranger,
     rpart
