@@ -13,6 +13,7 @@ VSURF(x, ...)
   y,
   ntree = 2000,
   mtry = max(floor(ncol(x)/3), 1),
+  nodesize = 15,
   nfor.thres = 50,
   nmin = 1,
   nfor.interp = 25,
@@ -44,6 +45,8 @@ numeric for regression ones).}
 
 \item{mtry}{Number of variables randomly sampled as candidates at each split.
 Standard parameter of \code{randomForest}.}
+
+\item{nodesize}{Definition of nodesize.}
 
 \item{nfor.thres}{Number of forests grown for "thresholding step" (first of
 the three steps).}

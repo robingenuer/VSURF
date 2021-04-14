@@ -64,6 +64,7 @@
 #'   \code{randomForest}.
 #' @param mtry Number of variables randomly sampled as candidates at each split.
 #'   Standard parameter of \code{randomForest}.
+#' @param nodesize Definition of nodesize.
 #' @param nfor.thres Number of forests grown for "thresholding step" (first of
 #'   the three steps).
 #' @param nmin Number of times the "minimum value" is multiplied to set
@@ -216,7 +217,7 @@ VSURF <- function (x, ...) {
 #' @rdname VSURF
 #' @export
 VSURF.default <- function(
-  x, y, ntree = 2000, mtry = max(floor(ncol(x)/3), 1),
+  x, y, ntree = 2000, mtry = max(floor(ncol(x)/3), 1), nodesize=15,
   nfor.thres = 50, nmin = 1, nfor.interp = 25, nsd = 1, nfor.pred = 25, nmj = 1,
   RFimplem = "randomForest", parallel = FALSE, ncores = detectCores() - 1,
   clusterType = "PSOCK", verbose = TRUE, ...) {
