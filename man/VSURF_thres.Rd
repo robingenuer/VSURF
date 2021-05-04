@@ -13,6 +13,7 @@ VSURF_thres(x, ...)
   y,
   ntree = 2000,
   mtry = max(floor(ncol(x)/3), 1),
+  nodesize = 15,
   nfor.thres = 50,
   nmin = 1,
   RFimplem = "randomForest",
@@ -23,7 +24,22 @@ VSURF_thres(x, ...)
   ...
 )
 
-\method{VSURF_thres}{formula}(formula, data, ..., na.action = na.fail)
+\method{VSURF_thres}{formula}(
+  formula,
+  data,
+  ntree = 2000,
+  mtry = max(floor(ncol(x)/3), 1),
+  nodesize = 15,
+  nfor.thres = 50,
+  nmin = 1,
+  RFimplem = "randomForest",
+  parallel = FALSE,
+  clusterType = "PSOCK",
+  ncores = parallel::detectCores() - 1,
+  verbose = TRUE,
+  ...,
+  na.action = na.fail
+)
 }
 \arguments{
 \item{x, formula}{A data frame or a matrix of predictors, the columns represent
@@ -40,6 +56,8 @@ numeric for regression ones).}
 
 \item{mtry}{Number of variables randomly sampled as candidates at each split.
 Standard parameter of \code{randomForest}.}
+
+\item{nodesize}{Definition of nodesize.}
 
 \item{nfor.thres}{Number of forests grown.}
 

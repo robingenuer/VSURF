@@ -217,7 +217,7 @@ VSURF <- function (x, ...) {
 #' @rdname VSURF
 #' @export
 VSURF.default <- function(
-  x, y, ntree = 2000, mtry = max(floor(ncol(x)/3), 1), nodesize=15,
+  x, y, ntree = 2000, mtry = max(floor(ncol(x)/3), 1), nodesize = 15,
   nfor.thres = 50, nmin = 1, nfor.interp = 25, nsd = 1, nfor.pred = 25, nmj = 1,
   RFimplem = "randomForest", parallel = FALSE, ncores = detectCores() - 1,
   clusterType = "PSOCK", verbose = TRUE, ...) {
@@ -225,7 +225,7 @@ VSURF.default <- function(
   start <- Sys.time()
   
   thres <- VSURF_thres(
-    x=x, y=y, ntree=ntree, mtry=mtry, nfor.thres=nfor.thres, nmin=nmin,
+    x=x, y=y, ntree=ntree, mtry=mtry, nodesize=nodesize, nfor.thres=nfor.thres, nmin=nmin,
     RFimplem = ifelse(length(RFimplem) == 3, RFimplem[1], RFimplem),
     parallel = ifelse(length(parallel) == 3, parallel[1], parallel),
     clusterType = ifelse(length(clusterType) > 1, clusterType[1], clusterType),

@@ -91,13 +91,14 @@
 #' toys.thres}
 #'
 #'@importFrom randomForest randomForest
+#'@importFrom randomForestSRC rfsrc
 #'@importFrom rpart rpart prune
 #'@importFrom doParallel registerDoParallel
 #'@importFrom foreach foreach %dopar%
 #'@importFrom parallel makeCluster stopCluster mclapply detectCores
 #'@importFrom utils tail
-#'@importFrom stats model.frame model.response na.fail predict reformulate
-#'@importFrom stats sd terms na.omit
+#'@importFrom stats as.formula formula model.frame model.response na.fail 
+#'@importFrom stats predict reformulate sd terms na.omit
 #'@importFrom ranger ranger
 #'@export
 VSURF_thres <- function (x, ...) {
@@ -107,7 +108,7 @@ VSURF_thres <- function (x, ...) {
 #' @rdname VSURF_thres
 #' @export
 VSURF_thres.default <- function(
-  x, y, ntree = 2000, mtry = max(floor(ncol(x) / 3), 1), nfor.thres = 50,
+  x, y, ntree = 2000, mtry = max(floor(ncol(x) / 3), 1), nodesize = 15, nfor.thres = 50,
   nmin = 1, RFimplem = "randomForest", parallel = FALSE,
   clusterType = "PSOCK", ncores = parallel::detectCores() - 1,
   verbose = TRUE,...) {
@@ -190,7 +191,6 @@ VSURF_thres.default <- function(
       return(list(m=m, perf=perf))
     }
   }
-  
   if (verbose == TRUE) {
     if (RFimplem == "randomForest") {
       if (type=="classif") {
@@ -398,8 +398,202 @@ VSURF_thres.default <- function(
 
 #' @rdname VSURF_thres
 #' @export
-VSURF_thres.formula <- function(formula, data, ..., na.action = na.fail) {
+VSURF_thres.formula <- function(formula, data, ntree = 2000, mtry = max(floor(ncol(x) / 3), 1), nodesize = 15, 
+                                nfor.thres = 50, nmin = 1, RFimplem = "randomForest", parallel = FALSE,
+                                clusterType = "PSOCK", ncores = parallel::detectCores() - 1,
+                                verbose = TRUE, ..., na.action = na.fail) {
 ### formula interface for VSURF_thres.
+  
+### code gratefully stolen from rfsrc (package randomForestSRC) and adapted for this function.
+  
+  ## data cannot be missing
+  if (missing(data)) stop("data is missing")
+  ## data cannot have Inf or -Inf values
+  if (any(is.infinite(unlist(data)))) stop("data contains Inf or -Inf values")
+  ## conduct preliminary formula validation
+  if (missing(formula) | (!missing(formula) && is.null(formula))) {
+    if (is.null(ytry)) {
+      formula <- as.formula("Unsupervised() ~ .")
+    }
+    else {
+      formula <- as.formula(paste("Unsupervised(", ytry, ")~."))
+    }
+  } 
+  formulaPrelim <- parseFormula(formula, data, ytry)
+  ## save the call/formula for the return object
+  my.call <- match.call()
+  my.call$formula <- eval(formula)
+  ## conduct preliminary processing of missing data
+  ## record whether there's no missing data: efficiency step
+  if (any(is.na(data))) {
+    data <- parseMissingData(formulaPrelim, data)
+    miss.flag <- TRUE
+  }
+  else {
+    miss.flag <- FALSE
+  }
+  ## finalize the formula based on the pre-processed data
+  formulaDetail <- finalizeFormula(formulaPrelim, data)  
+  
+  ## save the family for convenient access
+  family <- formulaDetail$family
+  
+  if (family == "surv"){
+    RFimplem<-"randomForestSRC"
+    print(formulaDetail)
+    
+    start <- Sys.time()
+    
+    if (verbose == TRUE) cat(paste("Thresholding step\n"))
+    
+    if (!parallel) {
+      ncores <- NULL
+    } else {
+      ncores <- min(nfor.thres, ncores)
+    }
+    
+    
+    # m: matrix with VI
+    # perf: matrix with OOB errors
+    m <- matrix(NA, nrow=nfor.thres, ncol=ncol(x))
+    perf <- matrix(NA, nrow=nfor.thres, ncol=1)
+    
+    # if all forests have to be stored in memory, lines involving "rfmem"
+    # must be uncommented
+    #rfmem=list()
+    
+    # filling of matrix m by running nfor.thres forests and keeping VI
+    # filling of perf with the nfor.thres forests OOB errors
+    
+
+    #importance="permute", block.size = 1 : to have variable importance of Breiman-Cutler
+    if (RFimplem == "randomForestSRC") {
+      rf.surv <- function(i, ...) {
+        rf <- randomForestSRC::rfsrc(formula, data=data,
+                                     ntree=ntree, mtry=mtry, importance="permute", block.size = 1,
+                                     ...)
+        m <- rf$importance
+        perf <- rf$err.rate[rf$ntree]
+        return(list(m=m, perf=perf))
+      }
+    }
+    if (verbose == TRUE) {
+      if (RFimplem == "randomForestSRC") {
+        timeOneRF <- system.time(rf.surv(1, ...))
+      }
+      cat(paste("Estimated computational time (on one core):",
+                round(nfor.thres * timeOneRF[3], 1), "sec.\n"))
+    }
+    
+    # initialization of the progress bar
+    if (verbose == TRUE & (parallel == FALSE | clusterType == "ranger")) {
+      pb <- utils::txtProgressBar(style = 3)
+      nBar <- 1
+    }
+    if (!parallel) {
+      if (RFimplem == "randomForestSRC") {
+          for (i in 1:nfor.thres) {
+            rf <- rf.surv(i, ...)
+            m[i,] <- rf$m
+            perf[i] <- rf$perf
+            if (verbose == TRUE) {
+              utils::setTxtProgressBar(pb, nBar/nfor.thres)
+              nBar <- nBar + 1
+            }
+          }
+        }
+      }
+    
+    m_na.omit <- stats::na.omit(m)
+    if (nrow(m_na.omit) != nrow(m)) {
+      warning(
+        paste0(nrow(m) - nrow(m_na.omit), " runs of RF were removed
+                (among ", nfor.thres, ") because they contained no OOB
+                observations for some trees")
+      )
+      m <- m_na.omit
+    }
+    
+    # ord.imp contains the VI means in decreasing order
+    ord.imp <- sort( colMeans(m), index.return=TRUE, decreasing=TRUE)
+    imp.mean.dec <- ord.imp$x
+    imp.mean.dec.ind <- ord.imp$ix
+    
+    # mean.perf contains the forests mean OOB error
+    mean.perf <- mean(perf)
+    
+    # imp.sd.dec contains VI standard deviations of all variables sorted according to imp.mean.dec.ind
+    sd.imp <- apply(m, 2, sd)
+    imp.sd.dec <- sd.imp[imp.mean.dec.ind]
+    
+    # particular case where x has only one variable
+    s <- NULL
+    if (ncol(as.matrix(x))==1) {
+      s <- 1
+    }
+    else {
+      p <- ncol(x)
+      u <- data.frame(imp.sd.dec, 1:p)
+      
+      # estimation of the standard deviations curve with CART (using "rpart" package)
+      
+      # construction of the maximal tree and search of optimal complexity
+      tree <- rpart::rpart(imp.sd.dec ~., data=u, cp=0, minsplit=2)
+      d <- tree$cptable
+      argmin.cp <- which.min(d[,4])
+      
+      # pruning
+      pruned.tree <- rpart::prune(tree, cp=d[argmin.cp, 1])
+      pred.pruned.tree <- predict(pruned.tree)
+      
+      # determination of the y-value of the lowest stair: this is the estimation
+      # of the mean standard deviation of VI
+      min.pred <- min(pred.pruned.tree)
+      
+      # thresholding: all variables with VI mean lower than min.pred are discarded
+      w <- which(imp.mean.dec < nmin*min.pred)
+      
+      if (length(w)==0) {
+        s <- p
+      }
+      else {
+        s <- min(w)-1
+      }
+    }
+    
+    # varselect: selected variables index
+    # impvarselect: corresponding VI means
+    varselect.thres <- imp.mean.dec.ind[1:s]
+    imp.varselect.thres <- imp.mean.dec[1:s]
+    
+    cl <- match.call()
+    cl[[1]] <- as.name("VSURF_thres")
+    
+    if (!parallel) clusterType <- NULL
+    
+    comput.time <- Sys.time()-start
+    
+    output <- list('varselect.thres'=varselect.thres,
+                   'imp.varselect.thres'=imp.varselect.thres,
+                   'min.thres'=min.pred,
+                   'num.varselect.thres'=s,
+                   'imp.mean.dec'=imp.mean.dec,
+                   'imp.mean.dec.ind'=imp.mean.dec.ind,
+                   'imp.sd.dec'=imp.sd.dec,
+                   'mean.perf'=mean.perf,
+                   'pred.pruned.tree'=pred.pruned.tree,
+                   'nmin' = nmin,
+                   'comput.time'=comput.time,
+                   'RFimplem'=RFimplem,
+                   'ncores'=ncores,
+                   'clusterType'=clusterType,
+                   'call'=cl)
+    class(output) <- c("VSURF_thres")
+    output  
+  }
+  else{
+  
+  
 ### code gratefully stolen from svm.formula (package e1071).
 ###
   if (!inherits(formula, "formula"))
@@ -442,4 +636,133 @@ VSURF_thres.formula <- function(formula, data, ..., na.action = na.fail) {
   which are indices of the input matrix based on the formula:
   you may reorder these to get indices of the original data")
     return(ret)
+  }
+}
+
+#_______________________________________________
+parseFormula <- function(f, data, ytry = NULL, coerce.factor = NULL) {
+  ## confirm coherency of the formula
+  if (!inherits(f, "formula")) {
+    stop("'formula' is not a formula object.")
+  }
+  if (is.null(data)) {
+    stop("'data' is missing.")
+  }
+  if (!is.data.frame(data)) {
+    stop("'data' must be a data frame.")
+  }
+  ## pull the family and y-variable names
+  fmly <- all.names(f, max.names = 1e7)[2]
+  all.names <- all.vars(f, max.names = 1e7)
+  yvar.names <- all.vars(formula(paste(as.character(f)[2], "~ .")), max.names = 1e7)
+  yvar.names <- yvar.names[-length(yvar.names)]
+  ## Default scenario, no subject information when family is not
+  ## time dependent covariates.  Can be overridden later.
+  subj.names <- NULL
+  ## is coerce.factor at play for the y-outcomes?
+  coerce.factor.org <- coerce.factor
+  coerce.factor <- vector("list", 2)
+  names(coerce.factor) <- c("xvar.names", "yvar.names")
+  if (!is.null(coerce.factor.org)) {
+    coerce.factor$yvar.names <- intersect(yvar.names, coerce.factor.org)
+    if (length(coerce.factor$yvar.names) == 0) {
+      coerce.factor$yvar.names <- NULL
+    }
+    coerce.factor$xvar.names <- intersect(setdiff(colnames(data), yvar.names), coerce.factor.org)
+  }
+  ## survival forests
+  if (fmly == "Surv") {
+    ## Survival and competing risk will have 2 slots, namely time and censoring.
+    ## Time dependent covariates will have 4 slots, namely id, start, stop, and event.
+    ## If TDC is in effect, we remove the id from the yvars, and tag is an the subject identifier.
+    if ((sum(is.element(yvar.names, names(data))) != 2) &&
+        (sum(is.element(yvar.names, names(data))) != 4)) {
+      stop("Survival formula incorrectly specified.")
+    }
+    else {
+      if (sum(is.element(yvar.names, names(data))) == 4) {
+        ## Time dependent covariates is in effect.
+        subj.names <- yvar.names[1]
+        yvar.names <- yvar.names[-1]
+      }
+    }
+    family <- "surv"
+    ytry <- 0
+  }
+  ## done: return the goodies
+  return (list(all.names=all.names, family=family, subj.names=subj.names, yvar.names=yvar.names, ytry=ytry,
+               coerce.factor = coerce.factor))
+}
+
+finalizeFormula <- function(formula.obj, data) {
+  ## parse the formula object
+  yvar.names <- formula.obj$yvar.names
+  subj.names <- formula.obj$subj.names
+  all.names  <- formula.obj$all.names
+  fmly       <- formula.obj$family
+  ytry       <- formula.obj$ytry
+  index <- length(yvar.names)
+  ## Adjust the index for the presence of subject names.
+  if (fmly == "surv") {
+    if (!is.null(subj.names)) {
+      index <- index + 1
+    }
+  }
+  ## total number of variables should exceed number of yvars
+  if (length(all.names) <= index) {
+    stop("formula is misspecified: total number of variables does not exceed total number of y-variables")
+  }
+  ## extract the xvar names
+  if (all.names[index + 1] == ".") {
+    if(index == 0) {
+      xvar.names <- names(data)
+    }
+    else {
+      xvar.names <- names(data)[!is.element(names(data), all.names[1:index])]
+    }
+  }
+  else {
+    if(index == 0) {
+      xvar.names <- all.names
+    }
+    else {
+      xvar.names <- all.names[-c(1:index)]
+    }
+    not.specified <- !is.element(xvar.names, names(data))
+    if (sum(not.specified) > 0) {
+      stop("formula is misspecified, object ", xvar.names[not.specified], " not found")
+    }
+  }
+  ## return the goodies
+  return (list(family=fmly, subj.names=subj.names, yvar.names=yvar.names, xvar.names=xvar.names, ytry=ytry))
+}
+
+is.all.na <- function(x) {all(is.na(x))}
+parseMissingData <- function(formula.obj, data) {
+  ## parse the formula object
+  yvar.names <- formula.obj$yvar.names
+  if (length(yvar.names) > 0) {
+    resp <- data[, yvar.names, drop = FALSE]
+    ## determine whether all the outcomes are missing
+    ## works for any dimension
+    col.resp.na <- unlist(lapply(data[, yvar.names, drop = FALSE], is.all.na))
+    if (any(col.resp.na)) {
+      stop("All records are missing for one (or more) yvar(s)")
+    }
+  }
+  ## remove all x variables with missing values for all records
+  colPt <- unlist(lapply(data, is.all.na))
+  ## terminate if all columns have all missing data
+  if (sum(colPt) > 0 && sum(colPt) >= (ncol(data) - length(yvar.names))) {
+    stop("All x-variables have all missing data:  analysis not meaningful.")
+  }
+  data <- data[, !colPt, drop = FALSE]
+  ## remove all records with missing values for all outcomes(s) and xvar
+  rowPt <- apply(data, 1, is.all.na)
+  if (sum(rowPt) == nrow(data)) {
+    stop("Rows of the data have all missing data:  analysis not meaningful.")
+  }
+  data <- data[!rowPt,, drop = FALSE]
+  ## return the NA processed data
+  return(data)
 }
