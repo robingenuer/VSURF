@@ -100,6 +100,10 @@ Adds a small extra overload.}
 \item{na.action}{A function to specify the action to be taken if NAs are
 found.  (NOTE: If given, this argument must be named, and as
 \code{randomForest} it is only used with the formula-type call.)}
+
+\item{importance}{Definition of importance (package randomForestSRC).}
+
+\item{block.size}{Definition of block.size (package randomForestSRC).}
 }
 \value{
 An object of class \code{VSURF}, which is a list with the following
