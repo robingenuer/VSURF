@@ -418,48 +418,163 @@ VSURF_interp.default <- function(
 
 #' @rdname VSURF_interp
 #' @export
-VSURF_interp.formula <- function(formula, data, ..., na.action = na.fail) {
+VSURF_interp.formula <- function(formula, data, ntree = 2000, vars, nfor.interp = 25, nsd = 1, 
+                                 RFimplem = "randomForest", parallel = FALSE,
+                                 ncores = detectCores()-1, clusterType = "PSOCK",
+                                 verbose = TRUE, importance="permute", block.size = 1,
+                                 ..., na.action = na.fail) {
   ### formula interface for VSURF_interp.
-  ### code gratefully stolen from svm.formula (package e1071).
-  ###
-  if (!inherits(formula, "formula"))
-    stop("method is only for formula objects")
-  m <- match.call(expand.dots = FALSE)
-  ## Catch xtest and ytest in arguments.
-  if (any(c("xtest", "ytest") %in% names(m)))
-    stop("xtest/ytest not supported through the formula interface")
-  names(m)[2] <- "formula"
-  if (is.matrix(eval(m$data, parent.frame())))
-    m$data <- as.data.frame(data)
-  m$... <- NULL
-  m$na.action <- na.action
-  m[[1]] <- as.name("model.frame")
-  m <- eval(m, parent.frame())
-  y <- model.response(m)
-  Terms <- attr(m, "terms")
-  attr(Terms, "intercept") <- 0
-  attr(y, "na.action") <- attr(m, "na.action")
-  ## Drop any "negative" terms in the formula.
-  ## test with:
-  ## randomForest(Fertility~.-Catholic+I(Catholic<50),data=swiss,mtry=2)
-  m <- model.frame(terms(reformulate(attributes(Terms)$term.labels)),
-                   data.frame(m))
-  ## if (!is.null(y)) m <- m[, -1, drop=FALSE]
-  for (i in seq(along=ncol(m))) {
-    if (is.ordered(m[[i]])) m[[i]] <- as.numeric(m[[i]])
+  
+  
+  ### code gratefully stolen from rfsrc (package randomForestSRC) and adapted for this function.
+  
+  ## conduct preliminary formula validation
+  formulaPrelim <- parseFormula(formula, data)
+  ## save the call/formula for the return object
+  my.call <- match.call()
+  my.call$formula <- eval(formula)
+  
+  ## finalize the formula based on the pre-processed data
+  formulaDetail <- finalizeFormula(formulaPrelim, data)  
+  
+  ## save the family for convenient access
+  family <- formulaDetail$family
+  
+  if (family == "surv"){
+    RFimplem <- "randomForestSRC"
+    
+    # vars: selected variables indices after thresholding step
+    # nfor.interp: number of forests to estimate each model
+    # nsd: number of standard deviation: the selected model leads to an OOB error
+    # smaller than the min error + nsd * (sd of the min error)
+    
+    start <- Sys.time()
+    
+    if (verbose == TRUE) cat(paste("\nInterpretation step (on", length(vars), "variables)\n"))
+    
+    if (!parallel) {
+      ncores <- NULL
+    }  
+    
+    nvars <- length(vars)
+    n <- nrow(data)
+    err.interp <- rep(NA, nvars)
+    sd.interp <- rep(NA, nvars)
+    
+    if (RFimplem == "randomForestSRC") {
+      rf.interp.surv <- function(i, nfor.interp, ...) {
+        rf <- rep(NA, nfor.interp)
+        u <- vars[1:i]
+        w <- data[, u, drop=FALSE]
+        
+        for (j in 1:nfor.interp) {
+          rf[j] <- randomForestSRC::rfsrc(formula, data=data, ntree=ntree,
+                                         importance=importance, block.size=block.size, ...)$err.rate[ntree]
+        }
+        
+        return(c(mean(rf), sd(rf)))
+      }
+    }
+    
+    if (verbose == TRUE) {
+      if (RFimplem == "randomForestSRC") {
+        timeOneRFOneVar <- system.time(rf.interp.surv(1, 1, ...))
+        timeOneRFAllVar <- system.time(rf.interp.surv(nvars, 1, ...))
+      }
+      cat(paste("Estimated computational time (on one core): between",
+                round(nvars * nfor.interp * timeOneRFOneVar[3], 1), "sec. and ",
+                round(nvars * nfor.interp * timeOneRFAllVar[3], 1), "sec.\n"))
+    }
+    
+    # initialization of the progress bar
+    if (verbose == TRUE & (parallel == FALSE | clusterType %in% c("ranger", "Rborist"))) {
+      pb <- utils::txtProgressBar(style = 3)
+      nBar <- 1
+    }
+    
+    if (!parallel) {
+      if (RFimplem == "randomForestSRC") {
+        for (i in 1:nvars){
+          res <- rf.interp.surv(i, nfor.interp, ...)
+          err.interp[i] <- res[1]
+          sd.interp[i] <- res[2]
+          if (verbose == TRUE) {
+            utils::setTxtProgressBar(pb, nBar/nvars)
+            nBar <- nBar + 1
+          }
+        }
+      }
+    } 
+    
+    var.min <- which.min(err.interp)
+    sd.min <- sd.interp[var.min]
+    
+    nvarselect <- min( which(err.interp <= (err.interp[var.min] + nsd*sd.min)) )
+    varselect <- vars[1:nvarselect]
+    
+    cl <- match.call()
+    cl[[1]] <- as.name("VSURF_interp")
+    
+    if (!parallel) clusterType <- NULL
+    
+    comput.time <- Sys.time()-start
+    
+    output <- list('varselect.interp'=varselect,
+                   'err.interp'=err.interp,
+                   'sd.min'=sd.min,
+                   'num.varselect.interp'=nvarselect,
+                   'varselect.thres' = vars,
+                   'nsd' = nsd,
+                   'comput.time'=comput.time,
+                   'RFimplem'=RFimplem,
+                   'ncores'=ncores,
+                   'clusterType'=clusterType,
+                   'call'=cl)
+    class(output) <- c("VSURF_interp")
+    output
   }
-  ret <- VSURF_interp.default(x=m, y=y, ...)
-  cl <- match.call()
-  cl[[1]] <- as.name("VSURF")
-  ret$call <- cl
-  ret$terms <- Terms
-  if (!is.null(attr(y, "na.action"))) {
-    ret$na.action <- attr(y, "na.action")
-  }
-  class(ret) <- c("VSURF_interp.formula", class(ret))
-  warning(
-    "VSURF with a formula-type call outputs selected variables
+  else{
+    ### code gratefully stolen from svm.formula (package e1071).
+    ###
+    if (!inherits(formula, "formula"))
+      stop("method is only for formula objects")
+    m <- match.call(expand.dots = FALSE)
+    ## Catch xtest and ytest in arguments.
+    if (any(c("xtest", "ytest") %in% names(m)))
+      stop("xtest/ytest not supported through the formula interface")
+    names(m)[2] <- "formula"
+    if (is.matrix(eval(m$data, parent.frame())))
+      m$data <- as.data.frame(data)
+    m$... <- NULL
+    m$na.action <- na.action
+    m[[1]] <- as.name("model.frame")
+    m <- eval(m, parent.frame())
+    y <- model.response(m)
+    Terms <- attr(m, "terms")
+    attr(Terms, "intercept") <- 0
+    attr(y, "na.action") <- attr(m, "na.action")
+    ## Drop any "negative" terms in the formula.
+    ## test with:
+    ## randomForest(Fertility~.-Catholic+I(Catholic<50),data=swiss,mtry=2)
+    m <- model.frame(terms(reformulate(attributes(Terms)$term.labels)),
+                     data.frame(m))
+    ## if (!is.null(y)) m <- m[, -1, drop=FALSE]
+    for (i in seq(along=ncol(m))) {
+      if (is.ordered(m[[i]])) m[[i]] <- as.numeric(m[[i]])
+    }
+    ret <- VSURF_interp.default(x=m, y=y, ...)
+    cl <- match.call()
+    cl[[1]] <- as.name("VSURF")
+    ret$call <- cl
+    ret$terms <- Terms
+    if (!is.null(attr(y, "na.action"))) {
+      ret$na.action <- attr(y, "na.action")
+    }
+    class(ret) <- c("VSURF_interp.formula", class(ret))
+    warning(
+      "VSURF with a formula-type call outputs selected variables
   which are indices of the input matrix based on the formula:
   you may reorder these to get indices of the original data")
-  return(ret)
+    return(ret)
+  }
 }

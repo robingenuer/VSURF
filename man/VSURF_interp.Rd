@@ -23,7 +23,23 @@ VSURF_interp(x, ...)
   ...
 )
 
-\method{VSURF_interp}{formula}(formula, data, ..., na.action = na.fail)
+\method{VSURF_interp}{formula}(
+  formula,
+  data,
+  ntree = 2000,
+  vars,
+  nfor.interp = 25,
+  nsd = 1,
+  RFimplem = "randomForest",
+  parallel = FALSE,
+  ncores = detectCores() - 1,
+  clusterType = "PSOCK",
+  verbose = TRUE,
+  importance = "permute",
+  block.size = 1,
+  ...,
+  na.action = na.fail
+)
 }
 \arguments{
 \item{x, formula}{A data frame or a matrix of predictors, the columns represent
@@ -78,6 +94,10 @@ coordinate is passed to each intermediate function: \code{VSURF_thres},
 Adds a small extra overload.}
 
 \item{data}{a data frame containing the variables in the model.}
+
+\item{importance}{Definition of importance (package randomForestSRC).}
+
+\item{block.size}{Definition of block.size (package randomForestSRC).}
 
 \item{na.action}{A function to specify the action to be taken if NAs are
 found.  (NOTE: If given, this argument must be named, and as
