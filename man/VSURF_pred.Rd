@@ -23,7 +23,23 @@ VSURF_pred(x, ...)
   ...
 )
 
-\method{VSURF_pred}{formula}(formula, data, ..., na.action = na.fail)
+\method{VSURF_pred}{formula}(
+  formula,
+  data,
+  ntree = 2000,
+  err.interp,
+  varselect.interp,
+  nfor.pred = 25,
+  nmj = 1,
+  RFimplem = "randomForest",
+  parallel = FALSE,
+  ncores = detectCores() - 1,
+  verbose = TRUE,
+  importance = "permute",
+  block.size = 1,
+  ...,
+  na.action = na.fail
+)
 }
 \arguments{
 \item{x, formula}{A data frame or a matrix of predictors, the columns
@@ -69,6 +85,10 @@ detected by R minus 1.}
 Adds a small extra overload.}
 
 \item{data}{a data frame containing the variables in the model.}
+
+\item{importance}{Definition of importance (package randomForestSRC).}
+
+\item{block.size}{Definition of block.size (package randomForestSRC).}
 
 \item{na.action}{A function to specify the action to be taken if NAs are
 found.  (NOTE: If given, this argument must be named, and as
