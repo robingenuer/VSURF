@@ -456,6 +456,10 @@ VSURF_interp.formula <- function(formula, data, ntree = 2000, vars, nfor.interp 
       ncores <- NULL
     }  
     
+    #num of the variables used for Surv in data
+    num_surv <- which(colnames(data) == formulaDetail$yvar.names[1] | colnames(data)==formulaDetail$yvar.names[2])
+    
+    
     nvars <- length(vars)
     n <- nrow(data)
     err.interp <- rep(NA, nvars)
@@ -464,11 +468,11 @@ VSURF_interp.formula <- function(formula, data, ntree = 2000, vars, nfor.interp 
     if (RFimplem == "randomForestSRC") {
       rf.interp.surv <- function(i, nfor.interp, ...) {
         rf <- rep(NA, nfor.interp)
-        u <- vars[1:i]
+        u <- c(vars[1:i], num_surv)
         w <- data[, u, drop=FALSE]
         
         for (j in 1:nfor.interp) {
-          rf[j] <- randomForestSRC::rfsrc(formula, data=data, ntree=ntree,
+          rf[j] <- randomForestSRC::rfsrc(formula, data=w, ntree=ntree,
                                          importance=importance, block.size=block.size, ...)$err.rate[ntree]
         }
         
