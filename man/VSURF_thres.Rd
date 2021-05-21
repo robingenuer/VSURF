@@ -13,7 +13,6 @@ VSURF_thres(x, ...)
   y,
   ntree = 2000,
   mtry = max(floor(ncol(x)/3), 1),
-  nodesize = 15,
   nfor.thres = 50,
   nmin = 1,
   RFimplem = "randomForest",
@@ -28,7 +27,8 @@ VSURF_thres(x, ...)
   formula,
   data,
   ntree = 2000,
-  mtry = max(floor(ncol(x)/3), 1),
+  mtry = max(ifelse(RFimplem == "randomForestSRC", sqrt(ncol(data) - 2),
+    floor((ncol(data) - 1)/3)), 1),
   nodesize = 15,
   nfor.thres = 50,
   nmin = 1,
@@ -58,8 +58,6 @@ numeric for regression ones).}
 
 \item{mtry}{Number of variables randomly sampled as candidates at each split.
 Standard parameter of \code{randomForest}.}
-
-\item{nodesize}{Definition of nodesize.}
 
 \item{nfor.thres}{Number of forests grown.}
 
@@ -97,6 +95,8 @@ detected by R minus 1.}
 Adds a small extra overload.}
 
 \item{data}{a data frame containing the variables in the model.}
+
+\item{nodesize}{Definition of nodesize.}
 
 \item{importance}{Definition of importance (package randomForestSRC).}
 

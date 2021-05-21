@@ -13,7 +13,6 @@ VSURF(x, ...)
   y,
   ntree = 2000,
   mtry = max(floor(ncol(x)/3), 1),
-  nodesize = 15,
   nfor.thres = 50,
   nmin = 1,
   nfor.interp = 25,
@@ -28,7 +27,29 @@ VSURF(x, ...)
   ...
 )
 
-\method{VSURF}{formula}(formula, data, ..., na.action = na.fail)
+\method{VSURF}{formula}(
+  formula,
+  data,
+  ntree = 2000,
+  mtry = max(ifelse(RFimplem == "randomForestSRC", sqrt(ncol(data) - 2),
+    floor((ncol(data) - 1)/3)), 1),
+  nodesize = 15,
+  nfor.thres = 50,
+  nmin = 1,
+  nfor.interp = 25,
+  nsd = 1,
+  nfor.pred = 25,
+  nmj = 1,
+  RFimplem = "randomForest",
+  parallel = FALSE,
+  ncores = detectCores() - 1,
+  clusterType = "PSOCK",
+  verbose = TRUE,
+  importance = "permute",
+  block.size = 1,
+  ...,
+  na.action = na.fail
+)
 }
 \arguments{
 \item{x, formula}{A data frame or a matrix of predictors, the columns
@@ -45,8 +66,6 @@ numeric for regression ones).}
 
 \item{mtry}{Number of variables randomly sampled as candidates at each split.
 Standard parameter of \code{randomForest}.}
-
-\item{nodesize}{Definition of nodesize.}
 
 \item{nfor.thres}{Number of forests grown for "thresholding step" (first of
 the three steps).}
@@ -97,13 +116,15 @@ Adds a small extra overload.}
 
 \item{data}{a data frame containing the variables in the model.}
 
-\item{na.action}{A function to specify the action to be taken if NAs are
-found.  (NOTE: If given, this argument must be named, and as
-\code{randomForest} it is only used with the formula-type call.)}
+\item{nodesize}{Definition of nodesize.}
 
 \item{importance}{Definition of importance (package randomForestSRC).}
 
 \item{block.size}{Definition of block.size (package randomForestSRC).}
+
+\item{na.action}{A function to specify the action to be taken if NAs are
+found.  (NOTE: If given, this argument must be named, and as
+\code{randomForest} it is only used with the formula-type call.)}
 }
 \value{
 An object of class \code{VSURF}, which is a list with the following

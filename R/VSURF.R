@@ -219,7 +219,7 @@ VSURF <- function (x, ...) {
 #' @rdname VSURF
 #' @export
 VSURF.default <- function(
-  x, y, ntree = 2000, mtry = max(floor(ncol(x)/3), 1), nodesize = 15,
+  x, y, ntree = 2000, mtry = max(floor(ncol(x)/3), 1),
   nfor.thres = 50, nmin = 1, nfor.interp = 25, nsd = 1, nfor.pred = 25, nmj = 1,
   RFimplem = "randomForest", parallel = FALSE, ncores = detectCores() - 1,
   clusterType = "PSOCK", verbose = TRUE, ...) {
@@ -227,7 +227,7 @@ VSURF.default <- function(
   start <- Sys.time()
   
   thres <- VSURF_thres(
-    x=x, y=y, ntree=ntree, mtry=mtry, nodesize=nodesize, nfor.thres=nfor.thres, nmin=nmin,
+    x=x, y=y, ntree=ntree, mtry=mtry, nfor.thres=nfor.thres, nmin=nmin,
     RFimplem = ifelse(length(RFimplem) == 3, RFimplem[1], RFimplem),
     parallel = ifelse(length(parallel) == 3, parallel[1], parallel),
     clusterType = ifelse(length(clusterType) > 1, clusterType[1], clusterType),
@@ -287,8 +287,93 @@ VSURF.default <- function(
 
 #' @rdname VSURF
 #' @export
-VSURF.formula <- function(formula, data, ..., na.action = na.fail) {
-    ### formula interface for VSURF.
+VSURF.formula <- function(formula, data, ntree=2000, mtry = max(ifelse(RFimplem=="randomForestSRC", sqrt(ncol(data)-2),floor((ncol(data)-1)/3)), 1), 
+                          nodesize=15, nfor.thres=50, nmin = 1, nfor.interp = 25, nsd = 1, nfor.pred = 25, nmj = 1,
+                          RFimplem = "randomForest", parallel = FALSE, ncores = detectCores() - 1,
+                          clusterType = "PSOCK", verbose = TRUE, importance="permute", block.size = 1,
+                          ..., na.action = na.fail){
+  ### formula interface for VSURF.
+  
+  ### code gratefully stolen from rfsrc (package randomForestSRC) and adapted for this function.
+  
+  ## conduct preliminary formula validation
+  formulaPrelim <- parseFormula(formula, data)
+  ## save the call/formula for the return object
+  my.call <- match.call()
+  my.call$formula <- eval(formula)
+  
+  ## finalize the formula based on the pre-processed data
+  formulaDetail <- finalizeFormula(formulaPrelim, data)
+  
+  ## save the family for convenient access
+  family <- formulaDetail$family
+  
+  if (family == "surv"){
+    RFimplem <- "randomForestSRC"
+    
+    start <- Sys.time()
+    
+    thres <- VSURF_thres.formula(
+      formula, data, ntree=ntree, mtry=mtry, nodesize=nodesize, nfor.thres=nfor.thres, nmin=nmin,
+      RFimplem = ifelse(length(RFimplem) == 3, RFimplem[1], RFimplem),
+      parallel = ifelse(length(parallel) == 3, parallel[1], parallel),
+      clusterType = ifelse(length(clusterType) > 1, clusterType[1], clusterType),
+      ncores=ncores, verbose = verbose, importance=importance, block.size = block.size,
+      ...)
+    
+    interp <- VSURF_interp.formula(
+      formula, data, ntree=ntree, vars=thres$varselect.thres, nfor.interp=nfor.interp,
+      nsd=nsd, RFimplem = ifelse(length(RFimplem) == 3, RFimplem[2], RFimplem),
+      parallel = ifelse(length(parallel) == 3, parallel[2], parallel),
+      clusterType = ifelse(length(clusterType) > 1, clusterType[2], clusterType),
+      ncores=ncores, verbose = verbose, importance=importance, block.size = block.size,
+      ...)
+    
+    pred <- VSURF_pred.formula(formula, data, ntree=ntree, err.interp=interp$err.interp,
+                       varselect.interp=interp$varselect.interp, nfor.pred=nfor.pred, nmj=nmj,
+                       RFimplem = ifelse(length(RFimplem) == 3, RFimplem[3], RFimplem),
+                       parallel = ifelse(length(parallel) == 3, parallel[3], parallel),
+                       ncores = ncores, verbose = verbose, ...)
+    
+    cl <- match.call()
+    cl[[1]] <- as.name("VSURF")
+    
+    if (identical(parallel, FALSE) | identical(parallel, rep(FALSE, 3))) {
+      clusterType <- NULL
+      ncores <- NULL
+    }
+    overall.time <- Sys.time() - start
+    
+    output <- list('varselect.thres'=thres$varselect.thres,
+                   'varselect.interp'=interp$varselect.interp,
+                   'varselect.pred'=pred$varselect.pred,
+                   'nums.varselect'=c(thres$num.varselect.thres,
+                                      interp$num.varselect.interp,
+                                      pred$num.varselect.pred),
+                   'imp.varselect.thres'=thres$imp.varselect.thres,
+                   'min.thres'=thres$min.thres,
+                   'imp.mean.dec'=thres$imp.mean.dec,
+                   'imp.mean.dec.ind'=thres$imp.mean.dec.ind,
+                   'imp.sd.dec'=thres$imp.sd.dec,
+                   'mean.perf'=thres$mean.perf,
+                   'pred.pruned.tree'=thres$pred.pruned.tree,
+                   'err.interp'=interp$err.interp,
+                   'sd.min'=interp$sd.min,
+                   'err.pred'=pred$err.pred,
+                   'mean.jump'=pred$mean.jump,
+                   'nmin'=nmin,
+                   'nsd'=nsd,
+                   'nmj'=nmj,
+                   'overall.time'=overall.time,
+                   'comput.times'=list(thres$comput.time, interp$comput.time, pred$comput.time),
+                   'RFimplem'=RFimplem,
+                   'ncores'=ncores,          
+                   'clusterType'=clusterType,
+                   'call'=cl)
+    class(output) <- c("VSURF")
+    output
+  }
+  else{
     ### code gratefully stolen from svm.formula (package e1071).
     ###
     if (!inherits(formula, "formula"))
@@ -331,6 +416,7 @@ VSURF.formula <- function(formula, data, ..., na.action = na.fail) {
 which are indices of the input matrix based on the formula:
 you may reorder these to get indices of the original data")
     return(ret)
+  }
 }
 
 
@@ -384,6 +470,28 @@ parseFormula <- function(f, data, ytry = NULL, coerce.factor = NULL) {
     }
     family <- "surv"
     ytry <- 0
+  }
+  else {
+    ## must be a (univariate) regresssion or classification
+    if (sum(is.element(yvar.names, names(data))) != 1) {
+      stop("formula is incorrectly specified.")
+    }
+    Y <- data[, yvar.names]
+    ## logicals are treated as 0/1 real (bug reported by John Ehrlinger)
+    if (is.logical(Y)) {
+      Y <- as.numeric(Y)
+    }
+    ## check whether we have a factor or a continuous variable
+    if (!(is.factor(Y) | is.numeric(Y))) {
+      stop("the y-outcome must be either real or a factor.")
+    }
+    if (is.factor(Y) || length(coerce.factor$yvar.names) == 1) {
+      family <- "class"
+    }
+    else {
+      family <- "regr"
+    }
+    ytry <- 1
   }
   ## done: return the goodies
   return (list(all.names=all.names, family=family, subj.names=subj.names, yvar.names=yvar.names, ytry=ytry,

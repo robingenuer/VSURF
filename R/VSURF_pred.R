@@ -354,7 +354,7 @@ VSURF_pred.formula <- function(formula, data, ntree = 2000, err.interp, varselec
       if (RFimplem=="randomForestSRC"){
         timeOneRFAllVar <- system.time(
           randomForestSRC::rfsrc(formula, data=data[,c(varselect.interp, num_surv), drop=FALSE],
-                                 ...)
+                                 ntree=ntree, ...)
         )
       }
       cat(paste("Maximum estimated computational time (on one core):",
@@ -395,7 +395,8 @@ did not eliminate variables")
       
       if (RFimplem == "randomForestSRC"){
         for (j in 1:nfor.pred) {
-          rf[j]<-randomForestSRC::rfsrc(formula, data=w, ntree=ntree, importance=importance, block.size = block.size, ...)$err.rate[ntree]
+          rf[j]<-randomForestSRC::rfsrc(formula, data=w, ntree=ntree, importance=importance,
+                                        block.size = block.size, ...)$err.rate[ntree]
         }
         err.pred <- mean(rf)
       }
@@ -415,7 +416,8 @@ did not eliminate variables")
           
           if (RFimplem == "randomForestSRC"){
             for (j in 1:nfor.pred) {
-              rf[j]<-randomForestSRC::rfsrc(formula, data=w, ntree=ntree, importance=importance, block.size = block.size, ...)$err.rate[ntree]
+              rf[j]<-randomForestSRC::rfsrc(formula, data=w, ntree=ntree, importance=importance, 
+                                            block.size = block.size, ...)$err.rate[ntree]
             }
             z <- mean(rf)
           }
@@ -495,102 +497,3 @@ did not eliminate variables")
   }
 }
 
-
-#_______________________________________________
-#functions from randomForestSRC
-parseFormula <- function(f, data, ytry = NULL, coerce.factor = NULL) {
-  ## confirm coherency of the formula
-  if (!inherits(f, "formula")) {
-    stop("'formula' is not a formula object.")
-  }
-  if (is.null(data)) {
-    stop("'data' is missing.")
-  }
-  if (!is.data.frame(data)) {
-    stop("'data' must be a data frame.")
-  }
-  ## pull the family and y-variable names
-  fmly <- all.names(f, max.names = 1e7)[2]
-  all.names <- all.vars(f, max.names = 1e7)
-  yvar.names <- all.vars(formula(paste(as.character(f)[2], "~ .")), max.names = 1e7)
-  yvar.names <- yvar.names[-length(yvar.names)]
-  ## Default scenario, no subject information when family is not
-  ## time dependent covariates.  Can be overridden later.
-  subj.names <- NULL
-  ## is coerce.factor at play for the y-outcomes?
-  coerce.factor.org <- coerce.factor
-  coerce.factor <- vector("list", 2)
-  names(coerce.factor) <- c("xvar.names", "yvar.names")
-  if (!is.null(coerce.factor.org)) {
-    coerce.factor$yvar.names <- intersect(yvar.names, coerce.factor.org)
-    if (length(coerce.factor$yvar.names) == 0) {
-      coerce.factor$yvar.names <- NULL
-    }
-    coerce.factor$xvar.names <- intersect(setdiff(colnames(data), yvar.names), coerce.factor.org)
-  }
-  ## survival forests
-  if (fmly == "Surv") {
-    ## Survival and competing risk will have 2 slots, namely time and censoring.
-    ## Time dependent covariates will have 4 slots, namely id, start, stop, and event.
-    ## If TDC is in effect, we remove the id from the yvars, and tag is an the subject identifier.
-    if ((sum(is.element(yvar.names, names(data))) != 2) &&
-        (sum(is.element(yvar.names, names(data))) != 4)) {
-      stop("Survival formula incorrectly specified.")
-    }
-    else {
-      if (sum(is.element(yvar.names, names(data))) == 4) {
-        ## Time dependent covariates is in effect.
-        subj.names <- yvar.names[1]
-        yvar.names <- yvar.names[-1]
-      }
-    }
-    family <- "surv"
-    ytry <- 0
-  }
-  ## done: return the goodies
-  return (list(all.names=all.names, family=family, subj.names=subj.names, yvar.names=yvar.names, ytry=ytry,
-               coerce.factor = coerce.factor))
-}
-
-finalizeFormula <- function(formula.obj, data) {
-  ## parse the formula object
-  yvar.names <- formula.obj$yvar.names
-  subj.names <- formula.obj$subj.names
-  all.names  <- formula.obj$all.names
-  fmly       <- formula.obj$family
-  ytry       <- formula.obj$ytry
-  index <- length(yvar.names)
-  ## Adjust the index for the presence of subject names.
-  if (fmly == "surv") {
-    if (!is.null(subj.names)) {
-      index <- index + 1
-    }
-  }
-  ## total number of variables should exceed number of yvars
-  if (length(all.names) <= index) {
-    stop("formula is misspecified: total number of variables does not exceed total number of y-variables")
-  }
-  ## extract the xvar names
-  if (all.names[index + 1] == ".") {
-    if(index == 0) {
-      xvar.names <- names(data)
-    }
-    else {
-      xvar.names <- names(data)[!is.element(names(data), all.names[1:index])]
-    }
-  }
-  else {
-    if(index == 0) {
-      xvar.names <- all.names
-    }
-    else {
-      xvar.names <- all.names[-c(1:index)]
-    }
-    not.specified <- !is.element(xvar.names, names(data))
-    if (sum(not.specified) > 0) {
-      stop("formula is misspecified, object ", xvar.names[not.specified], " not found")
-    }
-  }
-  ## return the goodies
-  return (list(family=fmly, subj.names=subj.names, yvar.names=yvar.names, xvar.names=xvar.names, ytry=ytry))
-}

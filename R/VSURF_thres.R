@@ -108,7 +108,7 @@ VSURF_thres <- function (x, ...) {
 #' @rdname VSURF_thres
 #' @export
 VSURF_thres.default <- function(
-  x, y, ntree = 2000, mtry = max(floor(ncol(x) / 3), 1), nodesize = 15, nfor.thres = 50,
+  x, y, ntree = 2000, mtry = max(floor(ncol(x) / 3), 1), nfor.thres = 50,
   nmin = 1, RFimplem = "randomForest", parallel = FALSE,
   clusterType = "PSOCK", ncores = parallel::detectCores() - 1,
   verbose = TRUE,...) {
@@ -398,8 +398,8 @@ VSURF_thres.default <- function(
 
 #' @rdname VSURF_thres
 #' @export
-VSURF_thres.formula <- function(formula, data, ntree = 2000, mtry = max(floor(ncol(x) / 3), 1), nodesize = 15, 
-                                nfor.thres = 50, nmin = 1, RFimplem = "randomForest", parallel = FALSE,
+VSURF_thres.formula <- function(formula, data, ntree = 2000, mtry = max(ifelse(RFimplem=="randomForestSRC", sqrt(ncol(data)-2),floor((ncol(data)-1)/3)), 1), 
+                                nodesize = 15, nfor.thres = 50, nmin = 1, RFimplem = "randomForest", parallel = FALSE,
                                 clusterType = "PSOCK", ncores = parallel::detectCores() - 1,
                                 verbose = TRUE, importance="permute", block.size = 1, ..., na.action = na.fail) {
 ### formula interface for VSURF_thres.
@@ -420,7 +420,7 @@ VSURF_thres.formula <- function(formula, data, ntree = 2000, mtry = max(floor(nc
   
   if (family == "surv"){
     RFimplem<-"randomForestSRC"
-    print(formulaDetail)
+
     start <- Sys.time()
     
     if (verbose == TRUE) cat(paste("Thresholding step\n"))
@@ -445,7 +445,7 @@ VSURF_thres.formula <- function(formula, data, ntree = 2000, mtry = max(floor(nc
     #importance="permute", block.size = 1 : to have variable importance of Breiman-Cutler
     if (RFimplem == "randomForestSRC") {
       rf.surv <- function(i, ...) {
-        rf <- randomForestSRC::rfsrc(formula, data=data,
+        rf <- randomForestSRC::rfsrc(formula, data=data, mtry=mtry, nodesize=nodesize,
                                      ntree=ntree, importance=importance, block.size = block.size,...)
         m <- rf$importance
         perf <- rf$err.rate[rf$ntree]
@@ -568,49 +568,49 @@ VSURF_thres.formula <- function(formula, data, ntree = 2000, mtry = max(floor(nc
     
   }
   else{
-  
-  
-### code gratefully stolen from svm.formula (package e1071).
-###
-  if (!inherits(formula, "formula"))
-    stop("method is only for formula objects")
-  m <- match.call(expand.dots = FALSE)
-  ## Catch xtest and ytest in arguments.
-  if (any(c("xtest", "ytest") %in% names(m)))
-    stop("xtest/ytest not supported through the formula interface")
-  names(m)[2] <- "formula"
-  if (is.matrix(eval(m$data, parent.frame())))
-    m$data <- as.data.frame(data)
-  m$... <- NULL
-  m$na.action <- na.action
-  m[[1]] <- as.name("model.frame")
-  m <- eval(m, parent.frame())
-  y <- model.response(m)
-  Terms <- attr(m, "terms")
-  attr(Terms, "intercept") <- 0
-  attr(y, "na.action") <- attr(m, "na.action")
-  ## Drop any "negative" terms in the formula.
-  ## test with:
-  ## randomForest(Fertility~.-Catholic+I(Catholic<50),data=swiss,mtry=2)
-  m <- model.frame(terms(reformulate(attributes(Terms)$term.labels)),
-                   data.frame(m))
-  ## if (!is.null(y)) m <- m[, -1, drop=FALSE]
-  for (i in seq(along=ncol(m))) {
-    if (is.ordered(m[[i]])) m[[i]] <- as.numeric(m[[i]])
-  }
-  ret <- VSURF_thres.default(x=m, y=y, ...)
-  cl <- match.call()
-  cl[[1]] <- as.name("VSURF")
-  ret$call <- cl
-  ret$terms <- Terms
-  if (!is.null(attr(y, "na.action"))) {
-    ret$na.action <- attr(y, "na.action")
-  }
-  class(ret) <- c("VSURF_thres.formula", class(ret))
-        warning(
-        "VSURF with a formula-type call outputs selected variables
-  which are indices of the input matrix based on the formula:
-  you may reorder these to get indices of the original data")
-    return(ret)
+    
+    
+  ### code gratefully stolen from svm.formula (package e1071).
+  ###
+    if (!inherits(formula, "formula"))
+      stop("method is only for formula objects")
+    m <- match.call(expand.dots = FALSE)
+    ## Catch xtest and ytest in arguments.
+    if (any(c("xtest", "ytest") %in% names(m)))
+      stop("xtest/ytest not supported through the formula interface")
+    names(m)[2] <- "formula"
+    if (is.matrix(eval(m$data, parent.frame())))
+      m$data <- as.data.frame(data)
+    m$... <- NULL
+    m$na.action <- na.action
+    m[[1]] <- as.name("model.frame")
+    m <- eval(m, parent.frame())
+    y <- model.response(m)
+    Terms <- attr(m, "terms")
+    attr(Terms, "intercept") <- 0
+    attr(y, "na.action") <- attr(m, "na.action")
+    ## Drop any "negative" terms in the formula.
+    ## test with:
+    ## randomForest(Fertility~.-Catholic+I(Catholic<50),data=swiss,mtry=2)
+    m <- model.frame(terms(reformulate(attributes(Terms)$term.labels)),
+                     data.frame(m))
+    ## if (!is.null(y)) m <- m[, -1, drop=FALSE]
+    for (i in seq(along=ncol(m))) {
+      if (is.ordered(m[[i]])) m[[i]] <- as.numeric(m[[i]])
+    }
+    ret <- VSURF_thres.default(x=m, y=y, ...)
+    cl <- match.call()
+    cl[[1]] <- as.name("VSURF")
+    ret$call <- cl
+    ret$terms <- Terms
+    if (!is.null(attr(y, "na.action"))) {
+      ret$na.action <- attr(y, "na.action")
+    }
+    class(ret) <- c("VSURF_thres.formula", class(ret))
+          warning(
+          "VSURF with a formula-type call outputs selected variables
+    which are indices of the input matrix based on the formula:
+    you may reorder these to get indices of the original data")
+      return(ret)
   }
 }

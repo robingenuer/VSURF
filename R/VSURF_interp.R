@@ -472,7 +472,7 @@ VSURF_interp.formula <- function(formula, data, ntree = 2000, vars, nfor.interp 
         w <- data[, u, drop=FALSE]
         
         for (j in 1:nfor.interp) {
-          rf[j] <- randomForestSRC::rfsrc(formula, data=w, ntree=ntree,
+          rf[j] <- randomForestSRC::rfsrc(formula, data=w, ntree=ntree,  
                                          importance=importance, block.size=block.size, ...)$err.rate[ntree]
         }
         
