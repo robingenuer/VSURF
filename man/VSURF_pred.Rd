@@ -27,6 +27,7 @@ VSURF_pred(x, ...)
   formula,
   data,
   ntree = 2000,
+  nodesize = 15,
   err.interp,
   varselect.interp,
   nfor.pred = 25,
@@ -85,6 +86,8 @@ detected by R minus 1.}
 Adds a small extra overload.}
 
 \item{data}{a data frame containing the variables in the model.}
+
+\item{nodesize}{Definition of nodesize.}
 
 \item{importance}{Definition of importance (package randomForestSRC).}
 

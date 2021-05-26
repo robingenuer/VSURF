@@ -314,7 +314,7 @@ did not eliminate variables")
 
 #' @rdname VSURF_pred
 #' @export
-VSURF_pred.formula <- function(formula, data, ntree = 2000, err.interp, varselect.interp,
+VSURF_pred.formula <- function(formula, data, ntree = 2000, nodesize = 15, err.interp, varselect.interp,
                                nfor.pred = 25, nmj = 1, RFimplem = "randomForest", parallel = FALSE,
                                ncores = detectCores()-1, verbose = TRUE,  importance="permute", block.size = 1,..., na.action = na.fail) {
 ### formula interface for VSURF_pred.
@@ -345,16 +345,20 @@ VSURF_pred.formula <- function(formula, data, ntree = 2000, err.interp, varselec
     
     #num of the variables used for Surv in data
     num_surv <- which(colnames(data) == formulaDetail$yvar.names[1] | colnames(data)==formulaDetail$yvar.names[2])
+    
+    #names of the x-variables 
+    vars.names <- formulaDetail$xvar.names
+    
    
-     if (verbose == TRUE) cat(paste("\nPrediction step (on", length(varselect.interp),
+    if (verbose == TRUE) cat(paste("\nPrediction step (on", length(varselect.interp),
                                    "variables)\n"))
     
     
     if (verbose == TRUE) {
       if (RFimplem=="randomForestSRC"){
         timeOneRFAllVar <- system.time(
-          randomForestSRC::rfsrc(formula, data=data[,c(varselect.interp, num_surv), drop=FALSE],
-                                 ntree=ntree, ...)
+          randomForestSRC::rfsrc(formula, data=data[,c(vars.names[varselect.interp], formulaDetail$yvar.names), drop=FALSE],
+                                 ntree=ntree, nodesize = nodesize, importance=importance, block.size = block.size, ...)
         )
       }
       cat(paste("Maximum estimated computational time (on one core):",
@@ -389,14 +393,14 @@ did not eliminate variables")
       # and test of the addition of the variable
       n <- nrow(data)
       varselect.pred <- varselect.interp[1]
-      u <- c(varselect.pred, num_surv)
+      u <- c(vars.names[varselect.pred], formulaDetail$yvar.names)
       w <- data[, u, drop=FALSE]
       rf <- rep(NA, nfor.pred)
       
       if (RFimplem == "randomForestSRC"){
         for (j in 1:nfor.pred) {
-          rf[j]<-randomForestSRC::rfsrc(formula, data=w, ntree=ntree, importance=importance,
-                                        block.size = block.size, ...)$err.rate[ntree]
+          rf[j]<-randomForestSRC::rfsrc(formula, data=w, ntree=ntree, nodesize=nodesize,
+                                        importance=importance, block.size = block.size, ...)$err.rate[ntree]
         }
         err.pred <- mean(rf)
       }
@@ -410,14 +414,14 @@ did not eliminate variables")
       
       if (l>1) {
         for (i in 2:l){
-          u <- c(varselect.pred, varselect.interp[i], num_surv)
+          u <- c(vars.names[c(varselect.pred, varselect.interp[i])], formulaDetail$yvar.names)
           w <- data[, u, drop=FALSE]
           rf <- rep(NA, nfor.pred)
           
           if (RFimplem == "randomForestSRC"){
             for (j in 1:nfor.pred) {
-              rf[j]<-randomForestSRC::rfsrc(formula, data=w, ntree=ntree, importance=importance, 
-                                            block.size = block.size, ...)$err.rate[ntree]
+              rf[j]<-randomForestSRC::rfsrc(formula, data=w, ntree=ntree, nodesize=nodesize,
+                                            importance=importance, block.size = block.size, ...)$err.rate[ntree]
             }
             z <- mean(rf)
           }

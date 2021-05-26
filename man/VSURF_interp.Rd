@@ -27,6 +27,7 @@ VSURF_interp(x, ...)
   formula,
   data,
   ntree = 2000,
+  nodesize = 15,
   vars,
   nfor.interp = 25,
   nsd = 1,
@@ -94,6 +95,8 @@ coordinate is passed to each intermediate function: \code{VSURF_thres},
 Adds a small extra overload.}
 
 \item{data}{a data frame containing the variables in the model.}
+
+\item{nodesize}{Definition of nodesize.}
 
 \item{importance}{Definition of importance (package randomForestSRC).}
 

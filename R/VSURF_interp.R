@@ -418,7 +418,7 @@ VSURF_interp.default <- function(
 
 #' @rdname VSURF_interp
 #' @export
-VSURF_interp.formula <- function(formula, data, ntree = 2000, vars, nfor.interp = 25, nsd = 1, 
+VSURF_interp.formula <- function(formula, data, ntree = 2000, nodesize=15, vars, nfor.interp = 25, nsd = 1, 
                                  RFimplem = "randomForest", parallel = FALSE,
                                  ncores = detectCores()-1, clusterType = "PSOCK",
                                  verbose = TRUE, importance="permute", block.size = 1,
@@ -456,9 +456,8 @@ VSURF_interp.formula <- function(formula, data, ntree = 2000, vars, nfor.interp 
       ncores <- NULL
     }  
     
-    #num of the variables used for Surv in data
-    num_surv <- which(colnames(data) == formulaDetail$yvar.names[1] | colnames(data)==formulaDetail$yvar.names[2])
-    
+    #names of the x-variables 
+    vars.names <- formulaDetail$xvar.names
     
     nvars <- length(vars)
     n <- nrow(data)
@@ -468,11 +467,11 @@ VSURF_interp.formula <- function(formula, data, ntree = 2000, vars, nfor.interp 
     if (RFimplem == "randomForestSRC") {
       rf.interp.surv <- function(i, nfor.interp, ...) {
         rf <- rep(NA, nfor.interp)
-        u <- c(vars[1:i], num_surv)
+        u <- c(vars.names[1:i], formulaDetail$yvar.names)
         w <- data[, u, drop=FALSE]
         
         for (j in 1:nfor.interp) {
-          rf[j] <- randomForestSRC::rfsrc(formula, data=w, ntree=ntree,  
+          rf[j] <- randomForestSRC::rfsrc(formula, data=w, ntree=ntree, nodesize=nodesize, 
                                          importance=importance, block.size=block.size, ...)$err.rate[ntree]
         }
         

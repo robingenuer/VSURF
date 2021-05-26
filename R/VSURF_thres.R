@@ -398,7 +398,7 @@ VSURF_thres.default <- function(
 
 #' @rdname VSURF_thres
 #' @export
-VSURF_thres.formula <- function(formula, data, ntree = 2000, mtry = max(ifelse(RFimplem=="randomForestSRC", sqrt(ncol(data)-2),floor((ncol(data)-1)/3)), 1), 
+VSURF_thres.formula <- function(formula, data, ntree = 2000, mtry = NULL, 
                                 nodesize = 15, nfor.thres = 50, nmin = 1, RFimplem = "randomForest", parallel = FALSE,
                                 clusterType = "PSOCK", ncores = parallel::detectCores() - 1,
                                 verbose = TRUE, importance="permute", block.size = 1, ..., na.action = na.fail) {
@@ -423,6 +423,18 @@ VSURF_thres.formula <- function(formula, data, ntree = 2000, mtry = max(ifelse(R
 
     start <- Sys.time()
     
+    # define mtry
+    if (!is.null(mtry)){
+      mtry <- round(mtry)
+      if (mtry < 1 | mtry > length(formulaDetail$xvar.names)){
+        mtry <- max(1, min(mtry, length(formulaDetail$xvar.names)))
+      }
+    }
+    else{
+      mtry <- max(1, ceiling(sqrt(length(formulaDetail$xvar.names))))
+    }
+    
+    print(formulaDetail)
     if (verbose == TRUE) cat(paste("Thresholding step\n"))
     
     if (!parallel) {

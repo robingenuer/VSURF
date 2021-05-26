@@ -287,8 +287,8 @@ VSURF.default <- function(
 
 #' @rdname VSURF
 #' @export
-VSURF.formula <- function(formula, data, ntree=2000, mtry = max(ifelse(RFimplem=="randomForestSRC", sqrt(ncol(data)-2),floor((ncol(data)-1)/3)), 1), 
-                          nodesize=15, nfor.thres=50, nmin = 1, nfor.interp = 25, nsd = 1, nfor.pred = 25, nmj = 1,
+VSURF.formula <- function(formula, data, ntree=2000, mtry = NULL, nodesize=15, 
+                          nfor.thres=50, nmin = 1, nfor.interp = 25, nsd = 1, nfor.pred = 25, nmj = 1,
                           RFimplem = "randomForest", parallel = FALSE, ncores = detectCores() - 1,
                           clusterType = "PSOCK", verbose = TRUE, importance="permute", block.size = 1,
                           ..., na.action = na.fail){
@@ -313,6 +313,17 @@ VSURF.formula <- function(formula, data, ntree=2000, mtry = max(ifelse(RFimplem=
     
     start <- Sys.time()
     
+    if (!is.null(mtry)){
+      mtry <- round(mtry)
+      if (mtry < 1 | mtry > length(formulaDetail$xvar.names)){
+        mtry <- max(1, min(mtry, length(formulaDetail$xvar.names)))
+      }
+    }
+    else{
+      mtry <- max(1, ceiling(sqrt(length(formulaDetail$xvar.names))))
+    }
+  
+    
     thres <- VSURF_thres.formula(
       formula, data, ntree=ntree, mtry=mtry, nodesize=nodesize, nfor.thres=nfor.thres, nmin=nmin,
       RFimplem = ifelse(length(RFimplem) == 3, RFimplem[1], RFimplem),
@@ -322,14 +333,14 @@ VSURF.formula <- function(formula, data, ntree=2000, mtry = max(ifelse(RFimplem=
       ...)
     
     interp <- VSURF_interp.formula(
-      formula, data, ntree=ntree, vars=thres$varselect.thres, nfor.interp=nfor.interp,
+      formula, data, ntree=ntree, nodesize=nodesize, vars=thres$varselect.thres, nfor.interp=nfor.interp,
       nsd=nsd, RFimplem = ifelse(length(RFimplem) == 3, RFimplem[2], RFimplem),
       parallel = ifelse(length(parallel) == 3, parallel[2], parallel),
       clusterType = ifelse(length(clusterType) > 1, clusterType[2], clusterType),
       ncores=ncores, verbose = verbose, importance=importance, block.size = block.size,
       ...)
     
-    pred <- VSURF_pred.formula(formula, data, ntree=ntree, err.interp=interp$err.interp,
+    pred <- VSURF_pred.formula(formula, data, ntree=ntree, nodesize=nodesize,err.interp=interp$err.interp,
                        varselect.interp=interp$varselect.interp, nfor.pred=nfor.pred, nmj=nmj,
                        RFimplem = ifelse(length(RFimplem) == 3, RFimplem[3], RFimplem),
                        parallel = ifelse(length(parallel) == 3, parallel[3], parallel),
