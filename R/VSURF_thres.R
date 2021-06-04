@@ -489,6 +489,20 @@ VSURF_thres.formula <- function(formula, data, ntree = 2000, mtry = NULL,
           }
         }
       }
+    } else {
+      clust <- parallel::makeCluster(spec=ncores, type=clusterType)
+      doParallel::registerDoParallel(clust)
+      if (RFimplem == "randomForestSRC") {
+        res <- foreach::foreach(i=1:nfor.thres, .packages="randomForestSRC") %dopar% {
+          out <- rf.surv(i,  ...)
+        }
+      }
+      parallel::stopCluster(clust)
+      
+      for (i in 1:nfor.thres) {
+        m[i,] <- res[[i]]$m
+        perf[i] <- res[[i]]$perf
+      }
     }
     
     m_na.omit <- stats::na.omit(m)

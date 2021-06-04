@@ -507,7 +507,23 @@ VSURF_interp.formula <- function(formula, data, ntree = 2000, nodesize=15, vars,
           }
         }
       }
-    } 
+    } else {
+      clust <- parallel::makeCluster(spec=ncores, type=clusterType)
+      doParallel::registerDoParallel(clust)
+      # i <- NULL #to avoid check NOTE...
+      
+      if (RFimplem == "randomForestSRC") {
+          res <- foreach::foreach(i=1:nvars, .packages="randomForestSRC") %dopar% {
+            out <- rf.interp.surv(i, nfor.interp, ...)
+          }
+        }
+      parallel::stopCluster(clust)
+    
+      for (i in 1:nvars) {
+        err.interp[i] <- res[[i]][1]
+        sd.interp[i] <- res[[i]][2]
+      }
+    }
     
     var.min <- which.min(err.interp)
     sd.min <- sd.interp[var.min]
