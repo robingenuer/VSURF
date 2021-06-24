@@ -64,7 +64,8 @@
 #'   \code{randomForest}.
 #' @param mtry Number of variables randomly sampled as candidates at each split.
 #'   Standard parameter of \code{randomForest}.
-#' @param nodesize Definition of nodesize.
+#' @param nodesize.rfsrc Number of unique events in terminal nodes (parameter for 
+#'   \code{\link{randomForestSRC}} and survival).
 #' @param nfor.thres Number of forests grown for "thresholding step" (first of
 #'   the three steps).
 #' @param nmin Number of times the "minimum value" is multiplied to set
@@ -77,9 +78,9 @@
 #'   three steps).
 #' @param nmj Number of times the mean jump is multiplied. See details below.
 #' @param RFimplem Choice of the random forests implementation to use :
-#'   "randomForest" (default), "ranger" or "Rborist" (not that if "Rborist" is
+#'   "randomForest" (default), "ranger", "randomForestSRC" or "Rborist" (not that if "Rborist" is
 #'   chosen, "randoForest" will still be used for the first step
-#'   \code{VSURF_thres}). If a vector of length 3 is given, each coordinate is
+#'   \code{VSURF_thres}). If a vector of length 4 is given, each coordinate is
 #'   passed to each intermediate function: \code{VSURF_thres},
 #'   \code{VSURF_interp}, \code{VSURF_pred}, in this order.
 #' @param parallel A logical indicating if you want VSURF to run in parallel on
@@ -101,8 +102,10 @@
 #' @param verbose A logical indicating if information about method's progress
 #' (included progress bars for each step) must be printed (default to TRUE).
 #' Adds a small extra overload.
-#' @param importance Definition of importance (package randomForestSRC).
-#' @param block.size Definition of block.size (package randomForestSRC).
+#' @param importance.rfsrc Method for computing variable importance (VIMP). Default is 
+#'  "permute" (parameter for \code{\link{randomForestSRC}} and survival).
+#' @param block.size For the definition of block.size, see help of \code{\link{randomForestSRC}}. When block.size=1, VIMP is calculated 
+#' by tree, it's the default value here (parameter for \code{\link{randomForestSRC}} and survival).
 #' @param ...  others parameters to be passed on to the \code{randomForest}
 #'   function (see ?randomForest for further information).
 #' 
@@ -287,10 +290,10 @@ VSURF.default <- function(
 
 #' @rdname VSURF
 #' @export
-VSURF.formula <- function(formula, data, ntree=2000, mtry = NULL, nodesize=15, 
+VSURF.formula <- function(formula, data, ntree=2000, mtry = NULL, nodesize.rfsrc=15, 
                           nfor.thres=50, nmin = 1, nfor.interp = 25, nsd = 1, nfor.pred = 25, nmj = 1,
                           RFimplem = "randomForest", parallel = FALSE, ncores = detectCores() - 1,
-                          clusterType = "PSOCK", verbose = TRUE, importance="permute", block.size = 1,
+                          clusterType = "PSOCK", verbose = TRUE, importance.rfsrc="permute", block.size = 1,
                           ..., na.action = na.fail){
   ### formula interface for VSURF.
   
@@ -325,26 +328,26 @@ VSURF.formula <- function(formula, data, ntree=2000, mtry = NULL, nodesize=15,
   
     
     thres <- VSURF_thres.formula(
-      formula, data, ntree=ntree, mtry=mtry, nodesize=nodesize, nfor.thres=nfor.thres, nmin=nmin,
+      formula, data, ntree=ntree, mtry=mtry, nodesize.rfsrc=nodesize.rfsrc, nfor.thres=nfor.thres, nmin=nmin,
       RFimplem = ifelse(length(RFimplem) == 3, RFimplem[1], RFimplem),
       parallel = ifelse(length(parallel) == 3, parallel[1], parallel),
       clusterType = ifelse(length(clusterType) > 1, clusterType[1], clusterType),
-      ncores=ncores, verbose = verbose, importance=importance, block.size = block.size,
+      ncores=ncores, verbose = verbose, importance.rfsrc=importance.rfsrc, block.size = block.size,
       ...)
     
     interp <- VSURF_interp.formula(
-      formula, data, ntree=ntree, nodesize=nodesize, vars=thres$varselect.thres, nfor.interp=nfor.interp,
+      formula, data, ntree=ntree, nodesize.rfsrc=nodesize.rfsrc, vars=thres$varselect.thres, nfor.interp=nfor.interp,
       nsd=nsd, RFimplem = ifelse(length(RFimplem) == 3, RFimplem[2], RFimplem),
       parallel = ifelse(length(parallel) == 3, parallel[2], parallel),
       clusterType = ifelse(length(clusterType) > 1, clusterType[2], clusterType),
-      ncores=ncores, verbose = verbose, importance=importance, block.size = block.size,
+      ncores=ncores, verbose = verbose, importance.rfsrc=importance.rfsrc, block.size = block.size,
       ...)
     
-    pred <- VSURF_pred.formula(formula, data, ntree=ntree, nodesize=nodesize,err.interp=interp$err.interp,
+    pred <- VSURF_pred.formula(formula, data, ntree=ntree, nodesize.rfsrc=nodesize.rfsrc, err.interp=interp$err.interp,
                        varselect.interp=interp$varselect.interp, nfor.pred=nfor.pred, nmj=nmj,
                        RFimplem = ifelse(length(RFimplem) == 3, RFimplem[3], RFimplem),
                        parallel = ifelse(length(parallel) == 3, parallel[3], parallel),
-                       ncores = ncores, verbose = verbose, ...)
+                       ncores = ncores, verbose = verbose, importance.rfsrc=importance.rfsrc, block.size = block.size, ...)
     
     cl <- match.call()
     cl[[1]] <- as.name("VSURF")

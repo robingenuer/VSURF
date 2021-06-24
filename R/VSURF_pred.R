@@ -314,9 +314,9 @@ did not eliminate variables")
 
 #' @rdname VSURF_pred
 #' @export
-VSURF_pred.formula <- function(formula, data, ntree = 2000, nodesize = 15, err.interp, varselect.interp,
+VSURF_pred.formula <- function(formula, data, ntree = 2000, nodesize.rfsrc = 15, err.interp, varselect.interp,
                                nfor.pred = 25, nmj = 1, RFimplem = "randomForest", parallel = FALSE,
-                               ncores = detectCores()-1, verbose = TRUE,  importance="permute", block.size = 1,..., na.action = na.fail) {
+                               ncores = detectCores()-1, verbose = TRUE,  importance.rfsrc="permute", block.size = 1,..., na.action = na.fail) {
 ### formula interface for VSURF_pred.
   
   ### code gratefully stolen from rfsrc (package randomForestSRC) and adapted for this function.
@@ -358,7 +358,7 @@ VSURF_pred.formula <- function(formula, data, ntree = 2000, nodesize = 15, err.i
       if (RFimplem=="randomForestSRC"){
         timeOneRFAllVar <- system.time(
           randomForestSRC::rfsrc(formula, data=data[,c(vars.names[varselect.interp], formulaDetail$yvar.names), drop=FALSE],
-                                 ntree=ntree, nodesize = nodesize, importance=importance, block.size = block.size, ...)
+                                 ntree=ntree, nodesize = nodesize.rfsrc, importance=importance.rfsrc, block.size = block.size, ...)
         )
       }
       cat(paste("Maximum estimated computational time (on one core):",
@@ -399,8 +399,8 @@ did not eliminate variables")
       
       if (RFimplem == "randomForestSRC"){
         for (j in 1:nfor.pred) {
-          rf[j]<-randomForestSRC::rfsrc(formula, data=w, ntree=ntree, nodesize=nodesize,
-                                        importance=importance, block.size = block.size, ...)$err.rate[ntree]
+          rf[j]<-randomForestSRC::rfsrc(formula, data=w, ntree=ntree, nodesize=nodesize.rfsrc,
+                                        importance=importance.rfsrc, block.size = block.size, ...)$err.rate[ntree]
         }
         err.pred <- mean(rf)
       }
@@ -420,8 +420,8 @@ did not eliminate variables")
           
           if (RFimplem == "randomForestSRC"){
             for (j in 1:nfor.pred) {
-              rf[j]<-randomForestSRC::rfsrc(formula, data=w, ntree=ntree, nodesize=nodesize,
-                                            importance=importance, block.size = block.size, ...)$err.rate[ntree]
+              rf[j]<-randomForestSRC::rfsrc(formula, data=w, ntree=ntree, nodesize=nodesize.rfsrc,
+                                            importance=importance.rfsrc, block.size = block.size, ...)$err.rate[ntree]
             }
             z <- mean(rf)
           }

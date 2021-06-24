@@ -399,9 +399,9 @@ VSURF_thres.default <- function(
 #' @rdname VSURF_thres
 #' @export
 VSURF_thres.formula <- function(formula, data, ntree = 2000, mtry = NULL, 
-                                nodesize = 15, nfor.thres = 50, nmin = 1, RFimplem = "randomForest", parallel = FALSE,
+                                nodesize.rfsrc = 15, nfor.thres = 50, nmin = 1, RFimplem = "randomForest", parallel = FALSE,
                                 clusterType = "PSOCK", ncores = parallel::detectCores() - 1,
-                                verbose = TRUE, importance="permute", block.size = 1, ..., na.action = na.fail) {
+                                verbose = TRUE, importance.rfsrc="permute", block.size = 1, ..., na.action = na.fail) {
 ### formula interface for VSURF_thres.
   
 ### code gratefully stolen from rfsrc (package randomForestSRC) and adapted for this function.
@@ -457,8 +457,8 @@ VSURF_thres.formula <- function(formula, data, ntree = 2000, mtry = NULL,
     #importance="permute", block.size = 1 : to have variable importance of Breiman-Cutler
     if (RFimplem == "randomForestSRC") {
       rf.surv <- function(i, ...) {
-        rf <- randomForestSRC::rfsrc(formula, data=data, mtry=mtry, nodesize=nodesize,
-                                     ntree=ntree, importance=importance, block.size = block.size,...)
+        rf <- randomForestSRC::rfsrc(formula, data=data, mtry=mtry, nodesize=nodesize.rfsrc,
+                                     ntree=ntree, importance=importance.rfsrc, block.size = block.size,...)
         m <- rf$importance
         perf <- rf$err.rate[rf$ntree]
         return(list(m=m, perf=perf))

@@ -32,7 +32,7 @@ VSURF(x, ...)
   data,
   ntree = 2000,
   mtry = NULL,
-  nodesize = 15,
+  nodesize.rfsrc = 15,
   nfor.thres = 50,
   nmin = 1,
   nfor.interp = 25,
@@ -44,7 +44,7 @@ VSURF(x, ...)
   ncores = detectCores() - 1,
   clusterType = "PSOCK",
   verbose = TRUE,
-  importance = "permute",
+  importance.rfsrc = "permute",
   block.size = 1,
   ...,
   na.action = na.fail
@@ -84,9 +84,9 @@ three steps).}
 \item{nmj}{Number of times the mean jump is multiplied. See details below.}
 
 \item{RFimplem}{Choice of the random forests implementation to use :
-"randomForest" (default), "ranger" or "Rborist" (not that if "Rborist" is
+"randomForest" (default), "ranger", "randomForestSRC" or "Rborist" (not that if "Rborist" is
 chosen, "randoForest" will still be used for the first step
-\code{VSURF_thres}). If a vector of length 3 is given, each coordinate is
+\code{VSURF_thres}). If a vector of length 4 is given, each coordinate is
 passed to each intermediate function: \code{VSURF_thres},
 \code{VSURF_interp}, \code{VSURF_pred}, in this order.}
 
@@ -115,11 +115,14 @@ Adds a small extra overload.}
 
 \item{data}{a data frame containing the variables in the model.}
 
-\item{nodesize}{Definition of nodesize.}
+\item{nodesize.rfsrc}{Number of unique events in terminal nodes (parameter for 
+\code{\link{randomForestSRC}} and survival).}
 
-\item{importance}{Definition of importance (package randomForestSRC).}
+\item{importance.rfsrc}{Method for computing varaible importance (VIMP). Default is 
+"permute" (parameter for \code{\link{randomForestSRC}} and survival).}
 
-\item{block.size}{Definition of block.size (package randomForestSRC).}
+\item{block.size}{Definition of block.size, see help of \code{\link{randomForestSRC}}. When block.size=1, VIMP is calculated 
+by tree, it's the default value here (parameter for \code{\link{randomForestSRC}} and survival).}
 
 \item{na.action}{A function to specify the action to be taken if NAs are
 found.  (NOTE: If given, this argument must be named, and as

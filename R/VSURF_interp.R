@@ -418,10 +418,10 @@ VSURF_interp.default <- function(
 
 #' @rdname VSURF_interp
 #' @export
-VSURF_interp.formula <- function(formula, data, ntree = 2000, nodesize=15, vars, nfor.interp = 25, nsd = 1, 
+VSURF_interp.formula <- function(formula, data, ntree = 2000, nodesize.rfsrc = 15, vars, nfor.interp = 25, nsd = 1, 
                                  RFimplem = "randomForest", parallel = FALSE,
                                  ncores = detectCores()-1, clusterType = "PSOCK",
-                                 verbose = TRUE, importance="permute", block.size = 1,
+                                 verbose = TRUE, importance.rfsrc="permute", block.size = 1,
                                  ..., na.action = na.fail) {
   ### formula interface for VSURF_interp.
   
@@ -471,8 +471,8 @@ VSURF_interp.formula <- function(formula, data, ntree = 2000, nodesize=15, vars,
         w <- data[, u, drop=FALSE]
         
         for (j in 1:nfor.interp) {
-          rf[j] <- randomForestSRC::rfsrc(formula, data=w, ntree=ntree, nodesize=nodesize, 
-                                         importance=importance, block.size=block.size, ...)$err.rate[ntree]
+          rf[j] <- randomForestSRC::rfsrc(formula, data=w, ntree=ntree, nodesize=nodesize.rfsrc, 
+                                         importance=importance.rfsrc, block.size=block.size, ...)$err.rate[ntree]
         }
         
         return(c(mean(rf), sd(rf)))
