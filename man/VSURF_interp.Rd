@@ -99,10 +99,10 @@ Adds a small extra overload.}
 \item{nodesize.rfsrc}{Number of unique events in terminal nodes (parameter for 
 \code{\link{randomForestSRC}} and survival).}
 
-\item{importance.rfsrc}{Method for computing varaible importance (VIMP). Default is 
+\item{importance.rfsrc}{Method for computing variable importance (VIMP). Default is 
 "permute" (parameter for \code{\link{randomForestSRC}} and survival).}
 
-\item{block.size}{Definition of block.size, see help of \code{\link{randomForestSRC}}. When block.size=1, VIMP is calculated 
+\item{block.size}{For the definition of block.size, see help of \code{\link{randomForestSRC}}. When block.size=1, VIMP is calculated 
 by tree, it's the default value here (parameter for \code{\link{randomForestSRC}} and survival).}
 
 \item{na.action}{A function to specify the action to be taken if NAs are
