@@ -29,7 +29,6 @@ Imports:
     randomForest,
     randomForestSRC,
     ranger,
-    Rborist,
     rpart
 Suggests:
     testthat,
