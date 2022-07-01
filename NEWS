@@ -3,11 +3,14 @@ News about the R package VSURF:
 
 Main changes in Version 1.2.0 (2022-07-01)
 * add ntree.thres, ntree.interp and ntree.pred parameters to have full control
-of the number of trees of the forests grown at each step.
+of the number of trees of the forests grown at each step
 * ntree parameter is now deprecated
 * default values of the main parameters have changed: the default is now
 ntree.thres=500 (vs 2000 before), ntree.interp and ntree.pred=100 (vs 500),
-nfor.thres=20 (vs 50), nfor.interp and nfor.pred=10 (vs 25)
+nfor.thres=20 (vs 50), nfor.interp and nfor.pred=10 (vs 25).
+Those choices favor computational speed. If the stability of the result (and
+if the computational load is not too high) we recommend to increase the default
+values (e.g. to the previous ones)
 
 Main changes in Version 1.1.0 (2019-07-17)
 * add RFimplem parameter which allows to choose between randomForest,
