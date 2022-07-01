@@ -24,6 +24,7 @@
 #'@param vars A vector of variable indices. Typically, indices of variables
 #'  selected by thresholding step (see value \code{varselect.thres} of
 #'  \code{\link{VSURF_thres}} function).
+#'@param ntree.interp Number of trees of each forest grown.  
 #'@param nfor.interp Number of forests grown.
 #'@inheritParams VSURF
 #'
@@ -74,9 +75,9 @@
 #' @examples
 #'
 #' data(iris)
-#' iris.thres <- VSURF_thres(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20)
+#' iris.thres <- VSURF_thres(iris[,1:4], iris[,5])
 #' iris.interp <- VSURF_interp(iris[,1:4], iris[,5],
-#'   vars = iris.thres$varselect.thres, nfor.interp = 10)
+#'   vars = iris.thres$varselect.thres)
 #' iris.interp
 #'
 #' \dontrun{
@@ -102,10 +103,10 @@ VSURF_interp <- function (x, ...) {
 #' @rdname VSURF_interp
 #' @export
 VSURF_interp.default <- function(
-  x, y, ntree = 2000, vars, nfor.interp = 25, nsd = 1, 
+  x, y, vars, ntree.interp = 100, nfor.interp = 25, nsd = 1, 
   RFimplem = "randomForest", parallel = FALSE,
   ncores = detectCores()-1, clusterType = "PSOCK",
-  verbose = TRUE, ...) {
+  verbose = TRUE, ntree = NULL, ...) {
   
   # vars: selected variables indices after thresholding step
   # nfor.interp: number of forests to estimate each model
@@ -113,6 +114,9 @@ VSURF_interp.default <- function(
   # smaller than the min error + nsd * (sd of the min error)
   
   start <- Sys.time()
+  
+  if (!is.null(ntree)) cat(paste(
+    "\nntree parameter is deprecated, please use ntree.interp instead\n"))
   
   if (verbose == TRUE) cat(paste("\nInterpretation step (on", length(vars), "variables)\n"))
   
@@ -149,11 +153,11 @@ VSURF_interp.default <- function(
       
       if (i <= n) {
         for (j in 1:nfor.interp) {
-          rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$err.rate[,1], n=1)
+          rf[j] <- tail(randomForest::randomForest(x=w, y=y, ntree = ntree.interp, ...)$err.rate[,1], n=1)
         }
       } else {
         for (j in 1:nfor.interp) {
-          rf[j] <- tail(randomForest::randomForest(x=w, y=y, mtry=i/3, ...)$err.rate[,1], n=1)
+          rf[j] <- tail(randomForest::randomForest(x=w, y=y, ntree = ntree.interp, mtry=i/3, ...)$err.rate[,1], n=1)
         }
       }
       
@@ -166,7 +170,7 @@ VSURF_interp.default <- function(
       w <- x[,u, drop=FALSE]
       
       for (j in 1:nfor.interp) {
-        rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$mse, n=1)
+        rf[j] <- tail(randomForest::randomForest(x=w, y=y, ntree = ntree.interp, ...)$mse, n=1)
       }
       
       out <- c(mean(rf), sd(rf))
@@ -183,12 +187,12 @@ VSURF_interp.default <- function(
       if (i <= n) {
         for (j in 1:nfor.interp) {
           rf[j] <- ranger::ranger(dependent.variable.name="y", data=dat,
-                                  num.trees = ntree, ...)$prediction.error
+                                  num.trees = ntree.interp, ...)$prediction.error
         }
       } else {
         for (j in 1:nfor.interp) {
           rf[j] <- ranger::ranger(dependent.variable.name="y", data=dat,
-                                  num.trees = ntree,
+                                  num.trees = ntree.interp,
                                   mtry=i/3, ...)$prediction.error
         }
       }
@@ -206,12 +210,12 @@ VSURF_interp.default <- function(
       
       if (i <= n) {
         for (j in 1:nfor.interp) {
-          rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree, minInfo = 0,
+          rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree.interp, minInfo = 0,
                                     ...)$validation$oobError
         }
       } else {
         for (j in 1:nfor.interp) {
-          rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree, minInfo = 0,
+          rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree.interp, minInfo = 0,
                                     predFixed = i/3, ...)$validation$oobError
         }
       }

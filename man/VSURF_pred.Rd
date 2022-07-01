@@ -11,15 +11,16 @@ VSURF_pred(x, ...)
 \method{VSURF_pred}{default}(
   x,
   y,
-  ntree = 2000,
   err.interp,
   varselect.interp,
-  nfor.pred = 25,
+  ntree.pred = 100,
+  nfor.pred = 10,
   nmj = 1,
   RFimplem = "randomForest",
   parallel = FALSE,
   ncores = detectCores() - 1,
   verbose = TRUE,
+  ntree = NULL,
   ...
 )
 
@@ -35,15 +36,14 @@ function (see ?randomForest for further information).}
 \item{y}{A response vector (must be a factor for classification problems and
 numeric for regression ones).}
 
-\item{ntree}{Number of trees in each forests grown. Standard parameter of
-\code{randomForest}.}
-
 \item{err.interp}{A vector of the mean OOB error rates of the embedded random
 forests models build during interpretation step (value \code{err.interp} of
 function \code{\link{VSURF_interp}}).}
 
 \item{varselect.interp}{A vector of indices of variables selected after
 interpretation step.}
+
+\item{ntree.pred}{Number of trees of each forest grown.}
 
 \item{nfor.pred}{Number of forests grown.}
 
@@ -67,6 +67,9 @@ detected by R minus 1.}
 \item{verbose}{A logical indicating if information about method's progress
 (included progress bars for each step) must be printed (default to TRUE).
 Adds a small extra overload.}
+
+\item{ntree}{(deprecated) Number of trees in each forest grown for
+"thresholding step".}
 
 \item{data}{a data frame containing the variables in the model.}
 
@@ -126,12 +129,12 @@ estimations along embedded RF models.
 \examples{
 
 data(iris)
-iris.thres <- VSURF_thres(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20)
+iris.thres <- VSURF_thres(iris[,1:4], iris[,5])
 iris.interp <- VSURF_interp(iris[,1:4], iris[,5],
-  vars = iris.thres$varselect.thres, nfor.interp = 10)
+  vars = iris.thres$varselect.thres)
 iris.pred <- VSURF_pred(iris[,1:4], iris[,5],
   err.interp = iris.interp$err.interp,
-  varselect.interp = iris.interp$varselect.interp, nfor.pred = 10)
+  varselect.interp = iris.interp$varselect.interp)
 iris.pred
 
 \dontrun{

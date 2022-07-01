@@ -12,7 +12,9 @@ is.win32b <- function(platform) {
 set.seed(2219, kind = "Mersenne-Twister")
 data(Orange)
 Orange[, 4:10] <- rnorm(7*nrow(Orange))
-orange.vsurf <- VSURF(circumference~., Orange, ntree = 100, nfor.thres = 20,
+orange.vsurf <- VSURF(circumference~., Orange,
+                      ntree.thres = 100,ntree.interp = 500, ntree.pred = 500,
+                      nfor.thres = 20,
                       nfor.interp = 10, nfor.pred = 10, verbose = FALSE)
 
 test_that("Selected variables for the 3 steps", {

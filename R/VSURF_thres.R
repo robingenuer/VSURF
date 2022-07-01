@@ -18,6 +18,7 @@
 #'
 #'@param x,formula A data frame or a matrix of predictors, the columns represent
 #'  the variables. Or a formula describing the model to be fitted.
+#'@param ntree.thres Number of trees of each forest grown.
 #'@param nfor.thres Number of forests grown.
 #'@inheritParams VSURF
 #'
@@ -80,7 +81,7 @@
 #' @examples
 #'
 #' data(iris)
-#' iris.thres <- VSURF_thres(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20)
+#' iris.thres <- VSURF_thres(iris[,1:4], iris[,5])
 #' iris.thres
 #'
 #' \dontrun{
@@ -107,10 +108,10 @@ VSURF_thres <- function (x, ...) {
 #' @rdname VSURF_thres
 #' @export
 VSURF_thres.default <- function(
-  x, y, ntree = 2000, mtry = max(floor(ncol(x) / 3), 1), nfor.thres = 50,
+  x, y, mtry = max(floor(ncol(x) / 3), 1), ntree.thres = 500, nfor.thres = 20,
   nmin = 1, RFimplem = "randomForest", parallel = FALSE,
   clusterType = "PSOCK", ncores = parallel::detectCores() - 1,
-  verbose = TRUE,...) {
+  verbose = TRUE, ntree = NULL, ...) {
   
   # x: input
   # y: output
@@ -119,6 +120,9 @@ VSURF_thres.default <- function(
   # this value can be increased, e.g. to 3 or 5)
   
   start <- Sys.time()
+  
+  if (!is.null(ntree)) cat(paste(
+    "\nntree parameter is deprecated, please use ntree.thres instead\n"))
   
   if (verbose == TRUE) cat(paste("Thresholding step\n"))
   
@@ -165,7 +169,7 @@ VSURF_thres.default <- function(
   
   if (RFimplem == "randomForest") {
     rf.classif <- function(i, ...) {
-      rf <- randomForest::randomForest(x=x, y=y, ntree=ntree, mtry=mtry,
+      rf <- randomForest::randomForest(x=x, y=y, ntree=ntree.thres, mtry=mtry,
                                        importance=TRUE, ...)
       m <- rf$importance[, length(levels(y))+1]
       perf <- tail(rf$err.rate[,1], n=1)
@@ -173,7 +177,7 @@ VSURF_thres.default <- function(
     }
     
     rf.reg <- function(i, ...) {
-      rf <- randomForest::randomForest(x=x, y=y, ntree=ntree, mtry=mtry,
+      rf <- randomForest::randomForest(x=x, y=y, ntree=ntree.thres, mtry=mtry,
                                        importance=TRUE, ...)
       m <- rf$importance[, 1]
       perf <- tail(rf$mse, n=1)
@@ -183,7 +187,7 @@ VSURF_thres.default <- function(
   if (RFimplem == "ranger") {
     rf.ranger <- function(i, ...) {
       rf <- ranger::ranger(dependent.variable.name = "y", data=dat,
-                           num.trees=ntree, mtry=mtry, importance="permutation",
+                           num.trees=ntree.thres, mtry=mtry, importance="permutation",
                            ...)
       m <- rf$variable.importance
       perf <- rf$prediction.error
@@ -201,7 +205,7 @@ VSURF_thres.default <- function(
       }
     }
     if (RFimplem == "ranger") {
-      timeOneRF <- system.time(rf.ranger(i, num.threads = 1, ...))
+      timeOneRF <- system.time(rf.ranger(1, num.threads = 1, ...))
     }
     cat(paste("Estimated computational time (on one core):",
               round(nfor.thres * timeOneRF[3], 1), "sec.\n"))

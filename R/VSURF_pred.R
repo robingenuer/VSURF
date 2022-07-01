@@ -27,6 +27,7 @@
 #'   function \code{\link{VSURF_interp}}).
 #' @param varselect.interp A vector of indices of variables selected after
 #'   interpretation step.
+#' @param ntree.pred Number of trees of each forest grown.   
 #' @param nfor.pred Number of forests grown.
 #' @inheritParams VSURF
 #'
@@ -68,12 +69,12 @@
 #' @examples
 #' 
 #' data(iris)
-#' iris.thres <- VSURF_thres(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20)
+#' iris.thres <- VSURF_thres(iris[,1:4], iris[,5])
 #' iris.interp <- VSURF_interp(iris[,1:4], iris[,5],
-#'   vars = iris.thres$varselect.thres, nfor.interp = 10)
+#'   vars = iris.thres$varselect.thres)
 #' iris.pred <- VSURF_pred(iris[,1:4], iris[,5],
 #'   err.interp = iris.interp$err.interp,
-#'   varselect.interp = iris.interp$varselect.interp, nfor.pred = 10)
+#'   varselect.interp = iris.interp$varselect.interp)
 #' iris.pred
 #' 
 #' \dontrun{
@@ -95,9 +96,9 @@ VSURF_pred <- function (x, ...) {
 
 #' @rdname VSURF_pred
 #' @export
-VSURF_pred.default <-function(x, y, ntree = 2000, err.interp, varselect.interp,
-  nfor.pred = 25, nmj = 1, RFimplem = "randomForest", parallel = FALSE,
-  ncores = detectCores()-1, verbose = TRUE, ...) {
+VSURF_pred.default <-function(x, y, err.interp, varselect.interp,
+  ntree.pred = 100, nfor.pred = 10, nmj = 1, RFimplem = "randomForest", parallel = FALSE,
+  ncores = detectCores()-1, verbose = TRUE, ntree = NULL, ...) {
   
   # err.interp: interpretation models errors
   # varselect.interp: interpretation variables indices
@@ -105,6 +106,9 @@ VSURF_pred.default <-function(x, y, ntree = 2000, err.interp, varselect.interp,
   # reduction of at least nmj * mean jump value
   
   start <- Sys.time()
+  
+  if (!is.null(ntree)) cat(paste(
+    "\nntree parameter is deprecated, please use ntree.pred instead\n"))
   
   if (verbose == TRUE) cat(paste("\nPrediction step (on", length(varselect.interp),
   "variables)\n"))
@@ -130,18 +134,18 @@ VSURF_pred.default <-function(x, y, ntree = 2000, err.interp, varselect.interp,
   if (verbose == TRUE) {
     if (RFimplem == "randomForest") {
       timeOneRFAllVar <- system.time(
-        randomForest::randomForest(x = x[, varselect.interp, drop=FALSE], y = y, ...))
+        randomForest::randomForest(x = x[, varselect.interp, drop=FALSE], y = y, ntree = ntree.pred, ...))
     }
     if (RFimplem == "ranger") {
       timeOneRFAllVar <- system.time(
         ranger(dependent.variable.name="y",
                data = cbind(x[, varselect.interp, drop=FALSE], "y" = y),
-               num.trees = ntree, num.threads = 1, ...))
+               num.trees = ntree.pred, num.threads = 1, ...))
     }
     if (RFimplem == "Rborist") {
       timeOneRFAllVar <- system.time(
         Rborist(x = x[, varselect.interp, drop=FALSE], y = y, minInfo = 0,
-                nTree = ntree, nThread = 1, ...))
+                nTree = ntree.pred, nThread = 1, ...))
     }
     cat(paste("Maximum estimated computational time (on one core):",
               round(length(varselect.interp) * nfor.pred * timeOneRFAllVar[3], 1), "sec.\n"))
@@ -182,7 +186,7 @@ did not eliminate variables")
     if (RFimplem == "randomForest") {
       if (type=="classif") {
         for (j in 1:nfor.pred) {
-          rf[j] <- tail(randomForest::randomForest(x=w, y=y,
+          rf[j] <- tail(randomForest::randomForest(x=w, y=y, ntree = ntree.pred,
                                                    ...)$err.rate[,1], n=1)
         }
         
@@ -190,7 +194,8 @@ did not eliminate variables")
       }
       if (type=="reg") {
         for (j in 1:nfor.pred) {
-          rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$mse, n=1)
+          rf[j] <- tail(randomForest::randomForest(x=w, y=y, ntree = ntree.pred,
+                                                   ...)$mse, n=1)
         }
         err.pred <- mean(rf)
       }
@@ -200,13 +205,13 @@ did not eliminate variables")
       for (j in 1:nfor.pred) {
         rf[j] <- ranger::ranger(dependent.variable.name="y", data=dat,
                                 num.threads = ifelse(parallel, ncores, 1),
-                                num.trees=ntree, ...)$prediction.error
+                                num.trees=ntree.pred, ...)$prediction.error
       }
       err.pred <- mean(rf)
     }
     if (RFimplem == "Rborist") {
       for (j in 1:nfor.pred) {
-        rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree, minInfo = 0,
+        rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree.pred, minInfo = 0,
                                   nThread = ifelse(parallel, ncores, 1),
                                   ...)$validation$oobError
       }
@@ -228,14 +233,14 @@ did not eliminate variables")
           if (type=="classif") {
             if (i <= n) {
               for (j in 1:nfor.pred) {
-                rf[j] <- tail(randomForest::randomForest(x=w, y=y,
+                rf[j] <- tail(randomForest::randomForest(x=w, y=y, ntree = ntree.pred,
                                 ...)$err.rate[,1], n=1)
               }
             }
             
             else {
               for (j in 1:nfor.pred) {
-                rf[j] <- tail(randomForest::randomForest(x=w, y=y,
+                rf[j] <- tail(randomForest::randomForest(x=w, y=y, ntree = ntree.pred,
                                 mtry=i/3, ...)$err.rate[,1], n=1)
               }
             }
@@ -243,7 +248,8 @@ did not eliminate variables")
           }
           if (type=="reg") {
             for (j in 1:nfor.pred) {
-              rf[j] <- tail(randomForest::randomForest(x=w, y=y, ...)$mse, n=1)
+              rf[j] <- tail(randomForest::randomForest(x=w, y=y, ntree = ntree.pred,
+                                                       ...)$mse, n=1)
             }
             z <- mean(rf)
           }
@@ -254,13 +260,13 @@ did not eliminate variables")
             for (j in 1:nfor.pred) {
               rf[j] <- ranger::ranger(dependent.variable.name="y", data=dat,
                                       num.threads = ifelse(parallel, ncores, 1),
-                                      num.trees=ntree, ...)$prediction.error
+                                      num.trees=ntree.pred, ...)$prediction.error
             }
           } else {
             for (j in 1:nfor.pred) {
               rf[j] <- ranger::ranger(dependent.variable.name="y", data=dat,
                                       num.threads = ifelse(parallel, ncores, 1),
-                                      num.trees=ntree, mtry=i/3, ...)$prediction.error
+                                      num.trees=ntree.pred, mtry=i/3, ...)$prediction.error
             }
           }
           z <- mean(rf)
@@ -268,13 +274,13 @@ did not eliminate variables")
         if (RFimplem == "Rborist") {
           if (i <= n) {
             for (j in 1:nfor.pred) {
-              rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree, minInfo = 0,
+              rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree.pred, minInfo = 0,
                                         nThread = ifelse(parallel, ncores, 1),
                                         ...)$validation$oobError
             }
           } else {
             for (j in 1:nfor.pred) {
-              rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree, minInfo = 0,
+              rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree.pred, minInfo = 0,
                                         nThread = ifelse(parallel, ncores, 1),
                                         predFixed = i/3, ...)$validation$oobError
             }

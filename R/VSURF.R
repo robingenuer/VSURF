@@ -60,20 +60,21 @@
 #'   represent the variables. Or a formula describing the model to be fitted.
 #' @param y A response vector (must be a factor for classification problems and
 #'   numeric for regression ones).
-#' @param ntree Number of trees in each forests grown. Standard parameter of
-#'   \code{randomForest}.
 #' @param mtry Number of variables randomly sampled as candidates at each split.
 #'   Standard parameter of \code{randomForest}.
-#' @param nfor.thres Number of forests grown for "thresholding step" (first of
-#'   the three steps).
+#' @param ntree.thres Number of trees of each forest grown for "thresholding
+#' step" (first of the three steps).   
+#' @param nfor.thres Number of forests grown for "thresholding step".
 #' @param nmin Number of times the "minimum value" is multiplied to set
 #'   threshold value. See details below.
-#' @param nfor.interp Number of forests grown for "interpretation step" (second
-#'   of the three steps).
+#' @param ntree.interp Number of trees of each forest grown for "interpretation
+#' step" (second of the three steps).   
+#' @param nfor.interp Number of forests grown for "interpretation step".
 #' @param nsd Number of times the standard deviation of the minimum value of
 #'   \code{err.interp} is multiplied. See details below.
-#' @param nfor.pred Number of forests grown for "prediction step" (last of the
-#'   three steps).
+#' @param ntree.pred Number of trees of each forest grown for "prediction
+#' step" (last of the three steps).   
+#' @param nfor.pred Number of forests grown for "prediction step".
 #' @param nmj Number of times the mean jump is multiplied. See details below.
 #' @param RFimplem Choice of the random forests implementation to use :
 #'   "randomForest" (default), "ranger" or "Rborist" (not that if "Rborist" is
@@ -100,6 +101,8 @@
 #' @param verbose A logical indicating if information about method's progress
 #' (included progress bars for each step) must be printed (default to TRUE).
 #' Adds a small extra overload.
+#' @param ntree (deprecated) Number of trees in each forest grown for
+#' "thresholding step". 
 #' @param ...  others parameters to be passed on to the \code{randomForest}
 #'   function (see ?randomForest for further information).
 #' 
@@ -191,8 +194,7 @@
 #' @examples
 #' 
 #' data(iris)
-#' iris.vsurf <- VSURF(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20,
-#'                     nfor.interp = 10, nfor.pred = 10)
+#' iris.vsurf <- VSURF(iris[,1:4], iris[,5])
 #' iris.vsurf
 #' 
 #' \dontrun{
@@ -216,28 +218,30 @@ VSURF <- function (x, ...) {
 #' @rdname VSURF
 #' @export
 VSURF.default <- function(
-  x, y, ntree = 2000, mtry = max(floor(ncol(x)/3), 1),
-  nfor.thres = 50, nmin = 1, nfor.interp = 25, nsd = 1, nfor.pred = 25, nmj = 1,
+  x, y, mtry = max(floor(ncol(x)/3), 1),
+  ntree.thres = 500, nfor.thres = 20, nmin = 1,
+  ntree.interp = 100, nfor.interp = 10, nsd = 1,
+  ntree.pred = 100, nfor.pred = 10, nmj = 1,
   RFimplem = "randomForest", parallel = FALSE, ncores = detectCores() - 1,
-  clusterType = "PSOCK", verbose = TRUE, ...) {
+  clusterType = "PSOCK", verbose = TRUE, ntree = 2000, ...) {
 
   start <- Sys.time()
   
   thres <- VSURF_thres(
-    x=x, y=y, ntree=ntree, mtry=mtry, nfor.thres=nfor.thres, nmin=nmin,
+    x=x, y=y, ntree.thres=ntree.thres, mtry=mtry, nfor.thres=nfor.thres, nmin=nmin,
     RFimplem = ifelse(length(RFimplem) == 3, RFimplem[1], RFimplem),
     parallel = ifelse(length(parallel) == 3, parallel[1], parallel),
     clusterType = ifelse(length(clusterType) > 1, clusterType[1], clusterType),
     ncores=ncores, verbose = verbose, ...)
   
   interp <- VSURF_interp(
-    x=x, y=y, ntree=ntree, vars=thres$varselect.thres, nfor.interp=nfor.interp,
+    x=x, y=y, ntree.interp=ntree.interp, vars=thres$varselect.thres, nfor.interp=nfor.interp,
     nsd=nsd, RFimplem = ifelse(length(RFimplem) == 3, RFimplem[2], RFimplem),
     parallel = ifelse(length(parallel) == 3, parallel[2], parallel),
     clusterType = ifelse(length(clusterType) > 1, clusterType[2], clusterType),
     ncores=ncores, verbose = verbose, ...)
   
-  pred <- VSURF_pred(x=x, y=y, ntree=ntree, err.interp=interp$err.interp,
+  pred <- VSURF_pred(x=x, y=y, ntree.pred=ntree.pred, err.interp=interp$err.interp,
     varselect.interp=interp$varselect.interp, nfor.pred=nfor.pred, nmj=nmj,
     RFimplem = ifelse(length(RFimplem) == 3, RFimplem[3], RFimplem),
     parallel = ifelse(length(parallel) == 3, parallel[3], parallel),

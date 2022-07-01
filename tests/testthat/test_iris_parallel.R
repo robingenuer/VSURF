@@ -3,7 +3,9 @@ context("(skip on cran) Global VSURF parallel test for classification iris data"
 if (identical(Sys.getenv("NOT_CRAN"), "true")) {
   set.seed(221921186, "L'Ecuyer-CMRG")
   data(iris)
-  iris.vsurf <- VSURF(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20,
+  iris.vsurf <- VSURF(iris[,1:4], iris[,5],
+                      ntree.thres = 100, ntree.interp = 500, ntree.pred = 500,
+                      nfor.thres = 20,
                       nfor.interp = 10, nfor.pred = 10,
                       parallel = TRUE, ncores = 2, clusterType = "FORK",
                       verbose = FALSE)

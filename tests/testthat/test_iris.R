@@ -11,8 +11,9 @@ is.win32b <- function(platform) {
 
 set.seed(2219, kind = "Mersenne-Twister")
 data(iris)
-iris.vsurf <- VSURF(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20,
-                    nfor.interp = 10, nfor.pred = 10, verbose = FALSE)
+iris.vsurf <- VSURF(iris[,1:4], iris[,5],
+                    ntree.thres = 100, ntree.interp = 500, ntree.pred = 500,
+                    nfor.thres = 20, nfor.interp = 10, nfor.pred = 10, verbose = FALSE)
 
 test_that("Selected variables for the 3 steps", {
   if (is.win32b(platform)) {

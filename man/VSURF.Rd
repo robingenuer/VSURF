@@ -11,19 +11,22 @@ VSURF(x, ...)
 \method{VSURF}{default}(
   x,
   y,
-  ntree = 2000,
   mtry = max(floor(ncol(x)/3), 1),
-  nfor.thres = 50,
+  ntree.thres = 500,
+  nfor.thres = 20,
   nmin = 1,
-  nfor.interp = 25,
+  ntree.interp = 100,
+  nfor.interp = 10,
   nsd = 1,
-  nfor.pred = 25,
+  ntree.pred = 100,
+  nfor.pred = 10,
   nmj = 1,
   RFimplem = "randomForest",
   parallel = FALSE,
   ncores = detectCores() - 1,
   clusterType = "PSOCK",
   verbose = TRUE,
+  ntree = 2000,
   ...
 )
 
@@ -39,26 +42,29 @@ function (see ?randomForest for further information).}
 \item{y}{A response vector (must be a factor for classification problems and
 numeric for regression ones).}
 
-\item{ntree}{Number of trees in each forests grown. Standard parameter of
-\code{randomForest}.}
-
 \item{mtry}{Number of variables randomly sampled as candidates at each split.
 Standard parameter of \code{randomForest}.}
 
-\item{nfor.thres}{Number of forests grown for "thresholding step" (first of
-the three steps).}
+\item{ntree.thres}{Number of trees of each forest grown for "thresholding
+step" (first of the three steps).}
+
+\item{nfor.thres}{Number of forests grown for "thresholding step".}
 
 \item{nmin}{Number of times the "minimum value" is multiplied to set
 threshold value. See details below.}
 
-\item{nfor.interp}{Number of forests grown for "interpretation step" (second
-of the three steps).}
+\item{ntree.interp}{Number of trees of each forest grown for "interpretation
+step" (second of the three steps).}
+
+\item{nfor.interp}{Number of forests grown for "interpretation step".}
 
 \item{nsd}{Number of times the standard deviation of the minimum value of
 \code{err.interp} is multiplied. See details below.}
 
-\item{nfor.pred}{Number of forests grown for "prediction step" (last of the
-three steps).}
+\item{ntree.pred}{Number of trees of each forest grown for "prediction
+step" (last of the three steps).}
+
+\item{nfor.pred}{Number of forests grown for "prediction step".}
 
 \item{nmj}{Number of times the mean jump is multiplied. See details below.}
 
@@ -91,6 +97,9 @@ coordinate is passed to each intermediate function: \code{VSURF_thres},
 \item{verbose}{A logical indicating if information about method's progress
 (included progress bars for each step) must be printed (default to TRUE).
 Adds a small extra overload.}
+
+\item{ntree}{(deprecated) Number of trees in each forest grown for
+"thresholding step".}
 
 \item{data}{a data frame containing the variables in the model.}
 
@@ -231,8 +240,7 @@ VSURF is able to run using multiple cores in parallel (see \code{parallel},
 \examples{
 
 data(iris)
-iris.vsurf <- VSURF(iris[,1:4], iris[,5], ntree = 100, nfor.thres = 20,
-                    nfor.interp = 10, nfor.pred = 10)
+iris.vsurf <- VSURF(iris[,1:4], iris[,5])
 iris.vsurf
 
 \dontrun{
