@@ -99,7 +99,6 @@
 #'@importFrom utils tail
 #'@importFrom stats model.frame model.response na.fail predict reformulate
 #'@importFrom stats sd terms na.omit
-#'@importFrom ranger ranger
 #'@export
 VSURF_thres <- function (x, ...) {
   UseMethod("VSURF_thres")

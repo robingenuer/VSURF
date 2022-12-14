@@ -13,3 +13,4 @@
 ^microbenchmark_files/$
 ^CRAN-RELEASE$
 ^revdep$
+^CRAN-SUBMISSION$

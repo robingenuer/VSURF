@@ -27,9 +27,9 @@ Imports:
     foreach,
     parallel,
     randomForest,
-    ranger,
-    Rborist,
     rpart
 Suggests:
     testthat,
+    ranger,
+    Rborist
 RoxygenNote: 7.1.2

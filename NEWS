@@ -1,7 +1,7 @@
 News about the R package VSURF:
 --------------------------------
 
-Main changes in Version 1.2.0 (2022-07-01)
+Main changes in Version 1.2.0 (2022-12-14)
 * add ntree.thres, ntree.interp and ntree.pred parameters to have full control
 of the number of trees of the forests grown at each step
 * ntree parameter is now deprecated

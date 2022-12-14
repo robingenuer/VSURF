@@ -89,12 +89,6 @@
 #'   vars = toys.thres$varselect.thres)
 #' toys.interp}
 #'
-#'@importFrom randomForest randomForest
-#'@importFrom doParallel registerDoParallel
-#'@importFrom foreach foreach %dopar%
-#'@importFrom parallel makeCluster stopCluster mclapply detectCores
-#'@importFrom ranger ranger
-#'@importFrom Rborist Rborist
 #'@export
 VSURF_interp <- function (x, ...) {
   UseMethod("VSURF_interp")

@@ -88,7 +88,6 @@
 #'   varselect.interp = toys.interp$varselect.interp)
 #' toys.pred}
 #'
-#' @importFrom randomForest randomForest
 #' @export
 VSURF_pred <- function (x, ...) {
   UseMethod("VSURF_pred")
@@ -138,13 +137,13 @@ VSURF_pred.default <-function(x, y, err.interp, varselect.interp,
     }
     if (RFimplem == "ranger") {
       timeOneRFAllVar <- system.time(
-        ranger(dependent.variable.name="y",
+        ranger::ranger(dependent.variable.name="y",
                data = cbind(x[, varselect.interp, drop=FALSE], "y" = y),
                num.trees = ntree.pred, num.threads = 1, ...))
     }
     if (RFimplem == "Rborist") {
       timeOneRFAllVar <- system.time(
-        Rborist(x = x[, varselect.interp, drop=FALSE], y = y, minInfo = 0,
+        Rborist::Rborist(x = x[, varselect.interp, drop=FALSE], y = y, minInfo = 0,
                 nTree = ntree.pred, nThread = 1, ...))
     }
     cat(paste("Maximum estimated computational time (on one core):",
