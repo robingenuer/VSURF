@@ -1,5 +1,5 @@
 ## Test environments
-* local ubuntu 18.04.02 install, R 3.6.1
+* local ubuntu 20.04.05 install, R 4.2.2
 * linux (travis-ci) current devel
 * windows (appveyor-ci)
 * r-hub
@@ -9,3 +9,4 @@ There were no WARNINGs, ERRORS nor NOTEs.
 
 ## Downstream dependencies
 * armada
+* MSclassifR

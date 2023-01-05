@@ -2,7 +2,7 @@ Package: VSURF
 Type: Package
 Title: Variable Selection Using Random Forests
 Version: 1.2.0
-Date: 2022-07-01
+Date: 2022-12-15
 Depends: R (>= 4.2.0)
 Authors@R: c(person("Robin", "Genuer", email = "Robin.Genuer@u-bordeaux.fr", role = c("aut", "cre")),
              person("Jean-Michel", "Poggi", role = "aut"),
