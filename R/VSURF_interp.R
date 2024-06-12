@@ -112,25 +112,27 @@ VSURF_interp.default <- function(
   if (!is.null(ntree)) cat(paste(
     "\nntree parameter is deprecated, please use ntree.interp instead\n"))
   
-  if (verbose == TRUE) cat(paste("\nInterpretation step (on", length(vars), "variables)\n"))
+  if (verbose == TRUE) cat(paste("\nInterpretation step (on", length(vars),
+                                 "variables)\n"))
   
   if (!parallel) {
     ncores <- NULL
   }  
   
   # determinination the problem type: classification or regression
-  # (code gratefully stolen from randomForest.default function of randomForest package)
+  # (code gratefully stolen from randomForest.default function of randomForest
+  # package)
   classRF <- is.factor(y)
   if (!classRF && length(unique(y)) <= 5) {
-    warning("The response has five or fewer unique values.  Are you sure you want to do regression?")
+    warning("The response has five or fewer unique values. Are you sure you want
+            to do regression?")
   }
   if (classRF && length(unique(y)) < 2)
     stop("Need at least two classes to do classification.")
   
   if (classRF) {
     type <- "classif"
-  }
-  else {
+  } else {
     type <- "reg"
   }
   
@@ -147,11 +149,14 @@ VSURF_interp.default <- function(
       
       if (i <= n) {
         for (j in 1:nfor.interp) {
-          rf[j] <- tail(randomForest::randomForest(x=w, y=y, ntree = ntree.interp, ...)$err.rate[,1], n=1)
+          rf[j] <- tail(randomForest::randomForest(x=w, y=y,
+                          ntree = ntree.interp, ...)$err.rate[,1], n=1)
         }
       } else {
         for (j in 1:nfor.interp) {
-          rf[j] <- tail(randomForest::randomForest(x=w, y=y, ntree = ntree.interp, mtry=i/3, ...)$err.rate[,1], n=1)
+          rf[j] <- tail(randomForest::randomForest(x=w, y=y,
+                          ntree = ntree.interp,
+                          mtry=i/3, ...)$err.rate[,1], n=1)
         }
       }
       
@@ -164,7 +169,8 @@ VSURF_interp.default <- function(
       w <- x[,u, drop=FALSE]
       
       for (j in 1:nfor.interp) {
-        rf[j] <- tail(randomForest::randomForest(x=w, y=y, ntree = ntree.interp, ...)$mse, n=1)
+        rf[j] <- tail(randomForest::randomForest(x=w, y=y,
+                        ntree = ntree.interp, ...)$mse, n=1)
       }
       
       out <- c(mean(rf), sd(rf))
@@ -181,13 +187,12 @@ VSURF_interp.default <- function(
       if (i <= n) {
         for (j in 1:nfor.interp) {
           rf[j] <- ranger::ranger(dependent.variable.name="y", data=dat,
-                                  num.trees = ntree.interp, ...)$prediction.error
+                     num.trees = ntree.interp, ...)$prediction.error
         }
       } else {
         for (j in 1:nfor.interp) {
           rf[j] <- ranger::ranger(dependent.variable.name="y", data=dat,
-                                  num.trees = ntree.interp,
-                                  mtry=i/3, ...)$prediction.error
+                     num.trees = ntree.interp, mtry=i/3, ...)$prediction.error
         }
       }
       
@@ -204,13 +209,13 @@ VSURF_interp.default <- function(
       
       if (i <= n) {
         for (j in 1:nfor.interp) {
-          rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree.interp, minInfo = 0,
-                                    ...)$validation$oobError
+          rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree.interp,
+                     minInfo = 0, ...)$validation$oobError
         }
       } else {
         for (j in 1:nfor.interp) {
-          rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree.interp, minInfo = 0,
-                                    predFixed = i/3, ...)$validation$oobError
+          rf[j] <- Rborist::Rborist(x = w, y = y, nTree = ntree.interp,
+                     minInfo = 0, predFixed = i/3, ...)$validation$oobError
         }
       }
       
@@ -231,12 +236,15 @@ VSURF_interp.default <- function(
       }
     }
     if (RFimplem == "ranger") {
-      timeOneRFOneVar <- system.time(rf.interp.ranger(1, 1, num.threads = 1, ...))
-      timeOneRFAllVar <- system.time(rf.interp.ranger(nvars, 1, num.threads = 1, ...))
+      timeOneRFOneVar <- system.time(
+        rf.interp.ranger(1, 1, num.threads = 1, ...))
+      timeOneRFAllVar <- system.time(
+        rf.interp.ranger(nvars, 1, num.threads = 1, ...))
     }
     if (RFimplem == "Rborist") {
       timeOneRFOneVar <- system.time(rf.interp.Rborist(1, 1, nThread = 1, ...))
-      timeOneRFAllVar <- system.time(rf.interp.Rborist(nvars, 1, nThread = 1, ...))
+      timeOneRFAllVar <- system.time(
+        rf.interp.Rborist(nvars, 1, nThread = 1, ...))
     }
     cat(paste("Estimated computational time (on one core): between",
               round(nvars * nfor.interp * timeOneRFOneVar[3], 1), "sec. and ",
@@ -298,7 +306,8 @@ VSURF_interp.default <- function(
     }
   } else {
     if (clusterType == "ranger") {
-      if (RFimplem != "ranger") stop("RFimplem must be set to 'ranger' to use clusterType 'ranger'")
+      if (RFimplem != "ranger") stop("RFimplem must be set to 'ranger' to use
+                                     clusterType 'ranger'")
       for (i in 1:nvars){
         res <- rf.interp.ranger(i, nfor.interp, num.threads = ncores, ...)
         err.interp[i] <- res[1]
@@ -310,7 +319,8 @@ VSURF_interp.default <- function(
       }
     } else {
       if (clusterType == "Rborist") {
-        if (RFimplem != "Rborist") stop("RFimplem must be set to 'Rborist' to use clusterType 'Rborist'")
+        if (RFimplem != "Rborist") stop("RFimplem must be set to 'Rborist'
+                                        to use clusterType 'Rborist'")
         for (i in 1:nvars){
           res <- rf.interp.Rborist(i, nfor.interp, nThread = ncores, ...)
           err.interp[i] <- res[1]
