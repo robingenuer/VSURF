@@ -14,8 +14,7 @@ knitr::opts_chunk$set(
 
 # VSURF
 
-[![Travis-CI Build Status](https://travis-ci.org/robingenuer/VSURF.svg?branch=master)](https://travis-ci.org/robingenuer/VSURF)
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/robingenuer/VSURF?branch=master&svg=true)](https://ci.appveyor.com/project/robingenuer/VSURF)
+[![R-CMD-check](https://github.com/robingenuer/VSURF/workflows/R-CMD-check/badge.svg)](https://github.com/robingenuer/VSURF/actions)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/VSURF)](https://cran.r-project.org/package=VSURF)
 [![CRAN Downloads month](https://cranlogs.r-pkg.org/badges/VSURF?color=blue)](https://www.r-pkg.org/pkg/VSURF)
 [![CRAN Downloads overall](https://cranlogs.r-pkg.org/badges/grand-total/VSURF?color=blue)](https://www.r-pkg.org/pkg/VSURF)
