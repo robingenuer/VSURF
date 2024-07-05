@@ -4,8 +4,8 @@
 #' 
 #' This method applies for a VSURF object. VSURF selects two sets of variables during its two
 #' last steps. For each set of variables, a random forest object is created, by running
-#' \code{\link{randomForest}} on training data using this set of variables only. Then the
-#' \code{\link{predict.randomForest}} function is used to predict new data.
+#' \code{\link[randomForest]{randomForest}} on training data using this set of variables only. Then the
+#' \code{\link[randomForest]{predict.randomForest}} function is used to predict new data.
 #' 
 #' @param object An object of class \code{VSURF}, which is the result of the
 #' \code{\link{VSURF}} function.
@@ -14,8 +14,8 @@
 #' @param step A character string indicating which variable set must be used to train
 #' the \code{randomForest} object (default is c("interp", "pred")).
 #' Available choices are "thres", "interp", "pred".
-#' @param \dots further parameters passed to \code{\link{randomForest}} or
-#' \code{\link{predict.randomForest}} functions (depending on their names).
+#' @param \dots further parameters passed to \code{\link[randomForest]{randomForest}} or
+#' \code{\link[randomForest]{predict.randomForest}} functions (depending on their names).
 #' 
 #' @return If only one step is indicated in \code{step}, a vector of predicted values.
 #' 

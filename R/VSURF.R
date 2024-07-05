@@ -12,7 +12,7 @@
 #' random forests are computed using the function \code{randomForest} with
 #' arguments \code{importance=TRUE}, and our choice of default values for
 #' \code{ntree} and \code{mtry} (which are higher than default in
-#' \code{\link{randomForest}} to get a more stable variable importance measure).
+#' \code{\link[randomForest]{randomForest}} to get a more stable variable importance measure).
 #' Then variables are sorted according to their mean variable importance (VI),
 #' in decreasing order.  This order is kept all along the procedure. Next, a
 #' threshold is computed: \code{min.thres}, the minimum predicted value of a
@@ -31,7 +31,7 @@
 #'
 #' Note that for this step (and the next one), the \code{mtry} parameter of
 #' \code{randomForest} is set to its default value (see
-#' \code{\link{randomForest}}) if \code{nvm}, the number of variables in the
+#' \code{\link[randomForest]{randomForest}}) if \code{nvm}, the number of variables in the
 #' model, is not greater than the number of observations, while it is set to
 #' \code{nvm/3} otherwise. This is to ensure quality of OOB error estimations
 #' along embedded RF models.

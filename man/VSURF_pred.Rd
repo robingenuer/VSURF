@@ -121,7 +121,7 @@ model if the mean OOB error decrease is larger than \code{nmj} *
 \code{mean.jump}.
 
 Note that, the \code{mtry} parameter of \code{randomForest} is set to its
-default value (see \code{\link{randomForest}}) if \code{nvm}, the number of
+default value (see \code{\link[randomForest]{randomForest}}) if \code{nvm}, the number of
 variables in the model, is not greater than the number of observations, while
 it is set to \code{nvm/3} otherwise. This is to ensure quality of OOB error
 estimations along embedded RF models.

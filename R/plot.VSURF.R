@@ -41,7 +41,7 @@
 #' deviation plot.
 #' @param nvar.interp The number of variables to be kept for the "interp" plot.
 #' @param nvar.pred The number of variables to be kept for the "pred" plot.
-#' @param \dots Arguments to be passed to \code{\link{par}} (they will affect
+#' @param \dots Arguments to be passed to \code{\link[graphics]{par}} (they will affect
 #' all plots) or to others methods of plot.
 #' 
 #' @author Robin Genuer, Jean-Michel Poggi and Christine Tuleau-Malot

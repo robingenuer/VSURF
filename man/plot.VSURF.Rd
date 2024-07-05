@@ -60,7 +60,7 @@ deviation plot.}
 
 \item{nvar.pred}{The number of variables to be kept for the "pred" plot.}
 
-\item{\dots}{Arguments to be passed to \code{\link{par}} (they will affect
+\item{\dots}{Arguments to be passed to \code{\link[graphics]{par}} (they will affect
 all plots) or to others methods of plot.}
 }
 \description{
