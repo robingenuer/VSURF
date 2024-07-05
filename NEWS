@@ -1,6 +1,10 @@
 News about the R package VSURF:
 --------------------------------
 
+Main changes in Version 1.2.1 (2022-07-05)
+* bug fix: mtry value in the VSURF_pred function is now the correct one and cannot exceed anymore the number of variables
+in the RF model
+
 Main changes in Version 1.2.0 (2022-12-14)
 * add ntree.thres, ntree.interp and ntree.pred parameters to have full control
 of the number of trees of the forests grown at each step
