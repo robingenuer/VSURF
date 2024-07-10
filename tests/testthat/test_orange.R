@@ -1,9 +1,4 @@
-context("(skip on CRAN for windows 32bit and appel arch64) Global VSURF test for regression Orange data")
-
-platform <- sessionInfo()$platform
-is.win32b <- ifelse(platform == "i386-w64-mingw32/i386 (32-bit)", TRUE, FALSE)
-is.M1mac <- ifelse(
-  substr(platform, 1, 20) == "aarch64-apple-darwin", TRUE, FALSE)
+context("(skip on CRAN for windows 32bit and mac arch64) Global VSURF test for regression Orange data")
 
 set.seed(2219, kind = "Mersenne-Twister")
 data(Orange)
@@ -14,16 +9,16 @@ orange.vsurf <- VSURF(circumference~., Orange,
                       verbose = FALSE)
 
 test_that("Selected variables for the 3 steps", {
-  if (is.win32b || is.M1mac) {
-    skip_on_cran()}
+  skip_on_os("windows", arch = "i386")
+  skip_on_os("mac", arch = "aarch64")
   expect_identical(orange.vsurf$varselect.thres, c(2L, 1L, 5L))
   expect_identical(orange.vsurf$varselect.interp, c(2L, 1L))
   expect_identical(orange.vsurf$varselect.pred, 2L)
 })
 
 test_that("Variable importance",{
-  if (is.win32b || is.M1mac) {
-    skip_on_cran()}
+  skip_on_os("windows", arch = "i386")
+  skip_on_os("mac", arch = "aarch64")
   expect_equal(orange.vsurf$imp.mean.dec,
                  c(2954.46142, 216.26601, 75.09309, 19.92371, -24.72205,
                    -31.97516, -39.00297, -40.30447, -54.48215),
@@ -37,8 +32,8 @@ test_that("Variable importance",{
 })
 
 test_that("OOB erros of nested models", {
-  if (is.win32b || is.M1mac) {
-    skip_on_cran()}
+  skip_on_os("windows", arch = "i386")
+  skip_on_os("mac", arch = "aarch64")
   expect_equal(orange.vsurf$err.interp,
                c(723.4782, 447.9998, 779.2947),
                tolerance = 1e-4)
@@ -46,8 +41,8 @@ test_that("OOB erros of nested models", {
 })
 
 test_that("Thresholds for the 3 steps", {
-  if (is.win32b || is.M1mac) {
-    skip_on_cran()}
+  skip_on_os("windows", arch = "i386")
+  skip_on_os("mac", arch = "aarch64")
   expect_equal(min(orange.vsurf$pred.pruned.tree), 42.413,
                tolerance = 1e-3)
   expect_equal(orange.vsurf$sd.min, 16.85953, tolerance = 1e-5)
