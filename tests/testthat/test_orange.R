@@ -1,24 +1,22 @@
-context("(skip on CRAN for windows 32bit and mac arch64) Global VSURF test for regression Orange data")
+context("(skip on CRAN because of mac arch64) Global VSURF test for regression Orange data")
 
 set.seed(2219, kind = "Mersenne-Twister")
 data(Orange)
 Orange[, 4:10] <- rnorm(7*nrow(Orange))
 orange.vsurf <- VSURF(circumference~., Orange,
-                      ntree.thres = 100,ntree.interp = 500, ntree.pred = 500,
+                      ntree.thres = 100, ntree.interp = 500, ntree.pred = 500,
                       nfor.thres = 20, nfor.interp = 10, nfor.pred = 10,
                       verbose = FALSE)
 
 test_that("Selected variables for the 3 steps", {
-  skip_on_os("windows", arch = "i386")
-  skip_on_os("mac", arch = "aarch64")
+  skip_on_cran()
   expect_identical(orange.vsurf$varselect.thres, c(2L, 1L, 5L))
   expect_identical(orange.vsurf$varselect.interp, c(2L, 1L))
   expect_identical(orange.vsurf$varselect.pred, 2L)
 })
 
 test_that("Variable importance",{
-  skip_on_os("windows", arch = "i386")
-  skip_on_os("mac", arch = "aarch64")
+  skip_on_cran()
   expect_equal(orange.vsurf$imp.mean.dec,
                  c(2954.46142, 216.26601, 75.09309, 19.92371, -24.72205,
                    -31.97516, -39.00297, -40.30447, -54.48215),
@@ -32,8 +30,7 @@ test_that("Variable importance",{
 })
 
 test_that("OOB erros of nested models", {
-  skip_on_os("windows", arch = "i386")
-  skip_on_os("mac", arch = "aarch64")
+  skip_on_cran()
   expect_equal(orange.vsurf$err.interp,
                c(723.4782, 447.9998, 779.2947),
                tolerance = 1e-4)
@@ -41,8 +38,7 @@ test_that("OOB erros of nested models", {
 })
 
 test_that("Thresholds for the 3 steps", {
-  skip_on_os("windows", arch = "i386")
-  skip_on_os("mac", arch = "aarch64")
+  skip_on_cran()
   expect_equal(min(orange.vsurf$pred.pruned.tree), 42.413,
                tolerance = 1e-3)
   expect_equal(orange.vsurf$sd.min, 16.85953, tolerance = 1e-5)
