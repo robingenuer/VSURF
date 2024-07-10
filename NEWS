@@ -1,9 +1,10 @@
 News about the R package VSURF:
 --------------------------------
 
-Main changes in Version 1.2.1 (2022-07-05)
+Main changes in Version 1.2.1 (2022-10-05)
 * bug fix: mtry value in the VSURF_pred function is now the correct one and cannot exceed anymore the number of variables
 in the RF model
+* skip test on orange dataset on CRAN when running an apple arch64
 
 Main changes in Version 1.2.0 (2022-12-14)
 * add ntree.thres, ntree.interp and ntree.pred parameters to have full control
