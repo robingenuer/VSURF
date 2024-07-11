@@ -3,7 +3,6 @@
 ^Example$
 ^README\.*
 ^cran-comments\.md$
-^tests/testthat/test_orange.R$
 ^CRAN-RELEASE$
 ^revdep$
 ^CRAN-SUBMISSION$
