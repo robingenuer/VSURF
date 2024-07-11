@@ -9,14 +9,12 @@ orange.vsurf <- VSURF(circumference~., Orange,
                       verbose = FALSE)
 
 test_that("Selected variables for the 3 steps", {
-  skip("To pass M1mac checks on CRAN")
   expect_identical(orange.vsurf$varselect.thres, c(2L, 1L, 5L))
   expect_identical(orange.vsurf$varselect.interp, c(2L, 1L))
   expect_identical(orange.vsurf$varselect.pred, 2L)
 })
 
 test_that("Variable importance",{
-  skip("To pass M1mac checks on CRAN")
   expect_equal(orange.vsurf$imp.mean.dec,
                  c(2954.46142, 216.26601, 75.09309, 19.92371, -24.72205,
                    -31.97516, -39.00297, -40.30447, -54.48215),
@@ -30,7 +28,6 @@ test_that("Variable importance",{
 })
 
 test_that("OOB erros of nested models", {
-  skip("To pass M1mac checks on CRAN")
   expect_equal(orange.vsurf$err.interp,
                c(723.4782, 447.9998, 779.2947),
                tolerance = 1e-4)
@@ -38,7 +35,6 @@ test_that("OOB erros of nested models", {
 })
 
 test_that("Thresholds for the 3 steps", {
-  skip("To pass M1mac checks on CRAN")
   expect_equal(min(orange.vsurf$pred.pruned.tree), 42.413,
                tolerance = 1e-3)
   expect_equal(orange.vsurf$sd.min, 16.85953, tolerance = 1e-5)
