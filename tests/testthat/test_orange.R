@@ -1,4 +1,4 @@
-context("(skip on CRAN because of mac arch64) Global VSURF test for regression Orange data")
+context("Global VSURF test for regression Orange data")
 
 set.seed(2219, kind = "Mersenne-Twister")
 data(Orange)

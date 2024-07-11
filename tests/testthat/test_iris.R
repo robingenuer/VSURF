@@ -1,4 +1,4 @@
-context("(skip on CRAN for windows 32bit) Global VSURF test for classification iris data")
+context("Global VSURF test for classification iris data")
 
 set.seed(2219, kind = "Mersenne-Twister")
 data(iris)

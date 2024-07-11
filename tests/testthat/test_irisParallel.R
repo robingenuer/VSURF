@@ -1,4 +1,4 @@
-context("(skip on cran) Global VSURF parallel test for classification iris data")
+context("Global VSURF parallel test for classification iris data")
 
 if (!substr(sessionInfo()$platform, 1, 18) == "x86_64-w64-mingw32") {
 # if (identical(Sys.getenv("NOT_CRAN"), "true")) {
