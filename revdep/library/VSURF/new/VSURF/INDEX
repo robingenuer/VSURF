@@ -1,0 +1,13 @@
+PM10                    Real-world data on PM10 pollution in Rouen
+                        area, France
+VSURF                   Variable Selection Using Random Forests
+VSURF_interp            Interpretation step of VSURF
+VSURF_pred              Prediction step of VSURF
+VSURF_thres             Thresholding step of VSURF
+plot.VSURF              Plot of VSURF results
+predict.VSURF           Predict method for VSURF object
+print.VSURF             Print of VSURF results
+summary.VSURF           Summary of VSURF results
+toys                    A simulated dataset called toys data
+tune                    Tuning of the thresholding and interpretation
+                        steps of VSURF
