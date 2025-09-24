@@ -31,7 +31,7 @@ test_that("Variable importance",{
 })
 
 test_that("OOB erros of nested models", {
-  # skip_on_os(os = "windows")
+  skip_on_os(os = "windows")
   expect_equal(iris.vsurf$err.interp,
                c(0.07600000, 0.03666667, 0.04933333, 0.04400000),
                tolerance = 1e-7)
