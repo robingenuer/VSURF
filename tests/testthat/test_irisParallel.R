@@ -1,5 +1,6 @@
 context("Global VSURF parallel test for classification iris data")
 
+if (!substr(sessionInfo()$platform, 1, 18) == "x86_64-w64-mingw32") {
 # if (identical(Sys.getenv("NOT_CRAN"), "true")) {
   set.seed(221921186, "L'Ecuyer-CMRG")
   data(iris)
@@ -9,16 +10,17 @@ context("Global VSURF parallel test for classification iris data")
                       nfor.interp = 10, nfor.pred = 10,
                       parallel = TRUE, ncores = 2, clusterType = "FORK",
                       verbose = FALSE)
+}
 
 test_that("Selected variables for the 3 steps", {
-  # skip_on_os(os = "windows")
+  skip_on_os(os = "windows")
   expect_identical(iris.vsurf$varselect.thres, c(3L, 4L, 1L, 2L))
   expect_identical(iris.vsurf$varselect.interp, c(3L, 4L))
   expect_identical(iris.vsurf$varselect.pred, c(3L, 4L))
 })
 
 test_that("Variable importance",{
-  # skip_on_os(os = "windows")
+  skip_on_os(os = "windows")
   expect_equal(iris.vsurf$imp.mean.dec,
                c(0.26655183, 0.26225915, 0.08670964, 0.03800202),
                tolerance = 1e-7)
@@ -39,7 +41,7 @@ test_that("OOB erros of nested models", {
 })
 
 test_that("Thresholds for the 3 steps", {
-  # skip_on_os(os = "windows")
+  skip_on_os(os = "windows")
   expect_equal(min(iris.vsurf$pred.pruned.tree), 0.006343053,
                tolerance = 1e-7)
   expect_equal(iris.vsurf$sd.min, 0.003513642, tolerance = 1e-7)
