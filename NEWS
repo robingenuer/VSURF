@@ -1,7 +1,7 @@
 News about the R package VSURF:
 --------------------------------
 
-Main changes in Version 1.2.1 (2025-9-24)
+Main changes in Version 1.2.1 (2025-10-21)
 * bug fix: mtry value in the VSURF_pred function is now the correct one and cannot exceed anymore the number of variables
 in the RF model
 
