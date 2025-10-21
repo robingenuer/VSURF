@@ -17,7 +17,7 @@ Description: Three steps variable selection procedure based on random forests.
     refines the selection by eliminating redundancy in the set of variables
     selected by the second step, for prediction purpose.
     Genuer, R. Poggi, J.-M. and Tuleau-Malot, C. (2015)
-    <https://journal.r-project.org/archive/2015-2/genuer-poggi-tuleaumalot.pdf>.
+    <https://journal.r-project.org/articles/RJ-2015-018/>.
 License: GPL (>= 2)
 LazyData: true
 URL: https://github.com/robingenuer/VSURF
