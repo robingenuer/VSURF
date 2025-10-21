@@ -1,7 +1,8 @@
 ## Test environments
 * local ubuntu 22.04.5 install, R 4.5.1
-* github actions (mac, windows, ubuntu release/devel/oldrel-1)
+* github actions (macos release, windows release, ubuntu release/devel/oldrel-1)
 * rhub (m1-san, macos, macos-arm64)
+* devtools::check_mac_release()
 
 ## R CMD check results
 There were no WARNINGs, ERRORS nor NOTEs.
