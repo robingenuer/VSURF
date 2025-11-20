@@ -164,7 +164,7 @@ VSURF_pred.default <-function(x, y, err.interp, varselect.interp,
     warning(
       "Unable to perform prediction step, because the interpretation step
 did not eliminate variables")
-    varselect.pred <- NULL
+    varselect.pred <- varselect.interp
     err.pred <- NULL
     mean.jump <- NULL
   } else {
