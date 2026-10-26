@@ -4,7 +4,7 @@
 * Update tests to pass check on mac systems (platform: aarch64-apple-darwin).
 
 
-# Old News content:
+Old News content:
 -------------------
 
 Main changes in Version 1.2.1 (2025-10-21)

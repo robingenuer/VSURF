@@ -1,18 +1,15 @@
 ## Test environments
-* local ubuntu 22.04.5 install, R 4.5.1
+* local ubuntu 26.04.1 install, R 4.6.1
 * github actions (macos release, windows release, ubuntu release/devel/oldrel-1)
-* rhub (m1-san, macos, macos-arm64)
-* devtools::check_mac_release()
+* rhub (linux, m1-san, macos, macos-arm64, windows)
+* devtools::check_win_devel()
 
 ## R CMD check results
 There were no WARNINGs, ERRORS nor NOTEs.
 
-I try all mac configs that I can access and all tests passed. Since I still have
-differences with the M1mac config on CRAN submission (I do not know how to
-access such a config to test beforehand) maybe because of the set.seed()
-different behavior on this config, I propose to add a case in my tests
-files. I think it is not an ideal solution but I would be happy to know another
-way.
+Maybe because of the set.seed() different behavior on mac aarch64-apple-darwin,
+I update this case in my tests files. All platforms seems to have the same
+behavior, so all tests are now passing.
 
 ## Downstream dependencies
 * MSclassifR
