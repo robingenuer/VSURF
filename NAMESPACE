@@ -23,26 +23,36 @@ export(VSURF_pred)
 export(VSURF_thres)
 export(tune)
 importFrom(doParallel,registerDoParallel)
-importFrom(foreach,"%dopar%")
-importFrom(foreach,foreach)
-importFrom(graphics,abline)
-importFrom(graphics,axis)
-importFrom(graphics,lines)
-importFrom(graphics,par)
-importFrom(graphics,plot)
-importFrom(parallel,detectCores)
-importFrom(parallel,makeCluster)
-importFrom(parallel,mclapply)
-importFrom(parallel,stopCluster)
+importFrom(foreach,
+  "%dopar%",
+  foreach
+)
+importFrom(graphics,
+  abline,
+  axis,
+  lines,
+  par,
+  plot
+)
+importFrom(parallel,
+  detectCores,
+  makeCluster,
+  mclapply,
+  stopCluster
+)
 importFrom(randomForest,randomForest)
-importFrom(rpart,prune)
-importFrom(rpart,rpart)
-importFrom(stats,model.frame)
-importFrom(stats,model.response)
-importFrom(stats,na.fail)
-importFrom(stats,na.omit)
-importFrom(stats,predict)
-importFrom(stats,reformulate)
-importFrom(stats,sd)
-importFrom(stats,terms)
+importFrom(rpart,
+  prune,
+  rpart
+)
+importFrom(stats,
+  model.frame,
+  model.response,
+  na.fail,
+  na.omit,
+  predict,
+  reformulate,
+  sd,
+  terms
+)
 importFrom(utils,tail)
