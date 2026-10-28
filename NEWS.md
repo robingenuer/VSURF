@@ -2,29 +2,26 @@
 
 # VSURF 1.2.2
 
-* Added a `NEWS.md` file to track changes to the package.
-* Update tests to pass check on mac systems (platform: aarch64-apple-darwin).
+* Added a `NEWS.md` file to track changes to the package
+* Update tests to pass check on mac systems (platform: aarch64-apple-darwin)
 
 
-Old News content:
--------------------
+# VSURF 1.2.1 (2025-10-21)
+* bug fix: mtry value in the VSURF_pred function is now the correct one and
+cannot exceed anymore the number of variables in the RF model
 
-Main changes in Version 1.2.1 (2025-10-21)
-* bug fix: mtry value in the VSURF_pred function is now the correct one and cannot exceed anymore the number of variables
-in the RF model
-
-Main changes in Version 1.2.0 (2022-12-14)
+# VSURF 1.2.0 (2022-12-14)
 * add ntree.thres, ntree.interp and ntree.pred parameters to have full control
 of the number of trees of the forests grown at each step
 * ntree parameter is now deprecated
 * default values of the main parameters have changed: the default is now
 ntree.thres=500 (vs 2000 before), ntree.interp and ntree.pred=100 (vs 500),
 nfor.thres=20 (vs 50), nfor.interp and nfor.pred=10 (vs 25).
-Those choices favor computational speed. If the stability of the result (and
-if the computational load is not too high) we recommend to increase the default
-values (e.g. to the previous ones)
+Those choices favor computational speed. If the stability of the result is low
+(and if the computational load is not too high) we recommend to increase the
+default values (e.g. to the previous ones)
 
-Main changes in Version 1.1.0 (2019-07-17)
+# VSURF 1.1.0 (2019-07-17)
 * add RFimplem parameter which allows to choose between randomForest,
 ranger and Rborist to compute random forests predictors. This can
 be a vector of length 3 to chose a different implementation for
@@ -36,25 +33,25 @@ clusterType per step
 and also an estimated computational time for each step
 
 
-Main changes in Version 1.0.4 (2018-04-09)
+# VSURF 1.0.4 (2018-04-09)
 * update all tests because randomForest package has been updated and behavior
 with set.seed() has changed (and hence crashing all tests of VSURF)
 * add PM10 data into the package
 
 
-Main changes in Version 1.0.3 (2016-04-26)
+# VSURF 1.0.3 (2016-04-26)
 * fix VSURF_thres bug in order to always return importance for all variables
 (in case of very low sample size, NaN are sometimes produced for importance
 of some variables)
 * add R Journal references in help pages
 
 
-Main changes in Version 1.0.2 (2015-10-09)
+# VSURF 1.0.2 (2015-10-09)
 * fix in tests: they do not pass on windows 32-bit, but do on all other
 platforms.
 
 
-Main changes in Version 1.0.1 (2015-10-09)
+# VSURF 1.0.1 (2015-10-09)
 * tests were added in the package, testing basic features of
 the package.
 * para parameter of VSURF, VSURF_thres and VSURF_interp is now
@@ -62,7 +59,7 @@ called parallel.
 * add imports to all necessary packages except base
 
 
-Main changes in Version 1.0.0 (2015-05-15)
+# VSURF 1.0.0 (2015-05-15)
 WARNING: MAJOR UPDATE.
 * VSURF is now on github.
 * Change of name functions :
@@ -91,19 +88,19 @@ mandatory if argument var.names is set to TRUE.
 * Dependencies replaced by Imports.
 
 
-Main changes in Version 0.8.2 (2014-05-12):
+# VSURF 0.8.2 (2014-05-12):
 * Bug fix: the random seed is now correctly set when using
 the VSURF.parallel function with clusterType="FORK"
 * Bug fix: VSURF function can now handle categorical input
-variables. Thanks to ONF researchers for pointing this out.
+variables. Thanks to ONF researchers for pointing this out
 
 
-Main changes in Version 0.8.1 (2014-01-28):
+# VSURF 0.8.1 (2014-01-28):
 * Bug fix: error of the model was wrongly updated in
-the VSURF.pred function. Thanks a lot to Dustin Fife.
+the VSURF.pred function. Thanks a lot to Dustin Fife
 
 
-Main changes in Version 0.8 (2013-11-23):
+# VSURF 0.8 (2013-11-23):
 * Parallel version of VSURF added. Three new main functions:
 VSURF.parallel, VSURF.thres.parallel and VSURF.interp.parallel.
 Default for these functions is to run VSURF in parallel on a
@@ -114,7 +111,7 @@ one core
 does not give an error anymore
 
 
-Main changes in Version 0.7.6 (2013-11-13):
+# VSURF 0.7.6 (2013-11-13):
 * Plot functions changed. It is now possible to plot VI mean
 and VI standard deviation against variables names with function
 plot.VSURF.thres. By default index variables are plotted, and
@@ -126,14 +123,14 @@ variables must be reordered to get indices of the original
 dataset
 
 
-Main changes in Version 0.7.5 (2013-10-04):
+# VSURF 0.7.5 (2013-10-04):
 * Only plot functions changed. It is now possible to choose the number
 of variables for the VI mean and the VI standard deviation plots.
 It is also possible to choose if VI mean and/or VI standard
 deviation plots must be plooted by function plot.VSURF.thres
 
 
-Main changes in Version 0.7 (2013-09-10):
+# VSURF 0.7 (2013-09-10):
 * The package can be used with the formula-type call. Hence the package can handle
 missing values (NA) (only when used with the formula-type call, as randomForest does)
 * Update of the plot.VSURF function: the two last graphs show the variables names on the
@@ -143,7 +140,7 @@ x-axis
 and S3method are now used for these functions
 
 
-Main changes in Version 0.6 (2013-07-23):
+# VSURF 0.6 (2013-07-23):
 * New functions: plot.VSURF, summary.VSURF, VSURF.interp.tune, VSURF.thres.tune.
 * Addition of a dataset: toys
 * Addition of new outputs of existing functions.
